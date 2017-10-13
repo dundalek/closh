@@ -6,17 +6,19 @@
 (def spawn (.-spawn (js/require "child_process")))
 (def es (js/require "event-stream"))
 
-
 (defn read-command [input]
   (let [s (if (re-find #"^\s*#?\(" input)
             input
             (str "(sh " input ")"))]
     (read-string s)))
 
-
 ;options
 ; env
 ; cwd
+
+(defn expand [s]
+  s)
+
 (defn shx [cmd & args]
   (spawn cmd (apply array args)))
 
@@ -53,10 +55,3 @@
                           (cb nil data)
                           (cb)))))
       create-data-stream))
-
-; (-> (shx "ls" "-a" "/home/me")
-;     (pipe-map clojure.string/upper-case)
-;     (pipe-filter #(= (first %) "."))
-;     (pipe (shx "head"))
-;     get-out-stream
-;     (.pipe (.-stdout js/process)))
