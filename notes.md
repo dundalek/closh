@@ -224,13 +224,35 @@ Callable
 
 Pipeable
     thing |> f is an alias for f(thing)
-    or (-> things f)
+    or (-> things f) thread-first
+    |>> thread-last
 
     things | f is an alias for things map f
-    things || f is an alias for things flatMap f
+    things || f is an alias for things flatMap f / mapcat f
     things |? f is an alias for things filter f
     things |& f is an alias for things reduce f
-    things |! f is an alias for things foreach f
+    // things |! f is an alias for things foreach f
+
+
+ls | head
+
+(pipe (shx "ls") (shx "head"))
+
+ls | (str/upper-case)
+
+(pipe-map (shx "ls") str/upper-case)
+
+ls | (str/upper-case) | head
+
+(-> (shx "ls"))
+    (pipe-map str/upper-case)
+    (pipe (shx "head"))
+
+
+ls -a |? #(= (first %) ".")
+
+(-> (shx "ls" "-a"))
+    (pipe-filter #(= (first %) "."))
 
 
 ## domain
