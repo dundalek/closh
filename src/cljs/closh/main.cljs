@@ -28,6 +28,23 @@
 
 ; (.write (.-stdin repl-process) "(+ 1 2)\n")
 ; (.write (.-stdin repl-process) "(.write _closh_out_stream_ \"test\\n\")\n")
-(.write (.-stdin repl-process) "(-> (sh ls -l) get-out-stream (.pipe _closh_out_stream_))\n")
+; (.write (.-stdin repl-process) "(-> (sh ls -l) get-out-stream (.pipe _closh_out_stream_))\n")
 
-; (-> (sh ls -l) get-out-stream (.pipe (.-stdout js/process)))
+(def readline (js/require "readline"))
+
+(def rl (.createInterface readline
+         #js{:input js/process.stdin
+             :output js/process.stdout
+             :prompt "$ "}))
+
+(-> rl
+  (.on "line"
+       (fn [input]
+         (if (re-find #"^\s*#?\(" input)
+           (.write (.-stdin repl-process) (str "(->> " input " prn-str (.write _closh_out_stream_))\n"))
+           (.write (.-stdin repl-process) (str "(-> (sh " input ") get-out-stream (.pipe _closh_out_stream_))\n")))))
+        ;  (js/console.log "Received:" line)
+        ;  (.prompt rl)))
+  (.on "close" #(.exit js/process 0)))
+
+(.prompt rl)
