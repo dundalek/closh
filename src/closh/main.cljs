@@ -1,8 +1,8 @@
 (ns closh.main
   (:require [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]
-            [cljs.reader])
+            [cljs.reader]))
             ; [lumo.repl])
-  (:require-macros [closh.core :refer [sh]]))
+  ; (:require-macros [closh.core :refer [sh]]))
 
 ; (def spawn (.-spawn (js/require "child_process")))
 

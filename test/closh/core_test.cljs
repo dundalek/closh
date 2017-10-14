@@ -1,8 +1,8 @@
 (ns closh.core-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [clojure.spec.alpha :as s]
-            [closh.core :refer [expand]])
-  (:require-macros [closh.core :refer [sh]]))
+            [closh.parser]))
+  ; (:require-macros [closh.core :refer [sh shh]]))
 
 ; (s/conform ::cmd-list '(ls -l))
 ; (s/conform ::cmd-list '((+ 1 2)))
@@ -29,9 +29,12 @@
 
 ; (s/conform ::cmd-list '())
 
-(deftest run-test
-  (is (= (s/conform :closh.core/cmd-list '(ls -l))
-         []))
+(defn parse [x]
+  (closh.parser/process-command-list (s/conform :closh.parser/cmd-list x)))
 
-  (is (= (macroexpand '(sh ls -l))
-         '(shx "ls" (expand "-l")))))
+(deftest run-test
+  ; (is (= (s/conform :closh.parser/cmd-list '(ls -l))
+  ;        []))
+
+  (is (= (parse '(ls -l))
+         '(shx "ls"  "-l"))))
