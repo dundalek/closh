@@ -1,4 +1,5 @@
-(ns closh.core)
+(ns closh.core
+  (:require [clojure.string]))
 
 (def pipes
   {'|> ' pipe-thread-first

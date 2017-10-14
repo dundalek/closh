@@ -42,19 +42,9 @@ echo (sh date)
 
 ls |> (reverse) | head
 
-'(->
-  (shx "ls")
-  (lines)
-  (reverse)
-  (join-lines)
-  (pipe (shx "head"))
-
 ---
 
 ls | #(str/replace % #"\.txt" ".md")
-
-(->> (shx "ls")
-     (map #(replace % #"\.txt" ".md"))
 
 ---
 
@@ -137,7 +127,7 @@ redirects
 
 echo hi 1>&2 | wc -l
 
-echo hi >> file.txt
+
 echo hi >> file.txt
 
 ls > files.txt
@@ -253,17 +243,6 @@ ls -a |? #(= (first %) ".")
 
 (-> (shx "ls" "-a"))
     (pipe-filter #(= (first %) "."))
-
-
-## domain
-
-process
-  code
-  stdin
-  stdout
-  ...
-
-file
 
 
 ## library
