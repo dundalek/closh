@@ -5,8 +5,17 @@
             ; #?(:clj [clojure.spec.alpha :as s]
             ;    :cljs [cljs.spec.alpha :as s])))
 
-(def redirect-op #{'> '< '>> '<< '&> '<>})
-(def pipe-op #{'| '|> '|>> '|? '|&})
+(def pipes
+  {'| 'pipe
+   '|> 'pipe-multi
+  ;  '|>> ' pipe-thread-last
+   ; '|| ' pipe-mapcat
+   '|? 'pipe-filter
+   '|& 'pipe-reduce})
+   ; '|! 'pipe-foreach
+
+(def redirect-op #{'> '< '>> '<< '&> '<> '>&})
+(def pipe-op #{'| '|> '|? '|&})
 (def clause-op #{'|| '&&})
 (def cmd-op #{'&}) ; semicolon alternative for separator?
 
@@ -34,7 +43,7 @@
 (s/def ::cmd (s/+ (s/alt :redirect ::redirect
                          :arg ::arg)))
 
-(s/def ::redirect (s/cat :op ::redirect-op :arg ::arg))
+(s/def ::redirect (s/cat :fd (s/? number?) :op ::redirect-op :arg ::arg))
 
 (s/def ::arg #(not (op %)))
               ;  (s/or :list list?
@@ -42,37 +51,7 @@
               ;        :string string?
               ;        :number number?))))
 
-(def pipes
-  {'|> ' pipe-thread-first
-   '|>> ' pipe-thread-last
-   ; '|| ' pipe-mapcat
-   '|? 'pipe-filter
-   '|& 'pipe-reduce})
-   ; '|! 'pipe-foreach
 
-(def pipe-set (conj (set (keys pipes)) '|))
-
-(defn- command [cmd & args]
-  (conj
-   (for [arg args]
-      (cond
-        (symbol? arg) (list 'expand (str arg))
-        :else arg))
-   (str cmd)
-   'shx))
-
-(defn- handle-pipes [[x & xs]]
-  (concat
-    (list '-> x)
-    (for [[op cmd] (partition 2 xs)]
-      (let [fn (cond
-                 (= op '|) (if (= (first cmd) 'shx) 'pipe 'pipe-map)
-                 :else (pipes op))]
-        (list fn cmd)))))
-
-
-; (macroexpand '(command git commit -a (+ 1 2)))
-;
 ; (macroexpand '(sh git commit -a |>> #(cat %) | head -n 10))
 
 ; (defmacro sh [& tokens]
@@ -90,14 +69,36 @@
 ;        (handle-pipes)))
 ; ;
 
-(defn process-command [tokens]
-  (conj
-    (map #(-> % second str) tokens)
-    'shx))
+
+; todo: :redirect
+(defn process-command [[cmd & args]]
+  (if (and (= (first cmd) :arg) (list? (second cmd)))
+    (if (seq args)
+      (concat
+        (list 'do (second cmd))
+        (map second args))
+      (second cmd))
+    (let [redirects (->> args
+                         (filter #(= (first %) :redirect))
+                         (map second))
+          parameters (->> args
+                          (filter #(= (first %) :arg))
+                          (map #(list 'expand (str (second %)))))]
+      (conj
+        parameters
+        (str (second cmd))
+        'shx))))
 
 ; TODO: not
 (defn process-pipeline [{:keys [not cmd cmds]}]
-  (process-command cmd))
+  (concat
+   (list '-> (process-command cmd))
+   (for [{:keys [op cmd]} cmds]
+     (let [cmd (process-command cmd)
+           fn (pipes op)]
+        (list fn cmd)))))
+  ; [not cmd cmds])
+  ; (process-command cmd))
 
 (defn process-command-clause [{:keys [pipeline pipelines]}]
   (process-pipeline pipeline))
@@ -105,6 +106,35 @@
 (defn process-command-list [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
-; (def tokens (s/conform ::cmd-list '(ls -l)))
+(process-command-list (s/conform ::cmd-list '(echo (sh date))))
+
+(process-command-list (s/conform ::cmd-list (quote (cat @(sh ls *.txt)))))
+
+
+; '(echo a | egrep (str "[0-9]+"))
+; exit code: 1
+
+
+! echo hi || echo FAILED
+
+
+
+; (process-command-list (s/conform ::cmd-list '(ls *.txt)))
+; (process-command-list (s/conform ::cmd-list '(ls $HOME)))
+; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
+; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
+; (process-command-list (s/conform ::cmd-list '(ls -a | grep "^\\.")))
+; (process-command-list (s/conform ::cmd-list '(ls .)))
+
+; (process-command-list (s/conform ::cmd-list '(diff < (sh sort L.txt) < (sh sort R.txt))))
+; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
+; (process-command-list (s/conform ::cmd-list '(echo x 2 > tmp.txt)))
+; (process-command-list (s/conform ::cmd-list '(echo x >> tmp.txt)))
+; (process-command-list (s/conform ::cmd-list '(echo hi 1 >& 2 | wc -l)))
+
+; (process-command-list (s/conform ::cmd-list '(ls | (spit "files.txt"))))
 ;
-; (process-command-list tokens)
+; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "a/b/c/d"))))
+; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "/a/b/c/d"))))
+
+;
