@@ -69,6 +69,11 @@
 ;        (handle-pipes)))
 ; ;
 
+(defn process-arg [arg]
+  (list (if (symbol? arg)
+          'expand
+          'expand-partial)
+        (str arg)))
 
 ; todo: :redirect
 (defn process-command [[cmd & args]]
@@ -83,7 +88,7 @@
                          (map second))
           parameters (->> args
                           (filter #(= (first %) :arg))
-                          (map #(list 'expand (str (second %)))))]
+                          (map #(process-arg (second %))))]
       (conj
         parameters
         (str (second cmd))

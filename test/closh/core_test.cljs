@@ -19,6 +19,9 @@
        '(-> (shx "ls" (expand "-l")))
        '(ls -l)
 
+       '(-> (shx "ls" (expand-partial "-l")))
+       '(ls "-l")
+
        '(-> (shx "ls") (pipe-multi (reverse)) (pipe (shx "head")))
        '(ls |> (reverse) | head)
 

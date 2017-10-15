@@ -17,14 +17,28 @@
 ; env
 ; cwd
 
-(defn expand [s]
+(defn expand-variable [s]
   (if (re-find #"^\$" s)
-    (if-let [val (aget js/process.env (subs s 1))]
-      (expand val)
-      (list))
-    (-> s
-      (clojure.string/replace-first #"^~" (.-HOME js/process.env))
-      (glob #js{:nonull true}))))
+    (aget js/process.env (subs s 1))
+    s))
+
+(defn expand-tilde [s]
+  (clojure.string/replace-first s #"^~" (.-HOME js/process.env)))
+
+(defn expand-filename [s]
+  (glob s #js{:nonull true}))
+
+; Bash: Partial quote (allows variable and command expansion)
+(defn expand-partial [s]
+  (or (expand-variable s) (list)))
+
+; Bash: The order of expansions is: brace expansion; tilde expansion, parameter and variable expansion, arithmetic expansion, and command substitution (done in a left-to-right fashion); word splitting; and filename expansion.
+(defn expand [s]
+  (if-let [x (expand-variable s)]
+    (-> x
+      expand-tilde
+      expand-filename)
+    (list)))
 
 (defn shx [cmd & args]
   (spawn cmd (apply array (flatten args))))
