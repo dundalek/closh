@@ -23,6 +23,9 @@
     '(-> (shx "ls" (expand-partial "-l")))
     '(ls "-l")
 
+    '(-> (shx "ls" (expand ".")))
+    '(ls .)
+
     '(-> (shx "ls") (pipe-multi (reverse)) (pipe (shx "head")))
     '(ls |> (reverse) | head)
 
@@ -42,3 +45,11 @@
   (is (= (.-USER js/process.env) (first (expand "$USER"))))
 
   (is (= "project.clj\n" (process-output (shx "ls" (expand "project*"))))))
+
+
+  ; '(echo a | egrep (str "[0-9]+") || echo OK)
+  ; '(echo hi && echo OK)
+  ; '(! echo hi && echo NO)
+  ; '(echo hi || echo NO)
+  ; '(! echo hi || echo OK)
+  ; '(echo a && echo b && echo c)

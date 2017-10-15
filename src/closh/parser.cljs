@@ -112,7 +112,21 @@
   ; (process-command cmd))
 
 (defn process-command-clause [{:keys [pipeline pipelines]}]
-  (process-pipeline pipeline))
+  (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
+    (:pipeline
+      (reduce
+        (fn [{op :op child :pipeline} pipeline]
+          (let [condition (if (= op '&&) true false)
+                neg (if (:not (:pipeline pipeline)) (not condition) condition)
+                pred (if neg 'zero? 'pos?)]
+            (assoc pipeline :pipeline
+                   (list 'when (list pred (list 'wait-for-process
+                                                (process-pipeline (:pipeline pipeline))))
+                               child))))
+        (-> items
+            (first)
+            (update :pipeline process-pipeline))
+        (rest items)))))
 
 (defn process-command-list [{:keys [cmd cmds]}]
   (process-command-clause cmd))
@@ -120,23 +134,10 @@
 (defn parse [coll]
   (process-command-list (s/conform ::cmd-list coll)))
 
-(process-command-list (s/conform ::cmd-list '(echo (sh date))))
 
-(process-command-list (s/conform ::cmd-list (quote (cat @(sh ls *.txt)))))
-
-
-; '(echo a | egrep (str "[0-9]+"))
-; exit code: 1
-
-
-; ! echo hi || echo FAILED
-
-;
-; (process-command-list (s/conform ::cmd-list '(ls $HOME)))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
 ; (process-command-list (s/conform ::cmd-list '(ls -a | grep "^\\.")))
-; (process-command-list (s/conform ::cmd-list '(ls .)))
 
 ; (process-command-list (s/conform ::cmd-list '(diff < (sh sort L.txt) < (sh sort R.txt))))
 ; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
@@ -148,5 +149,3 @@
 ;
 ; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "a/b/c/d"))))
 ; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "/a/b/c/d"))))
-
-;
