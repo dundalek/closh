@@ -3,9 +3,10 @@
   ; (:require [cljs.reader :refer [read-string]]))
   ; (:require-macros [closh.core :refer [sh]]))
 
-(def spawn (.-spawn (js/require "child_process")))
+(def child-process (js/require "child_process"))
 (def es (js/require "event-stream"))
 (def glob (.-sync (js/require "glob")))
+(def deasync (js/require "deasync"))
 
 ; (defn read-command [input]
 ;   (let [s (if (re-find #"^\s*#?\(" input)
@@ -40,8 +41,25 @@
       expand-filename)
     (list)))
 
+(defn wait-for-process [proc]
+  (let [code (atom nil)]
+    (.on proc "close" #(reset! code %))
+    (.loopWhile deasync #(nil? @code))
+    @code))
+
+(defn process-output [proc]
+  (let [out #js[]]
+    (.on (.-stdout proc) "data" #(.push out %))
+    (wait-for-process proc)
+    (.join out "")))
+
+(defn expand-command [proc]
+  (-> (process-output proc)
+      (clojure.string/trim)
+      (clojure.string/split  #"\s+")))
+
 (defn shx [cmd & args]
-  (spawn cmd (apply array (flatten args))))
+  (child-process.spawn cmd (apply array (flatten args))))
 
 (defn get-out-stream [x]
   (or (.-stdout x)

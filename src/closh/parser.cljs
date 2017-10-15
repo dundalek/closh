@@ -69,11 +69,17 @@
 ;        (handle-pipes)))
 ; ;
 
+(declare parse)
+
 (defn process-arg [arg]
-  (list (if (symbol? arg)
-          'expand
-          'expand-partial)
-        (str arg)))
+  (if (list? arg)
+    (if (= (first arg) 'sh)
+      (list 'expand-command (parse (rest arg)))
+      arg)
+    (list (if (string? arg)
+            'expand-partial
+            'expand)
+          (str arg))))
 
 ; todo: :redirect
 (defn process-command [[cmd & args]]
@@ -111,6 +117,9 @@
 (defn process-command-list [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
+(defn parse [coll]
+  (process-command-list (s/conform ::cmd-list coll)))
+
 (process-command-list (s/conform ::cmd-list '(echo (sh date))))
 
 (process-command-list (s/conform ::cmd-list (quote (cat @(sh ls *.txt)))))
@@ -120,11 +129,9 @@
 ; exit code: 1
 
 
-! echo hi || echo FAILED
+; ! echo hi || echo FAILED
 
-
-
-; (process-command-list (s/conform ::cmd-list '(ls *.txt)))
+;
 ; (process-command-list (s/conform ::cmd-list '(ls $HOME)))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))

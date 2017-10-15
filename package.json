@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "deasync": "^0.1.10",
     "event-stream": "^3.3.4",
     "glob": "^7.1.2"
   }
