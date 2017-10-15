@@ -1,9 +1,7 @@
 (ns closh.parser
   (:require [clojure.string]
             [clojure.set]
-            [cljs.spec.alpha :as s]))
-            ; #?(:clj [clojure.spec.alpha :as s]
-            ;    :cljs [cljs.spec.alpha :as s])))
+            [clojure.spec.alpha :as s]))
 
 (def pipes
   {'| 'pipe
@@ -17,7 +15,7 @@
 (def redirect-op #{'> '< '>> '<< '&> '<> '>&})
 (def pipe-op #{'| '|> '|? '|&})
 (def clause-op #{'|| '&&})
-(def cmd-op #{'&}) ; semicolon alternative for separator?
+(def cmd-op #{'&})
 
 (def op (clojure.set/union redirect-op pipe-op clause-op cmd-op))
 
@@ -50,24 +48,6 @@
               ;        :symbol symbol?
               ;        :string string?
               ;        :number number?))))
-
-
-; (macroexpand '(sh git commit -a |>> #(cat %) | head -n 10))
-
-; (defmacro sh [& tokens]
-;   (->> tokens
-;        (partition-by pipe-set)
-;        (map (fn [s
-;                  (cond)]
-;                 (pipe-set (first s)) (first s)
-;                 ; for now just get the first function
-;                 (list? (first s)) (if (= (count (first s)) 1)
-;                                     (ffirst s)
-;                                     (first s))
-;                 ; (list? (first s)) s
-;                 :else (apply command s)))
-;        (handle-pipes)))
-; ;
 
 (declare parse)
 

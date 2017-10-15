@@ -1,9 +1,15 @@
-(ns closh.main
-  (:require
-            [cljs.reader]))
-  ;  [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]))
-            ; [lumo.repl])
+(ns closh.main)
+  ; (:require [cljs.reader]))
+             ;  [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]))
+             ; [lumo.repl])
   ; (:require-macros [closh.core :refer [sh]]))
+
+; (defn read-command [input]
+;   (let [s (if (re-find #"^\s*#?\(" input)
+;             input
+;             (str "(sh " input ")"))]
+;     (read-string s)))
+
 
 ; (def spawn (.-spawn (js/require "child_process")))
 

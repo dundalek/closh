@@ -1,22 +1,11 @@
 (ns closh.core
   (:require [clojure.string]))
-  ; (:require [cljs.reader :refer [read-string]]))
-  ; (:require-macros [closh.core :refer [sh]]))
 
 (def child-process (js/require "child_process"))
 (def stream (js/require "stream"))
 (def glob (.-sync (js/require "glob")))
 (def deasync (js/require "deasync"))
 
-; (defn read-command [input]
-;   (let [s (if (re-find #"^\s*#?\(" input)
-;             input
-;             (str "(sh " input ")"))]
-;     (read-string s)))
-
-;options
-; env
-; cwd
 
 (defn expand-variable [s]
   (if (re-find #"^\$" s)
