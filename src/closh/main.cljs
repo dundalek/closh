@@ -1,6 +1,7 @@
 (ns closh.main
-  (:require [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]
+  (:require
             [cljs.reader]))
+  ;  [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]))
             ; [lumo.repl])
   ; (:require-macros [closh.core :refer [sh]]))
 

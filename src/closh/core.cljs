@@ -4,7 +4,7 @@
   ; (:require-macros [closh.core :refer [sh]]))
 
 (def child-process (js/require "child_process"))
-(def es (js/require "event-stream"))
+(def stream (js/require "stream"))
 (def glob (.-sync (js/require "glob")))
 (def deasync (js/require "deasync"))
 
@@ -61,36 +61,64 @@
 (defn shx [cmd & args]
   (child-process.spawn cmd (apply array (flatten args))))
 
+(defn line-seq
+  ([stream]
+   (let [buf #js[]
+         done (atom false)]
+      (doto stream
+        (.on "end" #(reset! done true))
+        (.on "data" #(.push buf %)))
+      (line-seq (fn []
+                  (when (not @done)
+                    (.loopWhile deasync #(or (not @done)
+                                             (zero? (.-length buf))))
+                    (.shift buf)))
+        nil)))
+  ([read-chunk line]
+   (if-let [chunk (read-chunk)]
+     (if (re-find #"\n" (str line chunk))
+       (let [lines (clojure.string/split (str line chunk) #"\n")]
+         (if (= 1 (count lines))
+           (lazy-cat lines (line-seq read-chunk nil))
+           (lazy-cat (butlast lines) (line-seq read-chunk (last lines)))))
+       (recur read-chunk (str line chunk)))
+     (if line
+       (list line)
+       (list)))))
+
 (defn get-out-stream [x]
-  (or (.-stdout x)
-      (-> x :out (.pipe (.join es "\n")))))
+  (if (seq? x)
+    (let [s (stream.PassThrough.)]
+      (doseq [chunk x]
+        (.write s chunk)
+        (.write s "\n"))
+      (.end s)
+      s)
+    (.-stdout x)))
 
 (defn get-data-stream [x]
-  (or (:out x)
-      (-> x .-stdout (.pipe (.split es "\n")))))
+  (if (seq? x)
+    x
+    (line-seq (.-stdout x))))
 
-(defn create-data-stream [x]
-  {:out x})
+(defn pipe
+  ([from to]
+   (if (fn? to)
+     (-> from
+         get-data-stream
+         to)
+     (do (-> from
+             get-out-stream
+             (.pipe (.-stdin to)))
+         to)))
+  ([x & xs]
+   (reduce pipe x xs)))
 
-(defn pipe [& processes]
-  (doseq [[from to] (partition 2 1 processes)]
-    (-> from
-        get-out-stream
-        (.pipe (.-stdin to))))
-  (last processes))
+(defn pipe-multi [proc f]
+  (f (get-data-stream proc)))
 
 (defn pipe-map [proc f]
-  (-> proc
-      get-data-stream
-      (.pipe (.map es (fn [data cb]
-                        (cb nil (f data)))))
-      create-data-stream))
+  (pipe-multi proc (partial map f)))
 
 (defn pipe-filter [proc f]
-  (-> proc
-      get-data-stream
-      (.pipe (.map es (fn [data cb]
-                        (if (f data)
-                          (cb nil data)
-                          (cb)))))
-      create-data-stream))
+  (pipe-multi proc (partial filter f)))

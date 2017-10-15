@@ -100,16 +100,16 @@
         (str (second cmd))
         'shx))))
 
-; TODO: not
-(defn process-pipeline [{:keys [not cmd cmds]}]
+
+(defn process-pipeline [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
    (for [{:keys [op cmd]} cmds]
      (let [cmd (process-command cmd)
            fn (pipes op)]
-        (list fn cmd)))))
-  ; [not cmd cmds])
-  ; (process-command cmd))
+        (if (= op '|>)
+          (list fn (conj cmd 'partial))
+          (list fn cmd))))))
 
 (defn process-command-clause [{:keys [pipeline pipelines]}]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
@@ -135,9 +135,37 @@
   (process-command-list (s/conform ::cmd-list coll)))
 
 
-; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
-; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
-; (process-command-list (s/conform ::cmd-list '(ls -a | grep "^\\.")))
+; Redirection
+;
+; ls > dirlist 2>&1
+;
+; ls 2>&1 > dirlist
+;
+;
+;  3<word
+; [n]>word
+; [n]>>word
+;
+; &>word
+; &>>word
+;
+; This is semantically equivalent to >word 2>&1
+;
+; Here Strings
+;
+; Duplicating File Descriptors
+;
+; [n]<&word
+; [n]>&word
+;
+; Moving File Descriptors
+;
+; [n]<&digit-
+; [n]>&digit-
+;
+; Opening File Descriptors for Reading and Writing
+;
+; [n]<>word
 
 ; (process-command-list (s/conform ::cmd-list '(diff < (sh sort L.txt) < (sh sort R.txt))))
 ; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
@@ -145,7 +173,6 @@
 ; (process-command-list (s/conform ::cmd-list '(echo x >> tmp.txt)))
 ; (process-command-list (s/conform ::cmd-list '(echo hi 1 >& 2 | wc -l)))
 
-; (process-command-list (s/conform ::cmd-list '(ls | (spit "files.txt"))))
-;
+
 ; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "a/b/c/d"))))
 ; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "/a/b/c/d"))))
