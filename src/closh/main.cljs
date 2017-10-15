@@ -1,8 +1,25 @@
-(ns closh.main)
-  ; (:require [cljs.reader]))
+(ns closh.main
+  (:require [clojure.tools.reader]
+            [clojure.tools.reader.impl.commons])
+  (:require-macros [alter-cljs.core :refer [alter-var-root]]))
              ;  [closh.core :refer [expand shx pipe pipe-map pipe-filter get-out-stream]]))
              ; [lumo.repl])
   ; (:require-macros [closh.core :refer [sh]]))
+
+(def parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
+
+(defn parse-symbol [token]
+  (let [parts (.split token "/")
+        symbols (map (comp second parse-symbol-orig) parts)
+        pairs (->> (interleave parts symbols)
+                   (partition 2))]
+    (if (every? #(or (second %) (empty? (first %))) pairs)
+      [nil (clojure.string/join "/" symbols)]
+      parse-symbol-orig)))
+
+; Hack reader to accept symbols with multiple slashes
+(alter-var-root (var clojure.tools.reader.impl.commons/parse-symbol)
+                (constantly parse-symbol))
 
 ; (defn read-command [input]
 ;   (let [s (if (re-find #"^\s*#?\(" input)
@@ -122,6 +139,6 @@
 
 
 (defn -main []
-  (js/console.log "Hello world"))
+  (js/console.log "Hello world" (str (clojure.tools.reader/read-string "aaaaa/b/c"))))
 
 (set! *main-cli-fn* -main)

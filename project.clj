@@ -6,7 +6,8 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/spec.alpha "0.1.134"]]
+                 [org.clojure/spec.alpha "0.1.134"]
+                 [alter-cljs "0.2.0"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-npm "0.6.1"]
