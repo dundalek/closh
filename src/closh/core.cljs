@@ -1,9 +1,11 @@
-(ns closh.core)
+(ns closh.core
+  (:require [clojure.string]))
   ; (:require [cljs.reader :refer [read-string]]))
   ; (:require-macros [closh.core :refer [sh]]))
 
 (def spawn (.-spawn (js/require "child_process")))
 (def es (js/require "event-stream"))
+(def glob (.-sync (js/require "glob")))
 
 ; (defn read-command [input]
 ;   (let [s (if (re-find #"^\s*#?\(" input)
@@ -16,10 +18,16 @@
 ; cwd
 
 (defn expand [s]
-  s)
+  (if (re-find #"^\$" s)
+    (if-let [val (aget js/process.env (subs s 1))]
+      (expand val)
+      (list))
+    (-> s
+      (clojure.string/replace-first #"^~" (.-HOME js/process.env))
+      (glob #js{:nonull true}))))
 
 (defn shx [cmd & args]
-  (spawn cmd (apply array args)))
+  (spawn cmd (apply array (flatten args))))
 
 (defn get-out-stream [x]
   (or (.-stdout x)

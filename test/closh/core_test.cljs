@@ -16,7 +16,7 @@
 
 (deftest run-test
   (are [x y] (= x (parse y))
-       '(-> (shx "ls"  (expand "-l")))
+       '(-> (shx "ls" (expand "-l")))
        '(ls -l)
 
        '(-> (shx "ls") (pipe-multi (reverse)) (pipe (shx "head")))
