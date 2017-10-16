@@ -95,7 +95,7 @@
         (concat
           (list 'shx (str (second cmd)))
           [(vec parameters)]
-          (if (not (empty? redirects)) [{:redir redirects}])))))
+          (if (seq redirects) [{:redir redirects}])))))
 
 (defn process-pipeline [{:keys [cmd cmds]}]
   (concat

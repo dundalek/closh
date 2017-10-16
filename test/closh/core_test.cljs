@@ -28,8 +28,8 @@
     '(-> (shx "echo" [(expand-command (-> (shx "date" [])))]))
     '(echo (sh date))
 
-    '(-> (shx "echo" [(+ 1 2)]))
-    '(echo (+ 1 2))
+    '(-> (shx "echo" [(+ 2 3)]))
+    '(echo (+ 2 3))
 
     '(-> (shx "ls" []) (pipe-multi (partial reverse)))
     '(ls |> (reverse))
@@ -70,7 +70,7 @@
 
   (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
 
-  (is (= "3\n" (process-output (shx "echo" [(+ 1 2)]))))
+  (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
 
   (is (= (.-USER js/process.env) (first (expand "$USER"))))
 

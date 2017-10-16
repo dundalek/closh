@@ -12,7 +12,11 @@
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-npm "0.6.1"]
             [lein-doo "0.1.6"]
-            [org.bodil/lein-noderepl "0.1.11"]]
+            [org.bodil/lein-noderepl "0.1.11"]
+            [lein-kibit "0.1.6-beta2"]
+            [lein-bikeshed "0.5.0"]
+            [venantius/yagni "0.1.4"]
+            [jonase/eastwood "0.2.5"]]
 
   :profiles {:dev {:dependencies [[lein-doo "0.1.6"]]}}
 
@@ -27,7 +31,8 @@
 
   :aliases {"build" ["cljsbuild" "once" "main"]
             "test" ["doo" "node" "test-node" "once"]
-            "test-auto" ["doo" "node" "test-node" "auto"]}
+            "test-auto" ["doo" "node" "test-node" "auto"]
+            "lint" ["do" ["kibit"] ["eastwood"] ["bikeshed"] ["yagni"]]}
 
   ;; This release-task does lein npm publish in addition to lein deploy
   :release-tasks [["vcs" "assert-committed"]
