@@ -1,6 +1,7 @@
 (ns closh.core
   (:require [clojure.string]))
 
+(def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
 (def stream (js/require "stream"))
 (def glob (.-sync (js/require "glob")))
@@ -18,6 +19,12 @@
 (defn expand-filename [s]
   (glob s #js{:nonull true}))
 
+; Expand for redirect targets
+(defn expand-redirect [s]
+  (-> s
+      (expand-tilde)
+      (expand-variable)))
+
 ; Bash: Partial quote (allows variable and command expansion)
 (defn expand-partial [s]
   (or (expand-variable s) (list)))
@@ -30,6 +37,25 @@
       expand-filename)
     (list)))
 
+(defn get-out-stream [x]
+  (if (seq? x)
+    (let [s (stream.PassThrough.)]
+      (doseq [chunk x]
+        (.write s chunk)
+        (.write s "\n"))
+      (.end s)
+      s)
+    (if-let [stdout (.-stdout x)]
+      stdout
+      (let [s (stream.PassThrough.)]
+        (.end s)
+        s))))
+
+(defn get-data-stream [x]
+  (if (seq? x)
+    x
+    (line-seq (.-stdout x))))
+
 (defn wait-for-process [proc]
   (let [code (atom nil)]
     (.on proc "close" #(reset! code %))
@@ -38,7 +64,7 @@
 
 (defn process-output [proc]
   (let [out #js[]]
-    (.on (.-stdout proc) "data" #(.push out %))
+    (.on (get-out-stream proc) "data" #(.push out %))
     (wait-for-process proc)
     (.join out "")))
 
@@ -47,8 +73,43 @@
       (clojure.string/trim)
       (clojure.string/split  #"\s+")))
 
-(defn shx [cmd & args]
-  (child-process.spawn cmd (apply array (flatten args))))
+(defn get-streams [redir]
+  (let [result (atom nil)
+        p (->> (for [[op fd target] redir]
+                 (if (= op :set)
+                   (js/Promise.resolve [op fd target])
+                   (let [stream (case op
+                                  :in (.createReadStream fs target)
+                                  :out (.createWriteStream fs target)
+                                  :append (.createWriteStream fs target #js{:flags "w+"}))]
+                                  ; TODO: :rw])
+                     (js/Promise.
+                       (fn [resolve reject]
+                         (.on stream "open" #(resolve [op fd stream])))))))
+               (apply array)
+               (js/Promise.all))]
+      (.then p #(reset! result %))
+      (.loopWhile deasync #(not @result))
+      (let [arr #js["pipe" "pipe" "pipe"]]
+        (doseq [[_ fd target] @result]
+          (aset arr fd (if (number? target)
+                         (aget arr target)
+                         target)))
+        arr)))
+
+(defn build-options [{:keys [redir]}]
+  (if redir
+    #js{:stdio (get-streams redir)}
+    #js{}))
+
+(defn shx
+  ([cmd] (shx cmd []))
+  ([cmd args] (shx cmd args {}))
+  ([cmd args opts]
+   (child-process.spawn
+     cmd
+     (apply array (flatten args))
+     (build-options opts))))
 
 (defn line-seq
   ([stream]
@@ -74,21 +135,6 @@
      (if line
        (list line)
        (list)))))
-
-(defn get-out-stream [x]
-  (if (seq? x)
-    (let [s (stream.PassThrough.)]
-      (doseq [chunk x]
-        (.write s chunk)
-        (.write s "\n"))
-      (.end s)
-      s)
-    (.-stdout x)))
-
-(defn get-data-stream [x]
-  (if (seq? x)
-    x
-    (line-seq (.-stdout x))))
 
 (defn pipe
   ([from to]

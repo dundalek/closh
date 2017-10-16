@@ -64,10 +64,6 @@
     '(-> (shx "ls" [] {:redir [[:rw 3 (expand-redirect "file.txt")]]}))
     '(ls 3 <> file.txt))
 
-    ; '()
-    ; '(echo hi 1 >& 2 | wc -l))
-
-
   ; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
   ; (process-command-list (s/conform ::cmd-list '(echo x 2 > tmp.txt)))
   ; (process-command-list (s/conform ::cmd-list '(echo x >> tmp.txt)))
@@ -100,9 +96,16 @@
 
   (is (= (list 3 2 1) (-> (list 1 2 3) (pipe reverse))))
 
-  (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?)))))
+  (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?))))
 
+  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 "/dev/null"]]})
+                process-output)))
 
+  ; '(echo hi 1 >& 2 | wc -l))
+  (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
+                                                [:set 1 2]]})
+                   (pipe (shx "wc" ["-l"]))
+                   process-output))))
 
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
