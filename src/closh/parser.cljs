@@ -12,7 +12,7 @@
    '|& 'pipe-reduce})
    ; '|! 'pipe-foreach
 
-(def redirect-op #{'> '< '>> '<< '&> '<> '>&})
+(def redirect-op #{'> '< '>> '&> '&>> '<> '>&})
 (def pipe-op #{'| '|> '|? '|&})
 (def clause-op #{'|| '&&})
 (def cmd-op #{'&})
@@ -61,7 +61,22 @@
             'expand)
           (str arg))))
 
-; todo: :redirect
+(defn process-redirect [{:keys [op fd arg]}]
+  (let [arg (cond
+              (list? arg) arg
+              (number? arg) arg
+              :else (list 'expand-redirect (str arg)))]
+    (case op
+      > [[:out (or fd 1) arg]]
+      < [[:in (or fd 0) arg]]
+      >> [[:append (or fd 1) arg]]
+      &> [[:out 1 arg]
+          [:set 2 1]]
+      &>> [[:append 1 arg]
+           [:set 2 1]]
+      <> [[:rw (or fd 0) arg]]
+      >& [[:set (or fd 1) arg]])))
+
 (defn process-command [[cmd & args]]
   (if (and (= (first cmd) :arg) (list? (second cmd)))
     (if (seq args)
@@ -70,16 +85,17 @@
         (map second args))
       (second cmd))
     (let [redirects (->> args
+                         (mapcat #(if (vector? (first %)) % [%]))
                          (filter #(= (first %) :redirect))
-                         (map second))
+                         (mapcat (comp process-redirect second))
+                         (into []))
           parameters (->> args
                           (filter #(= (first %) :arg))
                           (map #(process-arg (second %))))]
-      (conj
-        parameters
-        (str (second cmd))
-        'shx))))
-
+        (concat
+          (list 'shx (str (second cmd)))
+          [(vec parameters)]
+          (if (not (empty? redirects)) [{:redir redirects}])))))
 
 (defn process-pipeline [{:keys [cmd cmds]}]
   (concat
@@ -114,45 +130,4 @@
 (defn parse [coll]
   (process-command-list (s/conform ::cmd-list coll)))
 
-
-; Redirection
-;
-; ls > dirlist 2>&1
-;
-; ls 2>&1 > dirlist
-;
-;
-;  3<word
-; [n]>word
-; [n]>>word
-;
-; &>word
-; &>>word
-;
-; This is semantically equivalent to >word 2>&1
-;
-; Here Strings
-;
-; Duplicating File Descriptors
-;
-; [n]<&word
-; [n]>&word
-;
-; Moving File Descriptors
-;
-; [n]<&digit-
-; [n]>&digit-
-;
-; Opening File Descriptors for Reading and Writing
-;
-; [n]<>word
-
 ; (process-command-list (s/conform ::cmd-list '(diff < (sh sort L.txt) < (sh sort R.txt))))
-; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
-; (process-command-list (s/conform ::cmd-list '(echo x 2 > tmp.txt)))
-; (process-command-list (s/conform ::cmd-list '(echo x >> tmp.txt)))
-; (process-command-list (s/conform ::cmd-list '(echo hi 1 >& 2 | wc -l)))
-
-
-; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "a/b/c/d"))))
-; (process-command-list (s/conform ::cmd-list (list 'cat (symbol "/a/b/c/d"))))
