@@ -37,6 +37,31 @@
       expand-filename)
     (list)))
 
+(defn line-seq
+  ([stream]
+   (let [buf #js[]
+         done (atom false)]
+      (doto stream
+        (.on "end" #(reset! done true))
+        (.on "data" #(.push buf %)))
+      (line-seq (fn []
+                  (when (not @done)
+                    (.loopWhile deasync #(or (not @done)
+                                             (zero? (.-length buf))))
+                    (.shift buf)))
+        nil)))
+  ([read-chunk line]
+   (if-let [chunk (read-chunk)]
+     (if (re-find #"\n" (str line chunk))
+       (let [lines (clojure.string/split (str line chunk) #"\n")]
+         (if (= 1 (count lines))
+           (lazy-cat lines (line-seq read-chunk nil))
+           (lazy-cat (butlast lines) (line-seq read-chunk (last lines)))))
+       (recur read-chunk (str line chunk)))
+     (if line
+       (list line)
+       (list)))))
+
 (defn get-out-stream [x]
   (if (seq? x)
     (let [s (stream.PassThrough.)]
@@ -110,31 +135,6 @@
      cmd
      (apply array (flatten args))
      (build-options opts))))
-
-(defn line-seq
-  ([stream]
-   (let [buf #js[]
-         done (atom false)]
-      (doto stream
-        (.on "end" #(reset! done true))
-        (.on "data" #(.push buf %)))
-      (line-seq (fn []
-                  (when (not @done)
-                    (.loopWhile deasync #(or (not @done)
-                                             (zero? (.-length buf))))
-                    (.shift buf)))
-        nil)))
-  ([read-chunk line]
-   (if-let [chunk (read-chunk)]
-     (if (re-find #"\n" (str line chunk))
-       (let [lines (clojure.string/split (str line chunk) #"\n")]
-         (if (= 1 (count lines))
-           (lazy-cat lines (line-seq read-chunk nil))
-           (lazy-cat (butlast lines) (line-seq read-chunk (last lines)))))
-       (recur read-chunk (str line chunk)))
-     (if line
-       (list line)
-       (list)))))
 
 (defn pipe
   ([from to]
