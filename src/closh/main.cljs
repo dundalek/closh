@@ -5,7 +5,7 @@
             [cljs.env :as env]
             [cljs.js :as cljs]
             [closh.parser :refer [parse]]
-            [closh.core :refer [shx expand pipe]]))
+            [closh.core :refer [get-out-stream wait-for-process wait-for-event]]))
   ; (:require-macros [alter-cljs.core :refer [alter-var-root]]))
 
 ; (def parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
@@ -59,26 +59,37 @@
 (def load-fn cljs/*load-fn*)
 
 (defn eval [form]
-  (lumo.repl/eval form ns compiler))
-
-(eval '(require '[closh.core :refer [shx expand pipe process-output]]
-                '[clojure.string :as str]))
-
-(defn read-command [input]
-  (if (re-find #"^\s*#?\(" input)
-    (clojure.tools.reader/read-string input)
-    (-> (str "(" input ")")
-        (clojure.tools.reader/read-string)
-        (parse))))
-
-(defn handle-line [input]
   (binding [cljs/*eval-fn* eval-fn
             cljs/*load-fn* load-fn]
-      (let [result (-> input
-                     (read-command)
-                     (lumo.repl/eval ns compiler))]
-        (.pipe (.-stdout result) js/process.stdout)
-        (.write js/process.stdout (prn-str result)))))
+    (lumo.repl/eval form ns compiler)))
+
+(eval '(require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output]]
+                '[clojure.string :as str]))
+
+(defn handle-code [input]
+  (->> input
+    (clojure.tools.reader/read-string)
+    (eval)
+    (prn-str)
+    (.write js/process.stdout)))
+
+(defn handle-command [input]
+  (let [proc (-> (str "(" input ")")
+               (clojure.tools.reader/read-string)
+               (parse)
+               (eval))
+        stdout (get-out-stream proc)]
+    (when-let [stderr (.-stderr proc)]
+      (.pipe stderr js/process.stdout))
+    (.pipe stdout js/process.stdout)
+    (if (seq? proc)
+      (wait-for-event stdout "close")
+      (wait-for-process proc))))
+
+(defn handle-line [input]
+  (if (re-find #"^\s*#?\(" input)
+    (handle-code input)
+    (handle-command input)))
 
 (defn -main []
   (let [rl (.createInterface readline

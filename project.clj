@@ -7,7 +7,12 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
                  [org.clojure/spec.alpha "0.1.134"]
-                 [alter-cljs "0.2.0"]]
+                 [alter-cljs "0.2.0"]
+
+                 ; Lumo dependencies
+                 [com.cognitect/transit-cljs  "0.8.239"]
+                 [malabarba/lazy-map          "1.3"]
+                 [fipp                        "0.6.10"]]
 
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-npm "0.6.1"]
@@ -52,7 +57,7 @@
                   ["vcs" "push"]]
 
   :cljsbuild {:builds [{:id "main"
-                        :source-paths ["src"]
+                        :source-paths ["src" "/home/me/dl/git/lumo/src/cljs/snapshot"]
                         :compiler {:output-to "build/main.js"
                                    :output-dir "build/js"
                                    :optimizations :advanced

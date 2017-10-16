@@ -81,11 +81,14 @@
     x
     (line-seq (.-stdout x))))
 
+(defn wait-for-event [proc event]
+  (let [done (atom false)]
+    (.on proc event #(reset! done {:val %}))
+    (.loopWhile deasync #(not @done))
+    (:val @done)))
+
 (defn wait-for-process [proc]
-  (let [code (atom nil)]
-    (.on proc "close" #(reset! code %))
-    (.loopWhile deasync #(nil? @code))
-    @code))
+  (wait-for-event proc "close"))
 
 (defn process-output [proc]
   (let [out #js[]]
