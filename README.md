@@ -112,4 +112,4 @@ lein test-auto
 
 Copyright (c) Jakub Dundalek
 
-Distributed under the Eclipse Public License.
+Distributed under the Eclipse Public License 1.0.
