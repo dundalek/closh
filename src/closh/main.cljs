@@ -83,7 +83,7 @@
       (.pipe stderr js/process.stdout))
     (.pipe stdout js/process.stdout)
     (if (seq? proc)
-      (wait-for-event stdout "close")
+      (wait-for-event stdout "finish")
       (wait-for-process proc))))
 
 (defn handle-line [input]

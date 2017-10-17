@@ -109,8 +109,8 @@
                    (let [stream (case op
                                   :in (.createReadStream fs target)
                                   :out (.createWriteStream fs target)
-                                  :append (.createWriteStream fs target #js{:flags "w+"}))]
-                                  ; TODO: :rw])
+                                  :append (.createWriteStream fs target #js{:flags "a"})
+                                  :rw (.createWriteStream fs target #js{:flags "w+"}))]
                      (js/Promise.
                        (fn [resolve reject]
                          (.on stream "open" #(resolve [op fd stream])))))))
