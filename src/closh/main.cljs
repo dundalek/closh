@@ -61,8 +61,9 @@
 
 (defn eval [form]
   (binding [cljs/*eval-fn* eval-fn
-            cljs/*load-fn* load-fn]
-    (lumo.repl/eval form ns compiler)))
+            cljs/*load-fn* load-fn
+            env/*compiler* compiler]
+    (lumo.repl/eval form ns)))
 
 (eval '(require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output]]
                 '[clojure.string :as str]))

@@ -4,10 +4,13 @@
     "glob": "^7.1.2"
   },
   "scripts": {
-    "start": "(cd src && ~/dl/git/lumo/build/lumo --dependencies 'alter-cljs:0.2.0' closh/main.cljs)",
+    "start": "node ./bin/closh.js",
     "dev": "nodemon --config .nodemon.json"
   },
   "devDependencies": {
     "nodemon": "^1.12.1"
+  },
+  "bin": {
+    "closh": "./bin/closh.js"
   }
 }
