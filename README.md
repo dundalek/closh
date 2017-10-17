@@ -14,7 +14,7 @@ Why shell based on Clojure(Script)?
 - Write shell scripts in a language you use daily for development so you don't have to google arcane shell constructs every time you need to do anything but the simplest tasks.
 - Less amount and more composable code allows to experiment with new features and ideas.
 
-**Warning:** *Closh is still in a early stage and under a heavy development. It is not ready for daily use yet since it is quite easy to get it to crash. At this moment I am most interested in gathering feedback to help make the best possible design trade-offs.*
+**Warning:** *Closh is still in a early stage and under a heavy development. It is not ready for daily use yet since it is quite easy to get it to crash. At this moment I am most interested in gathering feedback and use cases to help make the best possible design trade-offs. Closh is tested on Linux, should run on macOS too. Windows who knows.*
 
 ## Quick Start
 
@@ -70,6 +70,7 @@ Features needed for daily use:
 - [ ] Persistent history
 - [ ] Dynamic prompt
 - [ ] Autocomplete
+- [ ] Handle common erros
 - [ ] Testing and stability
 - [ ] Configuration and init scripts
 - [ ] Job control
@@ -82,12 +83,19 @@ Cool things and ideas for exploration:
 - [ ] Automatic alias suggestion
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
 
+## Tech details
+
+Closh runs ClojureSript on node.js via [lumo](https://github.com/anmonteiro/lumo/) REPL. In order to be somewhat bashward compatible there is a command mode which transforms top-level forms in a macro-like way.
+
+Thanks to Clojure's syntax for symbols supporting almost all characters we don't need to roll out a custom parser to support convenient unquoted notation for filenames and switches. Only customization done to a built-in reader is the support multiple slashes in a symbol, which is required for nested directories.
+
 ## Development
 
 Clone the repo and install dependencies
 
 ```
 git clone git@github.com:dundalek/closh.git
+cd closh
 npm install
 ```
 
