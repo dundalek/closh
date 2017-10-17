@@ -1,16 +1,39 @@
 {
+  "name": "closh",
+  "version": "0.0.1",
+  "description": "Command shell based on Clojure",
+  "bin": {
+    "closh": "./bin/closh.js"
+  },
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
   "dependencies": {
-    "deasync": "^0.1.10",
-    "glob": "^7.1.2"
+    "deasync": "0.1.10",
+    "glob": "7.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "1.12.1"
   },
   "scripts": {
     "start": "node ./bin/closh.js",
-    "dev": "nodemon --config .nodemon.json"
+    "dev": "nodemon --config .nodemon.json",
+    "test": "lein test"
   },
-  "devDependencies": {
-    "nodemon": "^1.12.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dundalek/closh"
   },
-  "bin": {
-    "closh": "./bin/closh.js"
-  }
+  "keywords": [
+    "command",
+    "shell",
+    "bash",
+    "sh",
+    "cli",
+    "clojure",
+    "clojurescript"
+  ],
+  "author": "Jakub Dundalek",
+  "license": "EPL-1.0"
 }
