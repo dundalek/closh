@@ -6,7 +6,6 @@ var path = require('path');
 var bin = 'lumo';
 var args = [
   '--classpath', path.join(__dirname, '../src'),
-  '--dependencies', 'alter-cljs:0.2.0',
   path.join(__dirname, '../src/closh/main.cljs')
 ];
 

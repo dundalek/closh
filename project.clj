@@ -7,7 +7,6 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
                  [org.clojure/spec.alpha "0.1.134"]
-                 [alter-cljs "0.2.0"]
 
                  ; Lumo dependencies
                  [com.cognitect/transit-cljs  "0.8.239"]
