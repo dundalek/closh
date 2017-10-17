@@ -2,5 +2,12 @@
   "dependencies": {
     "deasync": "^0.1.10",
     "glob": "^7.1.2"
+  },
+  "scripts": {
+    "start": "(cd src && ~/dl/git/lumo/build/lumo closh/main.cljs)",
+    "dev": "nodemon --config .nodemon.json"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
   }
 }

@@ -1,0 +1,5 @@
+{
+  "ext": "clj,cljs",
+  "exec": "(cd src && /home/me/dl/git/lumo/build/lumo closh/main.cljs)",
+  "restartable": false
+}
