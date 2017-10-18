@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [clojure.spec.alpha :as s]
             [clojure.string]
-            [closh.parser]
+            [closh.parser :refer [parse]]
             [closh.core :refer [shx expand expand-command process-output line-seq pipe pipe-multi pipe-map pipe-filter]]))
 
 (def child-process (js/require "child_process"))
@@ -24,12 +24,6 @@
     {:stdout (.-stdout proc)
      :stderr (.-stderr proc)
      :code (.-status proc)}))
-
-(defn closh-out [cmd]
-  (:stdout (closh cmd)))
-
-(defn parse [x]
-  (closh.parser/process-command-list (s/conform :closh.parser/cmd-list x)))
 
 (deftest run-test
   (are [x y] (= x (parse y))
@@ -56,6 +50,9 @@
 
     '(-> (shx "ls" []) (pipe-multi (partial reverse)))
     '(ls |> (reverse))
+
+    '(-> (shx "echo" [(expand "hi")]) (pipe (partial str)))
+    '(echo hi | (str))
 
     '(-> (shx "ls" [] {:redir [[:out 1 (expand-redirect "dirlist")] [:set 2 1]]}))
     '(ls > dirlist 2 >& 1)
@@ -126,39 +123,67 @@
                    (pipe (shx "wc" ["-l"]))
                    process-output)))
 
-  (is (= (bash "ls") (closh "ls")))
-  (is (= (bash "git status") (closh "git status")))
+  (are [x y] (= x (:stdout (closh y)))
+    "3\n"
+    "(+ 1 2)"
 
-  (is (= "3\n" (closh-out "(+ 1 2)")))
+    "hi\n"
+    "echo hi"
 
-  (is (= (bash "ls -l *.json") (closh "ls -l *.json")))
-  (is (= (bash "ls $HOME") (closh "ls $HOME")))
-  (is (= (bash "ls | head") (closh "ls | head")))
+    "hi\n"
+    "echo hi | (str)"
 
-  ; (is (= "HI\n" (closh-out "echo hi | (str/upper-case)")))
+    "HI\n"
+    "echo hi | (clojure.string/upper-case)"
 
-  (is (= (bash "ls | head -n 5")
-         (closh "ls |> (take 5)")))
-  (is (= (bash "ls | tail -n 5")
-         (closh "ls |> (take-last 5)")))
-  (is (= (bash "ls | tail -n +5")
-         (closh "ls |> (drop 4)")))
-  (is (= (bash "ls -a | grep \"^\\.\"")
-         (closh "ls -a |> (filter #(re-find #\"^\\.\" %))")))
-  (is (= (bash "ls | sed -n 1~2p")
-         (closh "ls |> (keep-indexed #(when (odd? (inc %1)) %2))")))
+    "HI\n"
+    "echo hi | (str/upper-case)"
 
-  ; (is (= (bash "ls | sort -r | head -n 5")
-  ;        (closh "ls |> (reverse) | (take 5)")))
+    "3\n"
+    "(list :a :b :c) | (count)")
 
-  ; (is (= (bash "ls *.json | sed 's/\\.json$/.txt/'")
-  ;        (closh "ls | #(str/replace % #\"\\.txt\" \".md\"")))
+  (are [x y] (= (bash x) (closh y))
+    "ls"
+    "ls"
 
-  (is (= (bash "echo a | egrep b || echo OK")
-         (closh "echo a | egrep b || echo OK"))))
+    "git status"
+    "git status"
 
-  ; (is (= (bash "echo hi && echo OK") (closh "echo hi && echo OK")))
-  ; (is (= (bash "! echo hi || echo FAILED") (closh "! echo hi || echo FAILED"))))
+    "ls -l *.json"
+    "ls -l *.json"
 
-  ; (is (= (bash "")
-  ;        (closh "")))
+    "ls $HOME"
+    "ls $HOME"
+
+    "ls | head"
+    "ls | head"
+
+    "ls | head -n 5"
+    "ls |> (take 5)"
+
+    "ls | tail -n 5"
+    "ls |> (take-last 5)"
+
+    "ls | tail -n +5"
+    "ls |> (drop 4)"
+
+    "ls -a | grep \"^\\.\""
+    "ls -a |> (filter #(re-find #\"^\\.\" %))"
+
+    "ls | sed -n 1~2p"
+    "ls |> (keep-indexed #(when (odd? (inc %1)) %2))"
+
+    "ls | sort -r | head -n 5"
+    "ls |> (reverse) | (take 5)"
+
+    "ls *.json | sed 's/\\.json$/.txt/'"
+    "ls | #(str/replace % #\"\\.txt\" \".md\""
+
+    "echo a | egrep b || echo OK"
+    "echo a | egrep b || echo OK"
+
+    "echo hi && echo OK"
+    "echo hi && echo OK"
+
+    "! echo hi || echo FAILED"
+    "! echo hi || echo FAILED"))

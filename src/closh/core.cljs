@@ -65,23 +65,27 @@
        (list)))))
 
 (defn get-out-stream [x]
-  (if (seq? x)
+  (cond
+    (instance? child-process.ChildProcess x)
+    (if-let [stdout (.-stdout x)]
+      stdout
+      (let [s (stream.PassThrough.)]
+        (.end s)
+        s))
+
+    (seq? x)
     (let [s (stream.PassThrough.)]
       (doseq [chunk x]
         (.write s chunk)
         (.write s "\n"))
       (.end s)
       s)
-    (if-let [stdout (.-stdout x)]
-      stdout
-      (let [s (stream.PassThrough.)]
-        (.end s)
-        s))))
 
-(defn get-data-stream [x]
-  (if (seq? x)
-    x
-    (line-seq (.-stdout x))))
+    :else
+    (let [s (stream.PassThrough.)]
+      (.write s (pr-str x))
+      (.end s)
+      s)))
 
 (defn wait-for-event [proc event]
   (let [done (atom false)]
@@ -97,6 +101,23 @@
     (.on (get-out-stream proc) "data" #(.push out %))
     (wait-for-process proc)
     (.join out "")))
+
+(defn stream-output [stream]
+  (let [out #js[]]
+    (.on (get-out-stream stream) "data" #(.push out %))
+    (wait-for-event stream "finish")
+    (.join out "")))
+
+(defn get-data-stream [x]
+  (if (instance? child-process.ChildProcess x)
+    (stream-output (get-out-stream x))
+    x))
+
+(defn get-seq-stream [x]
+  (cond
+    (instance? child-process.ChildProcess x) (line-seq (.-stdout x))
+    (seq? x) x
+    :else (seq x)))
 
 (defn expand-command [proc]
   (-> (process-output proc)
@@ -155,7 +176,7 @@
    (reduce pipe x xs)))
 
 (defn pipe-multi [proc f]
-  (f (get-data-stream proc)))
+  (f (get-seq-stream proc)))
 
 (defn pipe-map [proc f]
   (pipe-multi proc (partial map f)))
@@ -180,9 +201,9 @@
     (when-let [stderr (.-stderr proc)]
       (.pipe stderr js/process.stdout))
     (.pipe stdout js/process.stdout)
-    (if (seq? proc)
-      (wait-for-event stdout "finish")
-      (wait-for-process proc))))
+    (cond
+      (instance? child-process.ChildProcess proc) (wait-for-process proc)
+      :else (wait-for-event stdout "finish"))))
 
 (defn handle-line [input eval-cljs]
   (if (re-find #"^\s*#?\(" input)

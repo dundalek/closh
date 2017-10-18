@@ -103,9 +103,10 @@
    (for [{:keys [op cmd]} cmds]
      (let [cmd (process-command cmd)
            fn (pipes op)]
-        (if (= op '|>)
-          (list fn (conj cmd 'partial))
-          (list fn cmd))))))
+       (cond
+         (= op '|> ) (list fn (conj cmd 'partial))
+         (and (= op '|) (not= (first cmd) 'shx)) (list fn (conj cmd 'partial))
+         :else (list fn cmd))))))
 
 (defn process-command-clause [{:keys [pipeline pipelines]}]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
