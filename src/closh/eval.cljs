@@ -14,5 +14,5 @@
             env/*compiler* compiler]
     (lumo.repl/eval form ns)))
 
-(eval-cljs '(require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output]]
+(eval-cljs '(require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process]]
                 '[clojure.string :as str]))

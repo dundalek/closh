@@ -22,8 +22,7 @@
 
 (defn -main []
   (let [cmd (-> (seq js/process.argv)
-                (nth 5)
-                (pr-str))]
+                (nth 5))]
     (handle-line cmd eval-cljs)))
 
 (set! *main-cli-fn* -main)

@@ -77,15 +77,15 @@ bash:  ls | tail -n 5
 closh: ls |> (take-last 5)
 
 bash:  ls | tail -n +5
-closh: ls |> (drop 5)
+closh: ls |> (drop 4)
 
 ; Print filenames starting with "."
 bash:  ls -a | grep "^\\."
-closh: ls -a |> (filter #(re-find #"^\."))
+closh: ls -a |> (filter #(re-find #"^\." %))
 
 ; Print only odd numbered lines counting from 1
 bash:  ls | sed -n 1~2p
-closh: ls |>> (keep-indexed #(when (odd? (inc %1)) %2))
+closh: ls |> (keep-indexed #(when (odd? (inc %1)) %2))
 
 ; Math
 bash:  echo '(1 + sqrt(5))/2' | bc -l

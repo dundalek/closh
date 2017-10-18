@@ -13,7 +13,7 @@
                          #js["-c" cmd]
                          #js{:encoding "utf-8"})]
     {:stdout (.-stdout proc)
-     :stderr (.-stdout proc)
+     :stderr (.-stderr proc)
      :code (.-status proc)}))
 
 (defn closh [cmd]
@@ -22,9 +22,11 @@
                          #js["--classpath" "src" "test/closh/tester.cljs" cmd]
                          #js{:encoding "utf-8"})]
     {:stdout (.-stdout proc)
-     :stderr (.-stdout proc)
+     :stderr (.-stderr proc)
      :code (.-status proc)}))
 
+(defn closh-out [cmd]
+  (:stdout (closh cmd)))
 
 (defn parse [x]
   (closh.parser/process-command-list (s/conform :closh.parser/cmd-list x)))
@@ -85,10 +87,6 @@
     '(-> (shx "ls" [] {:redir [[:rw 3 (expand-redirect "file.txt")]]}))
     '(ls 3 <> file.txt))
 
-  ; (process-command-list (s/conform ::cmd-list '(echo x > tmp.txt)))
-  ; (process-command-list (s/conform ::cmd-list '(echo x 2 > tmp.txt)))
-  ; (process-command-list (s/conform ::cmd-list '(echo x >> tmp.txt)))
-
   (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
 
   (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
@@ -128,17 +126,39 @@
                    (pipe (shx "wc" ["-l"]))
                    process-output)))
 
-  (is (= (bash "ls") (closh "ls"))))
-; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
-; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
-; (process-command-list (s/conform ::cmd-list '(ls |> (reverse))))
-; (process-command-list (s/conform ::cmd-list '(ls -a | grep "^\\.")))
-; (process-command-list (s/conform ::cmd-list '(ls | (spit "files.txt"))))
-;
+  (is (= (bash "ls") (closh "ls")))
+  (is (= (bash "git status") (closh "git status")))
 
-  ; '(echo a | egrep (str "[0-9]+") || echo OK)
-  ; '(echo hi && echo OK)
-  ; '(! echo hi && echo NO)
-  ; '(echo hi || echo NO)
-  ; '(! echo hi || echo OK)
-  ; '(echo a && echo b && echo c)
+  (is (= "3\n" (closh-out "(+ 1 2)")))
+
+  (is (= (bash "ls -l *.json") (closh "ls -l *.json")))
+  (is (= (bash "ls $HOME") (closh "ls $HOME")))
+  (is (= (bash "ls | head") (closh "ls | head")))
+
+  ; (is (= "HI\n" (closh-out "echo hi | (str/upper-case)")))
+
+  (is (= (bash "ls | head -n 5")
+         (closh "ls |> (take 5)")))
+  (is (= (bash "ls | tail -n 5")
+         (closh "ls |> (take-last 5)")))
+  (is (= (bash "ls | tail -n +5")
+         (closh "ls |> (drop 4)")))
+  (is (= (bash "ls -a | grep \"^\\.\"")
+         (closh "ls -a |> (filter #(re-find #\"^\\.\" %))")))
+  (is (= (bash "ls | sed -n 1~2p")
+         (closh "ls |> (keep-indexed #(when (odd? (inc %1)) %2))")))
+
+  ; (is (= (bash "ls | sort -r | head -n 5")
+  ;        (closh "ls |> (reverse) | (take 5)")))
+
+  ; (is (= (bash "ls *.json | sed 's/\\.json$/.txt/'")
+  ;        (closh "ls | #(str/replace % #\"\\.txt\" \".md\"")))
+
+  (is (= (bash "echo a | egrep b || echo OK")
+         (closh "echo a | egrep b || echo OK"))))
+
+  ; (is (= (bash "echo hi && echo OK") (closh "echo hi && echo OK")))
+  ; (is (= (bash "! echo hi || echo FAILED") (closh "! echo hi || echo FAILED"))))
+
+  ; (is (= (bash "")
+  ;        (closh "")))
