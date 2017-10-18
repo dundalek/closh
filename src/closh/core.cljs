@@ -1,5 +1,7 @@
 (ns closh.core
-  (:require [clojure.string]))
+  (:require [clojure.string]
+            [clojure.tools.reader]
+            [closh.parser :refer [parse]]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -17,7 +19,7 @@
   (clojure.string/replace-first s #"^~" (.-HOME js/process.env)))
 
 (defn expand-filename [s]
-  (glob s #js{:nonull true}))
+  (seq (glob s #js{:nonull true})))
 
 ; Expand for redirect targets
 (defn expand-redirect [s]
@@ -160,3 +162,29 @@
 
 (defn pipe-filter [proc f]
   (pipe-multi proc (partial filter f)))
+
+
+(defn handle-code [input eval-cljs]
+  (->> input
+    (clojure.tools.reader/read-string)
+    (eval-cljs)
+    (prn-str)
+    (.write js/process.stdout)))
+
+(defn handle-command [input eval-cljs]
+  (let [proc (-> (str "(" input ")")
+               (clojure.tools.reader/read-string)
+               (parse)
+               (eval-cljs))
+        stdout (get-out-stream proc)]
+    (when-let [stderr (.-stderr proc)]
+      (.pipe stderr js/process.stdout))
+    (.pipe stdout js/process.stdout)
+    (if (seq? proc)
+      (wait-for-event stdout "finish")
+      (wait-for-process proc))))
+
+(defn handle-line [input eval-cljs]
+  (if (re-find #"^\s*#?\(" input)
+    (handle-code input eval-cljs)
+    (handle-command input eval-cljs)))

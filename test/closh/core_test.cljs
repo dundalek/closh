@@ -5,6 +5,27 @@
             [closh.parser]
             [closh.core :refer [shx expand expand-command process-output line-seq pipe pipe-multi pipe-map pipe-filter]]))
 
+(def child-process (js/require "child_process"))
+
+(defn bash [cmd]
+  (let [proc (.spawnSync child-process
+                         "bash"
+                         #js["-c" cmd]
+                         #js{:encoding "utf-8"})]
+    {:stdout (.-stdout proc)
+     :stderr (.-stdout proc)
+     :code (.-status proc)}))
+
+(defn closh [cmd]
+  (let [proc (.spawnSync child-process
+                         "lumo"
+                         #js["--classpath" "src" "test/closh/tester.cljs" cmd]
+                         #js{:encoding "utf-8"})]
+    {:stdout (.-stdout proc)
+     :stderr (.-stdout proc)
+     :code (.-status proc)}))
+
+
 (defn parse [x]
   (closh.parser/process-command-list (s/conform :closh.parser/cmd-list x)))
 
@@ -105,8 +126,9 @@
   (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
                                                 [:set 1 2]]})
                    (pipe (shx "wc" ["-l"]))
-                   process-output))))
+                   process-output)))
 
+  (is (= (bash "ls") (closh "ls"))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map #(str/replace % #"\.txt" ".md")))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (map str/upper-case))))
 ; (process-command-list (s/conform ::cmd-list '(ls |> (reverse))))

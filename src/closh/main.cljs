@@ -1,13 +1,9 @@
 (ns closh.main
   (:require [clojure.tools.reader]
             [clojure.tools.reader.impl.commons]
-            [lumo.repl]
-            [cljs.env :as env]
-            [cljs.js :as cljs]
-            [closh.parser :refer [parse]]
-            [closh.core :refer [get-out-stream wait-for-process wait-for-event]])
+            [closh.eval :refer [eval-cljs]]
+            [closh.core :refer [get-out-stream wait-for-process wait-for-event handle-line]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]))
-
 
 (def parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
 
@@ -23,8 +19,6 @@
 ; Hack reader to accept symbols with multiple slashes
 (alter-var-root (var clojure.tools.reader.impl.commons/parse-symbol)
                 (constantly parse-symbol))
-
-
 
 ; (def spawn (.-spawn (js/require "child_process")))
 
@@ -54,52 +48,13 @@
 
 (def readline (js/require "readline"))
 
-(def ns *ns*)
-(def compiler env/*compiler*)
-(def eval-fn cljs/*eval-fn*)
-(def load-fn cljs/*load-fn*)
-
-(defn eval [form]
-  (binding [cljs/*eval-fn* eval-fn
-            cljs/*load-fn* load-fn
-            env/*compiler* compiler]
-    (lumo.repl/eval form ns)))
-
-(eval '(require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output]]
-                '[clojure.string :as str]))
-
-(defn handle-code [input]
-  (->> input
-    (clojure.tools.reader/read-string)
-    (eval)
-    (prn-str)
-    (.write js/process.stdout)))
-
-(defn handle-command [input]
-  (let [proc (-> (str "(" input ")")
-               (clojure.tools.reader/read-string)
-               (parse)
-               (eval))
-        stdout (get-out-stream proc)]
-    (when-let [stderr (.-stderr proc)]
-      (.pipe stderr js/process.stdout))
-    (.pipe stdout js/process.stdout)
-    (if (seq? proc)
-      (wait-for-event stdout "finish")
-      (wait-for-process proc))))
-
-(defn handle-line [input]
-  (if (re-find #"^\s*#?\(" input)
-    (handle-code input)
-    (handle-command input)))
-
 (defn -main []
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
                  :output js/process.stdout
                  :prompt "$ "})]
     (-> rl
-      (.on "line" #(do (handle-line %)
+      (.on "line" #(do (handle-line % eval-cljs)
                        (.prompt rl)))
       (.on "close" #(.exit js/process 0)))
     (.prompt rl)))
