@@ -5,6 +5,7 @@
             [closh.core :refer [get-out-stream wait-for-process wait-for-event handle-line]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]
                    [closh.reader :refer [patch-reader]]))
+                  ;  [closh.core :refer [sh]]))
 
 (def readline (js/require "readline"))
 
