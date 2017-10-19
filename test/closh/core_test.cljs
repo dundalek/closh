@@ -144,24 +144,47 @@
     "echo hi | (str/upper-case)"
 
     "3\n"
-    "(list :a :b :c) | (count)")
+    "echo (+ 1 2)"
+
+    "x\n"
+    "echo (sh-str echo x)"
+
+    "3\n"
+    "(list :a :b :c) | (count)"
+
+    "OK\n"
+    "(identity true) && echo OK"
+
+    "false\n"
+    "(identity false) && echo OK"
+
+    "OK\n"
+    "(identity false) || echo OK")
+
+  (are [x] (= (bash x) (closh x))
+    "ls"
+
+    "git status"
+
+    "ls -l *.json"
+
+    "ls $HOME"
+
+    "ls | head"
+
+    "echo hi && echo OK"
+
+    "! echo hi && echo NO"
+
+    "echo hi || echo NO"
+
+    "! echo hi || echo OK"
+
+    "echo a && echo b && echo c"
+
+    "echo a | egrep b || echo OK")
 
   (are [x y] (= (bash x) (closh y))
-    "ls"
-    "ls"
-
-    "git status"
-    "git status"
-
-    "ls -l *.json"
-    "ls -l *.json"
-
-    "ls $HOME"
-    "ls $HOME"
-
-    "ls | head"
-    "ls | head"
-
     "ls | head -n 5"
     "ls |> (take 5)"
 
@@ -183,11 +206,8 @@
     "ls *.json | sed 's/\\.json$/.txt/'"
     "ls | #(str/replace % #\"\\.txt\" \".md\""
 
-    "echo a | egrep b || echo OK"
-    "echo a | egrep b || echo OK"
+    "echo $(date \"+%Y-%m-%d\")"
+    "echo (sh-str date \"+%Y-%m-%d\")"
 
-    "echo hi && echo OK"
-    "echo hi && echo OK"
-
-    "! echo hi || echo FAILED"
-    "! echo hi || echo FAILED"))
+    "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo \\\"${result:0:10}\\\""
+    "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10)"))

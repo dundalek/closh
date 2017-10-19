@@ -54,7 +54,7 @@ $ echo hi | (str/upper-case)
 $ ls *.txt |> (reverse)
 
 ; Count number of files grouped by first letter sorted by highest count first
-$ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by (second)) | (reverse)
+$ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (reverse)
 ```
 
 Read the [guide](./doc/guide.md) to learn more.
