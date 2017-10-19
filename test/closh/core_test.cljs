@@ -82,7 +82,11 @@
     '(ls <> file.txt)
 
     '(-> (shx "ls" [] {:redir [[:rw 3 (expand-redirect "file.txt")]]}))
-    '(ls 3 <> file.txt))
+    '(ls 3 <> file.txt)
+
+    '(-> (cd (expand "dirname")))
+    '(cd dirname))
+
 
   (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
 

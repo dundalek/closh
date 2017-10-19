@@ -12,6 +12,8 @@
    '|& 'pipe-reduce})
    ; '|! 'pipe-foreach
 
+(def builtins #{'cd 'exit 'quit})
+
 (def redirect-op #{'> '< '>> '&> '&>> '<> '>&})
 (def pipe-op #{'| '|> '|? '|&})
 (def clause-op #{'|| '&&})
@@ -84,7 +86,8 @@
         (list 'do (second cmd))
         (map second args))
       (second cmd))
-    (let [redirects (->> args
+    (let [name (second cmd)
+          redirects (->> args
                          (mapcat #(if (vector? (first %)) % [%]))
                          (filter #(= (first %) :redirect))
                          (mapcat (comp process-redirect second))
@@ -92,10 +95,12 @@
           parameters (->> args
                           (filter #(= (first %) :arg))
                           (map #(process-arg (second %))))]
-        (concat
-          (list 'shx (str (second cmd)))
-          [(vec parameters)]
-          (if (seq redirects) [{:redir redirects}])))))
+        (if (builtins name)
+          (conj parameters name)
+          (concat
+            (list 'shx (str name))
+            [(vec parameters)]
+            (if (seq redirects) [{:redir redirects}]))))))
 
 (defn process-pipeline [{:keys [cmd cmds]}]
   (concat
