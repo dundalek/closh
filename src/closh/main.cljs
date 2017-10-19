@@ -1,9 +1,10 @@
 (ns closh.main
   (:require [clojure.tools.reader]
             [clojure.tools.reader.impl.commons]
-            [closh.eval :refer [eval-cljs]]
-            [closh.core :refer [get-out-stream wait-for-process wait-for-event handle-line]]
-            [closh.builtin])
+            [closh.parser]
+            [closh.builtin]
+            [closh.eval :refer [execute-text]]
+            [closh.core :refer [handle-line]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]
                    [closh.reader :refer [patch-reader]]
                    [closh.core :refer [sh]]))
@@ -17,7 +18,7 @@
                  :output js/process.stdout
                  :prompt "$ "})]
     (-> rl
-      (.on "line" #(do (handle-line % eval-cljs)
+      (.on "line" #(do (handle-line % execute-text)
                        (.prompt rl)))
       (.on "close" #(.exit js/process 0)))
     (.prompt rl)))

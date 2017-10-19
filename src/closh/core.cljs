@@ -1,7 +1,5 @@
 (ns closh.core
-  (:require [clojure.string]
-            [clojure.tools.reader]
-            [closh.parser :refer [parse]]))
+  (:require [clojure.string]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -187,15 +185,12 @@
 
 (defn handle-code [input eval-cljs]
   (->> input
-    (clojure.tools.reader/read-string)
     (eval-cljs)
     (prn-str)
     (.write js/process.stdout)))
 
 (defn handle-command [input eval-cljs]
-  (let [proc (-> (str "(" input ")")
-               (clojure.tools.reader/read-string)
-               (parse)
+  (let [proc (-> (str "(sh " input ")")
                (eval-cljs))
         stdout (get-out-stream proc)]
     (when-let [stderr (.-stderr proc)]
