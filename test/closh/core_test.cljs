@@ -3,7 +3,8 @@
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.parser :refer [parse]]
-            [closh.core :refer [shx expand expand-command process-output line-seq pipe pipe-multi pipe-map pipe-filter]]))
+            [closh.core :refer [shx expand expand-command process-output line-seq pipe pipe-multi pipe-map pipe-filter]
+                        :refer-macros [sh]]))
 
 (def child-process (js/require "child_process"))
 
@@ -127,6 +128,9 @@
                    (pipe (shx "wc" ["-l"]))
                    process-output)))
 
+  (is (= '(shx "ls" [(expand "-l")])
+         (macroexpand '(sh ls -l))))
+
   (are [x y] (= x (:stdout (closh y)))
     "3\n"
     "(+ 1 2)"
@@ -210,4 +214,4 @@
     "echo (sh-str date \"+%Y-%m-%d\")"
 
     "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo \\\"${result:0:10}\\\""
-    "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10)"))
+    "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"))
