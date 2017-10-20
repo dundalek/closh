@@ -92,7 +92,8 @@
     (:val @done)))
 
 (defn wait-for-process [proc]
-  (wait-for-event proc "close"))
+  (wait-for-event proc "close")
+  proc)
 
 (defn process-output [proc]
   (let [out #js[]]

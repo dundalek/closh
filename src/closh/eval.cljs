@@ -15,4 +15,4 @@
        (require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process]]
                 '[closh.builtin :refer [cd exit quit]]
                 '[clojure.string :as str])
-       (require-macros '[closh.core :refer [sh sh-str]]))))
+       (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok]]))))
