@@ -12,7 +12,9 @@
 (defn -main []
   (patch-reader)
   (let [cmd (-> (seq js/process.argv)
-                (nth 5))]
-    (handle-line cmd execute-text)))
+                (nth 5))
+        proc (handle-line cmd execute-text)]
+    (if-let [code (and proc (.-exitCode proc))]
+      (js/process.exit code))))
 
 (set! *main-cli-fn* -main)

@@ -3,7 +3,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.parser :refer [parse]]
-            [closh.core :refer [shx expand expand-command expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value]
+            [closh.core :refer [shx expand expand-command expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
                         :refer-macros [sh]]))
 
 (def child-process (js/require "child_process"))
@@ -226,19 +226,20 @@
 
     "ls $HOME"
 
-    "ls | head")
+    "ls | head"
 
-    ; "echo hi && echo OK"
-    ;
+    "echo hi && echo OK"
+
+    ; TODO: fix rexit code
     ; "! echo hi && echo NO"
-    ;
-    ; "echo hi || echo NO"
-    ;
-    ; "! echo hi || echo OK"
-    ;
-    ; "echo a && echo b && echo c"
-    ;
-    ; "echo a | egrep b || echo OK")
+
+    "echo hi || echo NO"
+
+    "! echo hi || echo OK"
+
+    "echo a && echo b && echo c"
+
+    "echo a | egrep b || echo OK")
 
   (are [x y] (= (bash x) (closh y))
     "echo \"*\""

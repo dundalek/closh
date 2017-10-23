@@ -120,11 +120,13 @@
         (fn [{op :op child :pipeline} pipeline]
           (let [condition (if (= op '&&) true false)
                 neg (if (:not (:pipeline pipeline)) (not condition) condition)
-                pred (if neg 'zero? 'pos?)]
+                pred (if neg 'true? 'false?)
+                tmp (gensym)]
             (assoc pipeline :pipeline
-                   (list 'when (list pred (list 'wait-for-process
-                                                (process-pipeline (:pipeline pipeline))))
-                               child))))
+                   `(let [~tmp (closh.core/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
+                      (if (~pred (closh.core/pipeline-condition ~tmp))
+                        ~child
+                        ~tmp)))))
         (-> items
             (first)
             (update :pipeline process-pipeline))

@@ -12,7 +12,7 @@
 (execute-text
   (pr-str
     '(do
-       (require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process]]
+       (require '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process wait-for-pipeline pipeline-condition]]
                 '[closh.builtin :refer [cd exit quit]]
                 '[clojure.string :as str])
        (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok]]))))

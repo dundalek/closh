@@ -92,8 +92,23 @@
     (:val @done)))
 
 (defn wait-for-process [proc]
-  (wait-for-event proc "close")
+  (when (nil? (.-exitCode proc))
+    (wait-for-event proc "close"))
   proc)
+
+(defn wait-for-pipeline [proc]
+  (let [stdout (get-out-stream proc)]
+    (when-let [stderr (and proc (.-stderr proc))]
+      (.pipe stderr js/process.stdout))
+    (.pipe stdout js/process.stdout)
+    (if (instance? child-process.ChildProcess proc)
+      (wait-for-process proc)
+      proc)))
+
+(defn pipeline-condition [proc]
+  (if (instance? child-process.ChildProcess proc)
+    (zero? (.-exitCode proc))
+    (boolean proc)))
 
 (defn process-output [proc]
   (cond
@@ -115,18 +130,9 @@
 (defn pipeline-value [proc]
   (cond
     (instance? child-process.ChildProcess proc)
-    ; (let [out #js[]]
-    ;   (.on (get-out-stream proc) "data" #(.push out %))
-    ;   (wait-for-process proc)
-    ;   (.join out ""))
     (stream-output (get-out-stream proc))
 
     :else proc))
-
-(defn get-data-stream [x]
-  (if (instance? child-process.ChildProcess x)
-    (stream-output (get-out-stream x))
-    x))
 
 (defn expand-command [proc]
   (-> (process-output proc)
@@ -228,14 +234,8 @@
 
 (defn handle-command [input eval-cljs]
   (let [proc (-> (str "(sh " input ")")
-               (eval-cljs))
-        stdout (get-out-stream proc)]
-    (when-let [stderr (.-stderr proc)]
-      (.pipe stderr js/process.stdout))
-    (.pipe stdout js/process.stdout)
-    (cond
-      (instance? child-process.ChildProcess proc) (wait-for-process proc)
-      :else (wait-for-event stdout "finish"))))
+               (eval-cljs))]
+    (wait-for-pipeline proc)))
 
 (defn handle-line [input eval-cljs]
   (if (re-find #"^\s*#?\(" input)
