@@ -27,6 +27,50 @@
      :code (.-status proc)}))
 
 (deftest run-test
+
+  (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
+
+  (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
+
+  (is (= (.-USER js/process.env) (first (expand "$USER"))))
+
+  (is (= "project.clj\n" (process-output (shx "ls" [(expand "project*")]))))
+
+  (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
+             (.trimRight)
+             (.split "\n")
+             (seq))
+         (-> (line-seq (.createReadStream (js/require "fs") "package.json")))))
+
+  (is (= (list "b" "a") (-> (shx "echo" ["a\nb"])
+                            (pipe-multi (partial reverse)))))
+
+  (is (= "B\nA\n") (-> (shx "echo" ["a\nb"])
+                       (pipe-map clojure.string/upper-case)
+                       (pipe (shx "sort" ["-r"]))
+                       process-output))
+
+  (is (= "2\n" (-> (shx "echo" ["a\nb"])
+                   (pipe (shx "wc" ["-l"]))
+                   process-output)))
+
+  (is (= (list 3 2 1) (-> (list 1 2 3) (pipe reverse))))
+
+  (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?))))
+
+  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 "/dev/null"]]})
+                process-output)))
+
+  ; '(echo hi 1 >& 2 | wc -l))
+  (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
+                                                [:set 1 2]]})
+                   (pipe (shx "wc" ["-l"]))
+                   process-output)))
+
+  (is (= '(shx "ls" [(expand "-l")])
+         (macroexpand '(sh ls -l))))
+
+
   (are [x y] (= x (parse y))
     '(-> (shx "ls" [(expand "-l")]))
     '(ls -l)
@@ -88,49 +132,6 @@
     '(-> (cd (expand "dirname")))
     '(cd dirname))
 
-
-  (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
-
-  (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
-
-  (is (= (.-USER js/process.env) (first (expand "$USER"))))
-
-  (is (= "project.clj\n" (process-output (shx "ls" [(expand "project*")]))))
-
-  (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
-             (.trimRight)
-             (.split "\n")
-             (seq))
-         (-> (line-seq (.createReadStream (js/require "fs") "package.json")))))
-
-  (is (= (list "b" "a") (-> (shx "echo" ["a\nb"])
-                            (pipe-multi (partial reverse)))))
-
-  (is (= "B\nA\n") (-> (shx "echo" ["a\nb"])
-                       (pipe-map clojure.string/upper-case)
-                       (pipe (shx "sort" ["-r"]))
-                       process-output))
-
-  (is (= "2\n" (-> (shx "echo" ["a\nb"])
-                   (pipe (shx "wc" ["-l"]))
-                   process-output)))
-
-  (is (= (list 3 2 1) (-> (list 1 2 3) (pipe reverse))))
-
-  (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?))))
-
-  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 "/dev/null"]]})
-                process-output)))
-
-  ; '(echo hi 1 >& 2 | wc -l))
-  (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
-                                                [:set 1 2]]})
-                   (pipe (shx "wc" ["-l"]))
-                   process-output)))
-
-  (is (= '(shx "ls" [(expand "-l")])
-         (macroexpand '(sh ls -l))))
-
   (are [x y] (= x (:stdout (closh y)))
     "3"
     "(+ 1 2)"
@@ -155,68 +156,65 @@
     "echo (sh-str echo x)"
 
     "3"
-    "(list :a :b :c) |> (count)")
+    "(list :a :b :c) |> (count)"
 
-    ; "OK\n"
-    ; "(identity true) && echo OK"
-    ;
-    ; "false\n"
-    ; "(identity false) && echo OK"
-    ;
-    ; "OK\n"
-    ; "(identity false) || echo OK")
+    "OK\n"
+    "(identity true) && echo OK"
 
-    ; ; process to process - redirect stdout
-    ; "ABC\n"
-    ; "echo abc | tr \"[:lower:]\" \"[:upper:]\""
-    ;
-    ; ; process to fn - collect stdout
-    ; "ABC\n"
-    ; "echo abc | (clojure.string/upper-case)"
-    ;
-    ; ; process to sequence - split lines
-    ; "(c b a)\n"
-    ; "echo -e \"a\\nb\\nc\" | (reverse)"
-    ;
-    ;
-    ; ; sequence to fn
-    ; "1\n"
-    ; "(list 1 2 3) | (first)"
-    ;
-    ; ; sequence to sequence
-    ; "(3 2 1)\n"
-    ; "(list 1 2 3) | (reverse)"
-    ;
-    ; ; sequence to process - join items
-    ; "1\n2\n3"
-    ; "(list 1 2 3) | cat -"
-    ;
-    ; ; sequence of sequences could be tab separated
-    ; "1\t2\n3\t4\n"
-    ; "(list [1 2] [3 4]) | cat -"
-    ;
-    ; "{:a 123}\n"
-    ; "(identity {:a 123}) | cat -"
-    ;
-    ; "{:a 123}\n{:b 456}\n"
-    ; "(list {:a 123} {:b 456}) | cat -"
-    ;
-    ;
-    ; ; string to process
-    ; "abc\n"
-    ; "(str \"abc\") | cat -"
-    ;
-    ; ; string to sequence
-    ; "c\nb\na"
-    ; "(str \"a\\nb\\nc\") |> (reverse)"
-    ;
-    ; ; seqable to sequence call seq
-    ; "(1 2 3)\n"
-    ; "(identity [1 2 3] |> (identity)"
-    ;
-    ; ; non-seqable to seqable - wrap in list
-    ; "(false)\n"
-    ; "(identity false) |> (identity)")
+    "false"
+    "(identity false) && echo OK"
+
+    "OK\n"
+    "(identity false) || echo OK"
+
+    ; process to process - redirect stdout
+    "ABC\n"
+    "echo abc | tr \"[:lower:]\" \"[:upper:]\""
+
+    ; process to fn - collect stdout
+    "ABC\n"
+    "echo abc | (clojure.string/upper-case)"
+
+    ; process to sequence - split lines
+    "(\"c\" \"b\" \"a\")"
+    "echo -e \"a\\nb\\nc\" |> (reverse)"
+
+    ; sequence to fn
+    "1"
+    "(list 1 2 3) | (first)"
+
+    ; sequence to sequence
+    "(3 2 1)"
+    "(list 1 2 3) | (reverse)"
+
+    ; sequence to process - join items
+    "1\n2\n3\n"
+    "(list 1 2 3) | cat -"
+
+    "{:a 123}"
+    "(identity {:a 123}) | cat -"
+
+    "{:a 123}\n{:b 456}\n"
+    "(list {:a 123} {:b 456}) | cat -"
+
+    ; string to process
+    "abc"
+    "(str \"abc\") | cat -"
+
+    ; string to sequence
+    "(\"c\" \"b\" \"a\")"
+    "(str \"a\\nb\\nc\") |> (reverse)"
+
+    ; sequential
+    "[1 2 3]"
+    "(identity [1 2 3]) |> (identity)"
+
+    "(1 2 3)"
+    "(list 1 2 3) |> (identity)"
+
+    ; non-seqable to seqable - wrap in list
+    "(false)"
+    "(identity false) |> (identity)")
 
   (are [x] (= (bash x) (closh x))
     "ls"
@@ -250,22 +248,22 @@
     "echo '\"$HOME $PWD\""
 
     "ls | head -n 5"
-    "ls |> (take 5)"
+    "ls |> (take 5) | cat"
 
     "ls | tail -n 5"
-    "ls |> (take-last 5)"
+    "ls |> (take-last 5) | cat"
 
     "ls | tail -n +5"
-    "ls |> (drop 4)"
+    "ls |> (drop 4) | cat"
 
     "ls -a | grep \"^\\.\""
-    "ls -a |> (filter #(re-find #\"^\\.\" %))"
+    "ls -a |> (filter #(re-find #\"^\\.\" %)) | cat"
 
     "ls | sed -n 1~2p"
-    "ls |> (keep-indexed #(when (odd? (inc %1)) %2))"
+    "ls |> (keep-indexed #(when (odd? (inc %1)) %2)) | cat"
 
     "ls | sort -r | head -n 5"
-    "ls |> (reverse) | (take 5)"
+    "ls |> (reverse) | (take 5) | cat"
 
     ; TODO: fix resolving of fn*
     ; "ls *.json | sed 's/\\.json$/.txt/'"

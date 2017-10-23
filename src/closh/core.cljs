@@ -71,7 +71,7 @@
         (.end s)
         s))
 
-    (seq? x)
+    (sequential? x)
     (let [s (stream.PassThrough.)]
       (doseq [chunk x]
         (.write s chunk)
@@ -97,13 +97,13 @@
   proc)
 
 (defn wait-for-pipeline [proc]
-  (let [stdout (get-out-stream proc)]
-    (when-let [stderr (and proc (.-stderr proc))]
-      (.pipe stderr js/process.stdout))
-    (.pipe stdout js/process.stdout)
-    (if (instance? child-process.ChildProcess proc)
-      (wait-for-process proc)
-      proc)))
+  (if (instance? child-process.ChildProcess proc)
+    (let [stdout (get-out-stream proc)]
+      (when-let [stderr (and proc (.-stderr proc))]
+        (.pipe stderr js/process.stdout))
+      (.pipe stdout js/process.stdout)
+      (wait-for-process proc))
+    proc))
 
 (defn pipeline-condition [proc]
   (if (instance? child-process.ChildProcess proc)
@@ -214,7 +214,7 @@
 (defn pipe-multi [x f]
   (let [val (cond
               (instance? child-process.ChildProcess x) (line-seq (get-out-stream x))
-              (or (seq? x) (vector? x)) x
+              (sequential? x) x
               (string? x) (clojure.string/split x #"\n")
               :else (list x))]
     (pipe val f)))

@@ -1,6 +1,7 @@
 (ns closh.main
   (:require [clojure.tools.reader]
             [clojure.tools.reader.impl.commons]
+            [clojure.pprint :refer [pprint]]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]
@@ -9,7 +10,10 @@
                    [closh.reader :refer [patch-reader]]
                    [closh.core :refer [sh]]))
 
+(enable-console-print!)
+
 (def readline (js/require "readline"))
+(def child-process (js/require "child_process"))
 
 (defn -main []
   (patch-reader)
@@ -17,10 +21,14 @@
              #js{:input js/process.stdin
                  :output js/process.stdout
                  :prompt "$ "})]
-    (-> rl
-      (.on "line" #(do (handle-line % execute-text)
-                       (.prompt rl)))
-      (.on "close" #(.exit js/process 0)))
-    (.prompt rl)))
+    (doto rl
+      (.on "line"
+        (fn [input]
+          (let [result (handle-line input execute-text)]
+            (when-not (instance? child-process.ChildProcess result)
+              (.write js/process.stdout (with-out-str (pprint result))))
+            (.prompt rl))))
+      (.on "close" #(.exit js/process 0))
+      (.prompt rl))))
 
 (set! *main-cli-fn* -main)
