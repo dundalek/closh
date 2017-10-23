@@ -81,7 +81,7 @@
 
     :else
     (let [s (stream.PassThrough.)]
-      (.write s (pr-str x))
+      (.write s (str x))
       (.end s)
       s)))
 
@@ -238,6 +238,6 @@
     (wait-for-pipeline proc)))
 
 (defn handle-line [input eval-cljs]
-  (if (re-find #"^\s*#?\(" input)
-    (handle-code input eval-cljs)
-    (handle-command input eval-cljs)))
+  ; (if (re-find #"^\s*#?\(" input)
+  ;   (handle-code input eval-cljs)
+    (handle-command input eval-cljs))

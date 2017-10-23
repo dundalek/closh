@@ -132,30 +132,31 @@
          (macroexpand '(sh ls -l))))
 
   (are [x y] (= x (:stdout (closh y)))
-    "3\n"
+    "3"
     "(+ 1 2)"
 
     "hi\n"
-    "echo hi")
+    "echo hi"
 
-    ; "hi\n"
-    ; "echo hi | (str)"
-    ;
-    ; "HI\n"
-    ; "echo hi | (clojure.string/upper-case)"
-    ;
+    "hi\n"
+    "echo hi | (str)"
+
+    "HI\n"
+    "echo hi | (clojure.string/upper-case)"
+
+    ; TODO: Fix str alias
     ; "HI\n"
     ; "echo hi | (str/upper-case)"
-    ;
-    ; "3\n"
-    ; "echo (+ 1 2)"
-    ;
-    ; "x\n"
-    ; "echo (sh-str echo x)"
-    ;
-    ; "3\n"
-    ; "(list :a :b :c) | (count)"
-    ;
+
+    "3\n"
+    "echo (+ 1 2)"
+
+    "x\n"
+    "echo (sh-str echo x)"
+
+    "3"
+    "(list :a :b :c) |> (count)")
+
     ; "OK\n"
     ; "(identity true) && echo OK"
     ;
@@ -230,7 +231,7 @@
 
     "echo hi && echo OK"
 
-    ; TODO: fix rexit code
+    ; TODO: fix exit code
     ; "! echo hi && echo NO"
 
     "echo hi || echo NO"
@@ -266,13 +267,18 @@
     "ls | sort -r | head -n 5"
     "ls |> (reverse) | (take 5)"
 
+    ; TODO: fix resolving of fn*
     ; "ls *.json | sed 's/\\.json$/.txt/'"
-    ; "ls | #(str/replace % #\"\\.txt\" \".md\""
+    ; "ls | #(clojure.string/replace % #\"\\.txt\" \".md\")"
+
+    ; TODO: fix Can't take value of macro
+    ; "ls *.json | sed 's/\\.json$/.txt/'"
+    ; "ls | (fn [x] (clojure.string/replace x #\"\\.txt\" \".md\"))"
 
     "echo $(date \"+%Y-%m-%d\")"
     "echo (sh-str date \"+%Y-%m-%d\")"
 
-    "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo \\\"${result:0:10}\\\""
+    "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo -n ${result:0:10}"
     "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
