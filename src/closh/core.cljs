@@ -96,27 +96,37 @@
   proc)
 
 (defn process-output [proc]
-  (let [out #js[]]
-    (.on (get-out-stream proc) "data" #(.push out %))
-    (wait-for-process proc)
-    (.join out "")))
+  (cond
+    (instance? child-process.ChildProcess proc)
+    (let [out #js[]]
+      (.on (get-out-stream proc) "data" #(.push out %))
+      (wait-for-process proc)
+      (.join out ""))
+
+    (seq? proc) (str (clojure.string/join "\n" proc) "\n")
+    :else proc))
 
 (defn stream-output [stream]
   (let [out #js[]]
-    (.on (get-out-stream stream) "data" #(.push out %))
+    (.on stream "data" #(.push out %))
     (wait-for-event stream "finish")
     (.join out "")))
+
+(defn pipeline-value [proc]
+  (cond
+    (instance? child-process.ChildProcess proc)
+    ; (let [out #js[]]
+    ;   (.on (get-out-stream proc) "data" #(.push out %))
+    ;   (wait-for-process proc)
+    ;   (.join out ""))
+    (stream-output (get-out-stream proc))
+
+    :else proc))
 
 (defn get-data-stream [x]
   (if (instance? child-process.ChildProcess x)
     (stream-output (get-out-stream x))
     x))
-
-(defn get-seq-stream [x]
-  (cond
-    (instance? child-process.ChildProcess x) (line-seq (.-stdout x))
-    (seq? x) x
-    :else (seq x)))
 
 (defn expand-command [proc]
   (-> (process-output proc)
@@ -163,19 +173,45 @@
 
 (defn pipe
   ([from to]
-   (if (fn? to)
-     (-> from
-         get-data-stream
+   (cond
+     (instance? child-process.ChildProcess from)
+     (cond
+       (instance? child-process.ChildProcess to)
+       (do
+         (.pipe (get-out-stream from) (.-stdin to))
          to)
-     (do (-> from
-             get-out-stream
-             (.pipe (.-stdin to)))
-         to)))
+
+       :else (to (process-output from)))
+
+     (seq? from)
+     (cond
+       (instance? child-process.ChildProcess to)
+       (let [val (str (clojure.string/join "\n" from) "\n")]
+         (.write (.-stdin to) val)
+         (.end (.-stdin to))
+         to)
+
+       :else (to from))
+
+     :else
+     (cond
+       (instance? child-process.ChildProcess to)
+       (do
+         (.write (.-stdin to) (str from))
+         (.end (.-stdin to))
+         to)
+
+       :else (to from))))
   ([x & xs]
    (reduce pipe x xs)))
 
-(defn pipe-multi [proc f]
-  (f (get-seq-stream proc)))
+(defn pipe-multi [x f]
+  (let [val (cond
+              (instance? child-process.ChildProcess x) (line-seq (get-out-stream x))
+              (or (seq? x) (vector? x)) x
+              (string? x) (clojure.string/split x #"\n")
+              :else (list x))]
+    (pipe val f)))
 
 (defn pipe-map [proc f]
   (pipe-multi proc (partial map f)))

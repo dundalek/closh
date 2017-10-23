@@ -3,7 +3,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.parser :refer [parse]]
-            [closh.core :refer [shx expand expand-command process-output line-seq pipe pipe-multi pipe-map pipe-filter]
+            [closh.core :refer [shx expand expand-command expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value]
                         :refer-macros [sh]]))
 
 (def child-process (js/require "child_process"))
@@ -136,34 +136,86 @@
     "(+ 1 2)"
 
     "hi\n"
-    "echo hi"
+    "echo hi")
 
-    "hi\n"
-    "echo hi | (str)"
+    ; "hi\n"
+    ; "echo hi | (str)"
+    ;
+    ; "HI\n"
+    ; "echo hi | (clojure.string/upper-case)"
+    ;
+    ; "HI\n"
+    ; "echo hi | (str/upper-case)"
+    ;
+    ; "3\n"
+    ; "echo (+ 1 2)"
+    ;
+    ; "x\n"
+    ; "echo (sh-str echo x)"
+    ;
+    ; "3\n"
+    ; "(list :a :b :c) | (count)"
+    ;
+    ; "OK\n"
+    ; "(identity true) && echo OK"
+    ;
+    ; "false\n"
+    ; "(identity false) && echo OK"
+    ;
+    ; "OK\n"
+    ; "(identity false) || echo OK")
 
-    "HI\n"
-    "echo hi | (clojure.string/upper-case)"
-
-    "HI\n"
-    "echo hi | (str/upper-case)"
-
-    "3\n"
-    "echo (+ 1 2)"
-
-    "x\n"
-    "echo (sh-str echo x)"
-
-    "3\n"
-    "(list :a :b :c) | (count)"
-
-    "OK\n"
-    "(identity true) && echo OK"
-
-    "false\n"
-    "(identity false) && echo OK"
-
-    "OK\n"
-    "(identity false) || echo OK")
+    ; ; process to process - redirect stdout
+    ; "ABC\n"
+    ; "echo abc | tr \"[:lower:]\" \"[:upper:]\""
+    ;
+    ; ; process to fn - collect stdout
+    ; "ABC\n"
+    ; "echo abc | (clojure.string/upper-case)"
+    ;
+    ; ; process to sequence - split lines
+    ; "(c b a)\n"
+    ; "echo -e \"a\\nb\\nc\" | (reverse)"
+    ;
+    ;
+    ; ; sequence to fn
+    ; "1\n"
+    ; "(list 1 2 3) | (first)"
+    ;
+    ; ; sequence to sequence
+    ; "(3 2 1)\n"
+    ; "(list 1 2 3) | (reverse)"
+    ;
+    ; ; sequence to process - join items
+    ; "1\n2\n3"
+    ; "(list 1 2 3) | cat -"
+    ;
+    ; ; sequence of sequences could be tab separated
+    ; "1\t2\n3\t4\n"
+    ; "(list [1 2] [3 4]) | cat -"
+    ;
+    ; "{:a 123}\n"
+    ; "(identity {:a 123}) | cat -"
+    ;
+    ; "{:a 123}\n{:b 456}\n"
+    ; "(list {:a 123} {:b 456}) | cat -"
+    ;
+    ;
+    ; ; string to process
+    ; "abc\n"
+    ; "(str \"abc\") | cat -"
+    ;
+    ; ; string to sequence
+    ; "c\nb\na"
+    ; "(str \"a\\nb\\nc\") |> (reverse)"
+    ;
+    ; ; seqable to sequence call seq
+    ; "(1 2 3)\n"
+    ; "(identity [1 2 3] |> (identity)"
+    ;
+    ; ; non-seqable to seqable - wrap in list
+    ; "(false)\n"
+    ; "(identity false) |> (identity)")
 
   (are [x] (= (bash x) (closh x))
     "ls"
@@ -174,21 +226,27 @@
 
     "ls $HOME"
 
-    "ls | head"
+    "ls | head")
 
-    "echo hi && echo OK"
-
-    "! echo hi && echo NO"
-
-    "echo hi || echo NO"
-
-    "! echo hi || echo OK"
-
-    "echo a && echo b && echo c"
-
-    "echo a | egrep b || echo OK")
+    ; "echo hi && echo OK"
+    ;
+    ; "! echo hi && echo NO"
+    ;
+    ; "echo hi || echo NO"
+    ;
+    ; "! echo hi || echo OK"
+    ;
+    ; "echo a && echo b && echo c"
+    ;
+    ; "echo a | egrep b || echo OK")
 
   (are [x y] (= (bash x) (closh y))
+    "echo \"*\""
+    "echo \"*\""
+
+    "echo '$HOME $PWD'"
+    "echo '\"$HOME $PWD\""
+
     "ls | head -n 5"
     "ls |> (take 5)"
 
@@ -207,8 +265,8 @@
     "ls | sort -r | head -n 5"
     "ls |> (reverse) | (take 5)"
 
-    "ls *.json | sed 's/\\.json$/.txt/'"
-    "ls | #(str/replace % #\"\\.txt\" \".md\""
+    ; "ls *.json | sed 's/\\.json$/.txt/'"
+    ; "ls | #(str/replace % #\"\\.txt\" \".md\""
 
     "echo $(date \"+%Y-%m-%d\")"
     "echo (sh-str date \"+%Y-%m-%d\")"
@@ -217,4 +275,77 @@
     "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
-    "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"))
+    "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")")
+
+  (are [x y] (= x (pipeline-value y))
+    ; process to process - redirect stdout
+    "ABC\n"
+    ; "echo abc | tr \"[:lower:]\" \"[:upper:]\""
+    (-> (shx "echo" ["abc"])
+        (pipe (shx "tr" ["[:lower:]" "[:upper:]"])))
+
+    ; process to fn - collect stdout
+    "ABC\n"
+    ; "echo abc | (clojure.string/upper-case)"))
+    (-> (shx "echo" ["abc"])
+        (pipe clojure.string/upper-case))
+
+    ; process to sequence - split lines
+    '("c" "b" "a")
+    ; "echo -e \"a\\nb\\nc\" |> (reverse)"
+    (-> (shx "echo" ["-e" "a\\nb\\nc"])
+        (pipe-multi reverse))
+
+    ; ; sequence to fn
+    1
+    ; "(list 1 2 3) | (first)"
+    (-> (list 1 2 3)
+        (pipe first))
+
+    ; sequence to sequence
+    '(3 2 1)
+    ; "(list 1 2 3) | (reverse)"))
+    (-> (list 1 2 3)
+        (pipe reverse))
+
+    ; sequence to process - join items
+    "1\n2\n3\n"
+    ; "(list 1 2 3) | cat -"
+    (-> (list 1 2 3)
+        (pipe (shx "cat" ["-"])))
+
+    ; ; sequence of sequences could be tab separated?
+    ; "1\t2\n3\t4\n"
+    ; ; "(list [1 2] [3 4]) | cat -"
+    ; (pipe (list [1 2] [3 4]) (shx "cat"))
+
+    "{:a 123}"
+    ; "(identity {:a 123}) | cat -"
+    (pipe {:a 123} (shx "cat"))
+
+    "{:a 123}\n{:b 456}\n"
+    ; "(list {:a 123} {:b 456}) | cat -"
+    (pipe (list {:a 123} {:b 456}) (shx "cat"))
+
+    ; string to process
+    "abc"
+    ; "(str \"abc\") | cat -"
+    (pipe "abc" (shx "cat" ["-"]))
+
+    "abc\n"
+    (pipe (shx "echo" ["abc"]) (shx "cat" ["-"]))
+
+    ; string to sequence
+    '("c" "b" "a")
+    ; "(str \"a\\nb\\nc\") |> (reverse)"
+    (pipe-multi "a\nb\nc" reverse)
+
+    ; seqable to sequence
+    '[1 2 3]
+    ; "(identity [1 2 3] |> (identity)"
+    (pipe-multi [1 2 3] identity)
+
+    ; non-seqable to seqable - wrap in list
+    '(false)
+    ; "(identity false) |> (identity)"))
+    (pipe-multi false identity)))
