@@ -2,6 +2,7 @@
   (:require [clojure.tools.reader]
             [clojure.tools.reader.impl.commons]
             [clojure.pprint :refer [pprint]]
+            [clojure.string]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]
@@ -24,10 +25,11 @@
     (doto rl
       (.on "line"
         (fn [input]
-          (let [result (handle-line input execute-text)]
-            (when-not (instance? child-process.ChildProcess result)
-              (.write js/process.stdout (with-out-str (pprint result))))
-            (.prompt rl))))
+          (when (not (clojure.string/blank? input))
+            (let [result (handle-line input execute-text)]
+              (when-not (instance? child-process.ChildProcess result)
+                (.write js/process.stdout (with-out-str (pprint result))))))
+          (.prompt rl)))
       (.on "close" #(.exit js/process 0))
       (.prompt rl))))
 
