@@ -70,6 +70,18 @@
   (is (= '(shx "ls" [(expand "-l")])
          (macroexpand '(sh ls -l))))
 
+  (is (= "_asdfghj_: command not found\n"
+         (:stderr (closh "_asdfghj_"))))
+
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout ""}
+         (-> (closh "_asdfghj_ && echo NO")
+             (select-keys [:stdout :stderr]))))
+
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout "YES\n"}
+         (-> (closh "_asdfghj_ || echo YES")
+             (select-keys [:stdout :stderr]))))
 
   (are [x y] (= x (parse y))
     '(-> (shx "ls" [(expand "-l")]))

@@ -169,14 +169,21 @@
     #js{:stdio (get-streams redir)}
     #js{}))
 
+(defn handle-spawn-error [err]
+  (case (.-errno err)
+    "ENOENT" (js/console.error (str (.-path err) ": command not found"))
+    (js/console.error "Unexpected error:\n" err)))
+
 (defn shx
   ([cmd] (shx cmd []))
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
-   (child-process.spawn
-     cmd
-     (apply array (flatten args))
-     (build-options opts))))
+   (doto
+     (child-process.spawn
+       cmd
+       (apply array (flatten args))
+       (build-options opts))
+     (.on "error" handle-spawn-error))))
 
 (defn pipe
   ([from to]
