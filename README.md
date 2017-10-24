@@ -73,6 +73,7 @@ Features needed for daily use:
 - [ ] Handle common erros
 - [ ] Testing and stability
 - [ ] Configuration and init scripts
+- [ ] Signal control
 - [ ] Job control
 - [ ] Environment variable integration
 - [ ] Builtin utility functions

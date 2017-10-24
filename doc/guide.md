@@ -91,6 +91,25 @@ closh: ls |> (keep-indexed #(when (odd? (inc %1)) %2))
 bash:  echo '(1 + sqrt(5))/2' | bc -l
 closh: (/ (+ 1 (Math.sqrt 5)) 2)
 ```
+### Control flow
+
+For loops:
+
+```bash
+for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done
+```
+```clojure
+ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % "\n" (sh-str cat (str %)))) | cat
+```
+
+If conditionals:
+
+```bash
+if test -f package.json; then echo file exists; else echo no file; fi
+```
+```clojure
+echo (if (sh-ok test -f package.json) "file exists" "no file")
+```
 
 ## Reference
 
