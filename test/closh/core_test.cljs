@@ -214,7 +214,10 @@
 
     ; non-seqable to seqable - wrap in list
     "(false)"
-    "(identity false) |> (identity)")
+    "(identity false) |> (identity)"
+
+    "[\"a\" \"b\"]"
+    "echo a b | #(clojure.string/split % #\"\\s+\")")
 
   (are [x] (= (bash x) (closh x))
     "ls"
@@ -274,13 +277,17 @@
     "ls | sort -r | head -n 5"
     "ls |> (reverse) | (take 5) | cat"
 
-    ; TODO: fix resolving of fn*
-    ; "ls *.json | sed 's/\\.json$/.txt/'"
-    ; "ls | #(clojure.string/replace % #\"\\.txt\" \".md\")"
+    "ls *.json | sed 's/\\.json$/.txt/'"
+    "ls *.json | #(clojure.string/replace % #\"\\.json\" \".txt\")"
 
-    ; TODO: fix Can't take value of macro
-    ; "ls *.json | sed 's/\\.json$/.txt/'"
-    ; "ls | (fn [x] (clojure.string/replace x #\"\\.txt\" \".md\"))"
+    "ls *.json | sed 's/\\.json$/.txt/'"
+    "ls *.json |> (map #(clojure.string/replace % #\"\\.json\" \".txt\")) | cat"
+
+    "ls *.json | sed 's/\\.json$/.txt/'"
+    "ls *.json | (fn [x] (clojure.string/replace x #\"\\.json\" \".txt\")) | cat"
+
+    "ls *.json | sed 's/\\.json$/.txt/'"
+    "ls *.json | ((fn [x] (clojure.string/replace x #\"\\.json\" \".txt\"))) | cat"
 
     "echo $(date \"+%Y-%m-%d\")"
     "echo (sh-str date \"+%Y-%m-%d\")"

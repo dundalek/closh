@@ -102,6 +102,13 @@
             [(vec parameters)]
             (if (seq redirects) [{:redir redirects}]))))))
 
+(defn special? [symb]
+  (or
+   (special-symbol? symb)
+   (#{'shx 'fn} symb)))
+   ; TODO: how to dynamically resolve and check for macro?
+   ; (-> symb resolve meta :macro boolean)))
+
 (defn process-pipeline [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
@@ -109,8 +116,8 @@
      (let [cmd (process-command cmd)
            fn (pipes op)]
        (cond
-         (= op '|> ) (list fn (conj cmd 'partial))
-         (and (= op '|) (not= (first cmd) 'shx)) (list fn (conj cmd 'partial))
+         (and (= op '|>) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
+         (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
          :else (list fn cmd))))))
 
 (defn process-command-clause [{:keys [pipeline pipelines]}]
