@@ -217,7 +217,14 @@
     "(identity false) |> (identity)"
 
     "[\"a\" \"b\"]"
-    "echo a b | #(clojure.string/split % #\"\\s+\")")
+    "echo a b | #(clojure.string/split % #\"\\s+\")"
+
+    ; cmd helper to invoke command name by value
+    "x\n"
+    "(cmd \"echo\") x"
+
+    "x\n"
+    "(sh (cmd (str \"ec\" \"ho\")) x)")
 
   (are [x] (= (bash x) (closh x))
     "ls"

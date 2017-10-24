@@ -80,13 +80,18 @@
       >& [[:set (or fd 1) arg]])))
 
 (defn process-command [[cmd & args]]
-  (if (and (= (first cmd) :arg) (list? (second cmd)))
+  (if (and (= (first cmd) :arg)
+           (list? (second cmd))
+           (not= 'cmd (first (second cmd))))
     (if (seq args)
       (concat
         (list 'do (second cmd))
         (map second args))
       (second cmd))
     (let [name (second cmd)
+          name-val (if (list? name)
+                     (second name) ; when using cmd helper
+                     (str name))
           redirects (->> args
                          (mapcat #(if (vector? (first %)) % [%]))
                          (filter #(= (first %) :redirect))
@@ -98,7 +103,7 @@
         (if (builtins name)
           (conj parameters name)
           (concat
-            (list 'shx (str name))
+            (list 'shx name-val)
             [(vec parameters)]
             (if (seq redirects) [{:redir redirects}]))))))
 
