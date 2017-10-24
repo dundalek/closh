@@ -100,7 +100,7 @@
   (if (instance? child-process.ChildProcess proc)
     (let [stdout (get-out-stream proc)]
       (when-let [stderr (and proc (.-stderr proc))]
-        (.pipe stderr js/process.stdout))
+        (.pipe stderr js/process.stderr))
       (.pipe stdout js/process.stdout)
       (wait-for-process proc))
     proc))
@@ -145,13 +145,14 @@
                  (if (= op :set)
                    (js/Promise.resolve [op fd target])
                    (let [stream (case op
-                                  :in (.createReadStream fs target)
-                                  :out (.createWriteStream fs target)
-                                  :append (.createWriteStream fs target #js{:flags "a"})
-                                  :rw (.createWriteStream fs target #js{:flags "w+"}))]
-                     (js/Promise.
-                       (fn [resolve reject]
-                         (.on stream "open" #(resolve [op fd stream])))))))
+                                  :in (.createReadStream fs nil #js{:fd (.openSync fs target "r")})
+                                  :out (.createWriteStream fs nil #js{:fd (.openSync fs target "w")})
+                                  :append (.createWriteStream fs nil #js{:fd (.openSync fs target "a")})
+                                  :rw (.createWriteStream fs nil #js{:fd (.openSync fs target "w+")}))]
+                      (js/Promise.resolve [op fd stream]))))
+                    ;  (js/Promise.
+                    ;    (fn [resolve reject]
+                    ;      (.on stream "open" #(resolve [op fd stream])))))))
                (apply array)
                (js/Promise.all))]
       (.then p #(reset! result %))

@@ -238,7 +238,16 @@
 
     "echo a && echo b && echo c"
 
-    "echo a | egrep b || echo OK")
+    "echo a | egrep b || echo OK"
+
+    "mkdir x/y/z || echo FAILED"
+
+    "cat < package.json"
+
+    ; TODO: fix redirect
+    ; "echo x | cat < package.json"
+
+    "cat < package.json | cat")
 
   (are [x y] (= (bash x) (closh y))
     "echo \"*\""
@@ -280,7 +289,10 @@
     "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
-    "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")")
+    "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
+
+    "cat < package.json 2>/dev/null | cat"
+    "cat < package.json 2 > /dev/null | cat")
 
   (are [x y] (= x (pipeline-value y))
     ; process to process - redirect stdout
