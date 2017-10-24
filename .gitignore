@@ -4,3 +4,4 @@ package-lock.json
 /target
 .lein-repl-history
 .nrepl-port
+/doc/api

@@ -116,6 +116,12 @@ Re-run tests on change
 ```
 lein test-auto
 ```
+
+Generate API documentation into `doc/api`
+```
+lein doc
+```
+
 ## Copyright & License
 
 Copyright (c) Jakub Dundalek

@@ -3,7 +3,7 @@
 ; Copyright (C) 2015 Trevor Schmidt trevor@democratizr.com
 ; Distributed under DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE Version 2, December 2004
 
-(ns alter-cljs.core
+(ns ^:no-doc alter-cljs.core
   (:refer-clojure :exclude [alter-var-root]))
 
 (defmacro if-cljs

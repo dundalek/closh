@@ -20,7 +20,8 @@
             [lein-kibit "0.1.6-beta2"]
             [lein-bikeshed "0.5.0"]
             [venantius/yagni "0.1.4"]
-            [jonase/eastwood "0.2.5"]]
+            [jonase/eastwood "0.2.5"]
+            [funcool/codeina "0.4.0" :exclusions [org.clojure/clojure]]]
 
   :profiles {:dev {:dependencies [[lein-doo "0.1.6"]]}}
 
@@ -37,6 +38,8 @@
             "test" ["doo" "node" "test-node" "once"]
             "test-auto" ["doo" "node" "test-node" "auto"]
             "lint" ["do" ["kibit"] ["eastwood"] ["bikeshed"] ["yagni"]]}
+
+  :codeina {:reader :clojurescript}
 
   ;; This release-task does lein npm publish in addition to lein deploy
   :release-tasks [["vcs" "assert-committed"]
