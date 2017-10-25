@@ -319,14 +319,15 @@
     "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo -n ${result:0:10}"
     "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"
 
-    "if test -f package.json; then echo file exists; else echo no file; fi"
-    "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
-
     "cat < package.json 2>/dev/null | cat"
     "cat < package.json 2 > /dev/null | cat"
 
     "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
     "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
+
+    ; TODO: fix printing out seq of subcommands
+    ; "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
+    ; "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
@@ -336,6 +337,10 @@
 
     "if test -f asdfgh.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f asdfgh.json) \"file exists\" \"no file\")")
+
+    ; TODO: output for sequential commands
+    ; "ls; echo hi"
+    ; "(sh ls) (sh echo hi)")
 
   (are [x y] (= x (pipeline-value y))
     ; process to process - redirect stdout
