@@ -14,7 +14,8 @@
     "glob": "7.1.2"
   },
   "devDependencies": {
-    "nodemon": "1.12.1"
+    "nodemon": "1.12.1",
+    "tmp": "0.0.33"
   },
   "scripts": {
     "start": "node ./bin/closh.js",

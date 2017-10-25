@@ -1,6 +1,8 @@
 (ns closh.tester
   (:require [clojure.tools.reader]
             [clojure.tools.reader.impl.commons]
+            [clojure.string]
+            [lumo.io]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]

@@ -3,6 +3,7 @@
             [clojure.tools.reader.impl.commons]
             [clojure.pprint :refer [pprint]]
             [clojure.string]
+            [lumo.io]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]

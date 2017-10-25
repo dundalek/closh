@@ -6,7 +6,12 @@
             [closh.core :refer [shx expand expand-command expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
                         :refer-macros [sh]]))
 
+(def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
+(def tmp (js/require "tmp"))
+
+;; Clean up tmp files on unhandled exception
+(tmp.setGracefulCleanup)
 
 (defn bash [cmd]
   (let [proc (.spawnSync child-process
@@ -403,4 +408,24 @@
     ; non-seqable to seqable - wrap in list
     '(false)
     ; "(identity false) |> (identity)"))
-    (pipe-multi false identity)))
+    (pipe-multi false identity))
+
+  (are [x y] (= x
+                (let [file (tmp.fileSync)
+                      f (.-name file)
+                      result (closh y)
+                      out (fs.readFileSync f "utf-8")]
+                  (.removeCallback file)
+                  out))
+
+    "x1\n"
+    (str "echo x1 > " f)
+
+    "x2\n"
+    (str "echo x2 | (spit \"" f "\")")
+
+    "x3\ny1\n"
+    (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
+
+    ""
+    (str "echo x4 2 > " f)))
