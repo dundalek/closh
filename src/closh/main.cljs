@@ -28,7 +28,8 @@
         (fn [input]
           (when (not (clojure.string/blank? input))
             (let [result (handle-line input execute-text)]
-              (when-not (instance? child-process.ChildProcess result)
+              (when-not (or (nil? result)
+                            (instance? child-process.ChildProcess result))
                 (.write js/process.stdout (with-out-str (pprint result))))))
           (.prompt rl)))
       (.on "close" #(.exit js/process 0))
