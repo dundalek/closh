@@ -3,6 +3,10 @@
 
 Closh combines the best of traditional unix shells with the power of Clojure. It aims to be a modern alternative to bash.
 
+Demo showing how to execute commands and using Clojure to manipulate outputs in shell:
+
+![closh demo screencast](./doc/img/demo.gif)
+
 Why try to reinvent bash?
 - Bash has obscure syntax for non-trivial operations and lots of WTF moments.
 - It treats everything as text while we mostly need to manipulate structured information.
