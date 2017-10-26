@@ -75,25 +75,9 @@
        (list)))))
 
 (defn get-out-stream [x]
-  (cond
-    (instance? child-process.ChildProcess x)
-    (if-let [stdout (.-stdout x)]
-      stdout
-      (let [s (stream.PassThrough.)]
-        (.end s)
-        s))
-
-    (sequential? x)
+  (if-let [stdout (.-stdout x)]
+    stdout
     (let [s (stream.PassThrough.)]
-      (doseq [chunk x]
-        (.write s chunk)
-        (.write s "\n"))
-      (.end s)
-      s)
-
-    :else
-    (let [s (stream.PassThrough.)]
-      (.write s (str x))
       (.end s)
       s)))
 
@@ -133,16 +117,10 @@
     (seq? proc) (str (clojure.string/join "\n" proc) "\n")
     :else proc))
 
-(defn stream-output [stream]
-  (let [out #js[]]
-    (.on stream "data" #(.push out %))
-    (wait-for-event stream "finish")
-    (.join out "")))
-
 (defn pipeline-value [proc]
   (cond
     (instance? child-process.ChildProcess proc)
-    (stream-output (get-out-stream proc))
+    (process-output proc)
 
     :else proc))
 
@@ -240,19 +218,7 @@
 (defn pipe-filter [proc f]
   (pipe-multi proc (partial filter f)))
 
-
-(defn handle-code [input eval-cljs]
-  (->> input
-    (eval-cljs)
-    (prn-str)
-    (.write js/process.stdout)))
-
-(defn handle-command [input eval-cljs]
+(defn handle-line [input eval-cljs]
   (let [proc (-> (str "(sh " input ")")
                (eval-cljs))]
     (wait-for-pipeline proc)))
-
-(defn handle-line [input eval-cljs]
-  ; (if (re-find #"^\s*#?\(" input)
-  ;   (handle-code input eval-cljs)
-    (handle-command input eval-cljs))
