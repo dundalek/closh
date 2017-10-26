@@ -5,7 +5,7 @@
 (aset js/$$LUMO_GLOBALS "doPrint" identity)
 
 (defn execute-text
-  "Evals a string via lumo"
+  "Evals a string via lumo."
   [source]
   ;; Execute does not return value but binds it to *1
   (lumo.repl/execute-text source {:expression? true})

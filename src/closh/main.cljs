@@ -18,7 +18,7 @@
 (def ^:no-doc child-process (js/require "child_process"))
 
 (defn -main
-  "Start closh REPL with readline"
+  "Start closh REPL with prompt and readline."
   []
   (patch-reader)
   (let [rl (.createInterface readline

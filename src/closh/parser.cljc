@@ -70,7 +70,7 @@
 (declare parse)
 
 (defn ^:no-doc process-arg
-  "Transform conformed argument"
+  "Transform conformed argument."
   [arg]
   (cond
     ;; clojure form - use as is
@@ -81,7 +81,7 @@
     :else (list 'expand (str arg))))
 
 (defn ^:no-doc process-redirect
-  "Transform conformed redirection specification"
+  "Transform conformed redirection specification."
   [{:keys [op fd arg]}]
   (let [arg (cond
               (list? arg) arg
@@ -99,7 +99,7 @@
       >& [[:set (or fd 1) arg]])))
 
 (defn ^:no-doc process-command
-  "Transform conformed command specification"
+  "Transform conformed command specification."
   [[cmd & args]]
   (if (and (= (first cmd) :arg)
            (list? (second cmd))
@@ -139,7 +139,7 @@
    ; (-> symb resolve meta :macro boolean)))
 
 (defn ^:no-doc process-pipeline
-  "Transform conformed pipeline specification"
+  "Transform conformed pipeline specification."
   [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
@@ -152,7 +152,7 @@
          :else (list fn cmd))))))
 
 (defn ^:no-doc process-command-clause
-  "Transform conformed command clause specification, handle conditional execution"
+  "Transform conformed command clause specification, handle conditional execution."
   [{:keys [pipeline pipelines]}]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
     (:pipeline
@@ -174,7 +174,7 @@
 
 ;; TODO: handle rest of commands when job control is implemented
 (defn ^:no-doc process-command-list
-  "Transform conformed command list specification"
+  "Transform conformed command list specification."
   [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 

@@ -15,7 +15,7 @@
     s))
 
 (defn expand-tilde
-  "Expands tilde character to a path to user's home directory"
+  "Expands tilde character to a path to user's home directory."
   [s]
   (clojure.string/replace-first s #"^~" (.-HOME js/process.env)))
 
@@ -41,7 +41,7 @@
 (defn expand
   "Expands command-line parameter.
 
-  The order of expansions is variable expansion, tilde expansion and filename expansin."
+  The order of expansions is variable expansion, tilde expansion and filename expansion."
   [s]
   (if-let [x (expand-variable s)]
     (-> x
@@ -50,6 +50,7 @@
     (list)))
 
 (defn line-seq
+  "Create a lazy seq of strings from stream"
   ([stream]
    (let [buf #js[]
          done (atom false)]
@@ -74,25 +75,33 @@
        (list line)
        (list)))))
 
-(defn get-out-stream [x]
-  (if-let [stdout (.-stdout x)]
+(defn get-out-stream
+  "Get stdout stream of a given process or empty stream"
+  [proc]
+  (if-let [stdout (.-stdout proc)]
     stdout
     (let [s (stream.PassThrough.)]
       (.end s)
       s)))
 
-(defn wait-for-event [proc event]
+(defn wait-for-event
+  "Synchronously wait for an event to be trigerred on an event emitter."
+  [emitter event]
   (let [done (atom false)]
-    (.on proc event #(reset! done {:val %}))
+    (.on emitter event #(reset! done {:val %}))
     (.loopWhile deasync #(not @done))
     (:val @done)))
 
-(defn wait-for-process [proc]
+(defn wait-for-process
+  "Wait untils process exits and all of its stdio streams are closed."
+  [proc]
   (when (nil? (.-exitCode proc))
     (wait-for-event proc "close"))
   proc)
 
-(defn wait-for-pipeline [proc]
+(defn wait-for-pipeline
+  "Wait for a pipeline to complete. Standard outputs of a process are piped to stdout and stderr."
+  [proc]
   (if (instance? child-process.ChildProcess proc)
     (let [stdout (get-out-stream proc)]
       (when-let [stderr (and proc (.-stderr proc))]
@@ -101,65 +110,77 @@
       (wait-for-process proc))
     proc))
 
-(defn pipeline-condition [proc]
+(defn pipeline-condition
+  "Get status of a finished pipeline. Returns true if a process exited with non-zero code or a value is truthy."
+  [proc]
   (if (instance? child-process.ChildProcess proc)
     (zero? (.-exitCode proc))
     (boolean proc)))
 
-(defn process-output [proc]
-  (cond
-    (instance? child-process.ChildProcess proc)
+(defn pipeline-value
+  "Waits for a pipeline to finish and returns its output."
+  [proc]
+  (if (instance? child-process.ChildProcess proc)
     (let [out #js[]]
       (.on (get-out-stream proc) "data" #(.push out %))
       (wait-for-process proc)
       (.join out ""))
+    proc))
 
-    (seq? proc) (str (clojure.string/join "\n" proc) "\n")
-    :else proc))
+(defn process-output
+  "Returns for a process to finish and returns output to be printed out."
+  [proc]
+  (if (seq? proc)
+    (str (clojure.string/join "\n" proc) "\n")
+    (pipeline-value proc)))
 
-(defn pipeline-value [proc]
-  (cond
-    (instance? child-process.ChildProcess proc)
-    (process-output proc)
+(defn open-io-stream
+  "Opens a stream based on operation and target, returns a promise."
+  [op target]
+  (js/Promise.
+    (fn [resolve reject]
+      (if (= op :set)
+        (resolve target)
+        (let [[create-stream flags]
+              (case op
+                :in [#(.createReadStream fs %1 %2) "r"]
+                :out [#(.createWriteStream fs %1 %2) "w"]
+                :append [#(.createWriteStream fs %1 %2) "a"]
+                :rw [#(.createWriteStream fs %1 %2) "w+"])]
+           (.open fs target flags
+             (fn [err f]
+               (if err
+                 (reject err)
+                 (resolve (create-stream nil #js{:fd f}))))))))))
 
-    :else proc))
+(defn open-io-streams
+  "Opens io streams based on redirection specification. Returns an array that can be passed as stdio option to spawn."
+  [redir]
+  (let [arr #js["pipe" "pipe" "pipe"]]
+    (when (seq redir)
+      (let [result (atom nil)
+            p (->> (for [[op fd target] redir]
+                     (-> (open-io-stream op target)
+                         (.then (fn [stream] [fd stream]))))
+                   (apply array)
+                   (js/Promise.all))]
+           (.then p #(reset! result %))
+           (.loopWhile deasync #(not @result))
+           (doseq [[fd target] @result]
+             (aset arr fd (if (number? target)
+                            (aget arr target)
+                            target)))))
+    arr))
 
-(defn get-streams [redir]
-  (let [result (atom nil)
-        p (->> (for [[op fd target] redir]
-                 (if (= op :set)
-                   (js/Promise.resolve [op fd target])
-                   (let [stream (case op
-                                  :in (.createReadStream fs nil #js{:fd (.openSync fs target "r")})
-                                  :out (.createWriteStream fs nil #js{:fd (.openSync fs target "w")})
-                                  :append (.createWriteStream fs nil #js{:fd (.openSync fs target "a")})
-                                  :rw (.createWriteStream fs nil #js{:fd (.openSync fs target "w+")}))]
-                      (js/Promise.resolve [op fd stream]))))
-                    ;  (js/Promise.
-                    ;    (fn [resolve reject]
-                    ;      (.on stream "open" #(resolve [op fd stream])))))))
-               (apply array)
-               (js/Promise.all))]
-      (.then p #(reset! result %))
-      (.loopWhile deasync #(not @result))
-      (let [arr #js["pipe" "pipe" "pipe"]]
-        (doseq [[_ fd target] @result]
-          (aset arr fd (if (number? target)
-                         (aget arr target)
-                         target)))
-        arr)))
-
-(defn build-options [{:keys [redir]}]
-  (if redir
-    #js{:stdio (get-streams redir)}
-    #js{}))
-
-(defn handle-spawn-error [err]
+(defn handle-spawn-error
+  "Formats and prints error from spawn."
+  [err]
   (case (.-errno err)
     "ENOENT" (js/console.error (str (.-path err) ": command not found"))
     (js/console.error "Unexpected error:\n" err)))
 
 (defn shx
+  "Executes a command as child process."
   ([cmd] (shx cmd []))
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
@@ -167,10 +188,12 @@
      (child-process.spawn
        cmd
        (apply array (flatten args))
-       (build-options opts))
+       #js{:stdio (open-io-streams (:redir opts))})
      (.on "error" handle-spawn-error))))
 
+; TODO: refactor dispatch
 (defn pipe
+  "Pipes process or value to another process or function."
   ([from to]
    (cond
      (instance? child-process.ChildProcess from)
@@ -204,7 +227,9 @@
   ([x & xs]
    (reduce pipe x xs)))
 
-(defn pipe-multi [x f]
+(defn pipe-multi
+  "Piping in multi mode. It splits streams and strings into seqs of strings by newline. Single value is wrapped in list. Then it is passed to `pipe`."
+  [x f]
   (let [val (cond
               (instance? child-process.ChildProcess x) (line-seq (get-out-stream x))
               (sequential? x) x
@@ -212,13 +237,19 @@
               :else (list x))]
     (pipe val f)))
 
-(defn pipe-map [proc f]
+(defn pipe-map
+  "Pipe by mapping a function."
+  [proc f]
   (pipe-multi proc (partial map f)))
 
-(defn pipe-filter [proc f]
+(defn pipe-filter
+  "Pipe by filtering based on a function."
+  [proc f]
   (pipe-multi proc (partial filter f)))
 
-(defn handle-line [input eval-cljs]
-  (let [proc (-> (str "(sh " input ")")
-               (eval-cljs))]
-    (wait-for-pipeline proc)))
+(defn handle-line
+  "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
+  [input eval-cljs]
+  (-> (str "(sh " input ")")
+      (eval-cljs)
+      (wait-for-pipeline)))
