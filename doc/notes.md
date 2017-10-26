@@ -2,12 +2,15 @@
 Number of LOC for existing shells:
 
 ```
-cd bash; wc -l *.{h,c} | tail -1
+wc -l bash/*.{h,c} | tail -1
 73460 total
 
-cd zsh; wc -l Src/*.{h,c} | tail -1
+wc -l zsh/Src/*.{h,c} | tail -1
 79214 total
 
-cd fish-shel; wc -l src/*.{h,cpp} | tail -1
+wc -l fish-shell/src/*.{h,cpp} | tail -1
 59027 total
+
+wc -l mksh/*.{h,c} | tail -1
+34286 total
 ```

@@ -38,9 +38,9 @@ ls | head
 Piping with functions works similarly to `->>` threading macro
 
 ```
-ls | (str/upper-case)
+ls | (clojure.string/upper-case)
 
-ls | #(str/replace % #"\.txt" ".md")
+ls | #(clojure.string/replace % #"\.txt" ".md")
 ```
 
 Use special `|>` pipe operator to split input into sequence of lines
@@ -49,12 +49,14 @@ Use special `|>` pipe operator to split input into sequence of lines
 ls |> (reverse) | (take 5)
 ```
 
-Redirects
+Redirects - note that there must be spaces around redirection operators `>` and `>>`
 
 ```
 ls > files.txt
 
 echo hi >> file.txt
+
+ls 2 > files.txt
 ```
 
 Command status
@@ -111,6 +113,28 @@ if test -f package.json; then echo file exists; else echo no file; fi
 echo (if (sh-ok test -f package.json) "file exists" "no file")
 ```
 
+### Sequnce of commands
+
+```
+bash:  ls; echo hi
+closh: (sh ls) (sh echo hi)
+```
+
 ## Reference
 
-TODO
+### Quoting
+
+Prevent some expansion is same like bash with double-quoted string:
+```
+echo "*"
+```
+
+Disable expansion completely with a single quote:
+```clojure
+bash:  echo '$HOME'
+closh: echo '$HOME ; notice there is only one quote
+
+; if the quoted string has spaces wrap in double quotes and then prepend single quote
+bash:  echo '$HOME $PWD'
+closh: echo '"$HOME $PWD"
+```
