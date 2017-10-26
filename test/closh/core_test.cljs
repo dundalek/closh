@@ -3,7 +3,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.parser :refer [parse]]
-            [closh.core :refer [shx expand expand-command expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
                         :refer-macros [sh]]))
 
 (def fs (js/require "fs"))
@@ -32,8 +32,6 @@
      :code (.-status proc)}))
 
 (deftest run-test
-
-  (is (= (list "a" "b")) (expand-command (shx "echo" ["a b"])))
 
   (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
 
@@ -103,9 +101,6 @@
 
     '(-> (do (list 1 2 3) (reverse)))
     '((list 1 2 3) (reverse))
-
-    '(-> (shx "echo" [(expand-command (-> (shx "date" [])))]))
-    '(echo (sh date))
 
     '(-> (shx "echo" [(+ 2 3)]))
     '(echo (+ 2 3))
@@ -336,11 +331,14 @@
     "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
 
     "if test -f asdfgh.json; then echo file exists; else echo no file; fi"
-    "echo (if (sh-ok test -f asdfgh.json) \"file exists\" \"no file\")")
+    "echo (if (sh-ok test -f asdfgh.json) \"file exists\" \"no file\")"
 
     ; TODO: output for sequential commands
     ; "ls; echo hi"
     ; "(sh ls) (sh echo hi)")
+
+    "ls -l `echo *.json *.md`"
+    "ls -l (sh-seq echo *.json *.md)")
 
   (are [x y] (= x (pipeline-value y))
     ; process to process - redirect stdout
@@ -426,8 +424,8 @@
     "x1\n"
     (str "echo x1 > " f)
 
-    "x2\n"
-    (str "echo x2 | (spit \"" f "\")")
+    ; "x2\n"
+    ; (str "echo x2 | (spit \"" f "\")")
 
     "x3\ny1\n"
     (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")

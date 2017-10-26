@@ -3,7 +3,8 @@
             [clojure.set]
             [clojure.spec.alpha :as s]))
 
-(def pipes
+(def ^:no-doc pipes
+  "Maps shorthand symbols of pipe functions to full name"
   {'| 'pipe
    '|> 'pipe-multi
   ;  '|>> ' pipe-thread-last
@@ -12,14 +13,29 @@
    '|& 'pipe-reduce})
    ; '|! 'pipe-foreach
 
-(def builtins #{'cd 'exit 'quit})
+(def ^:no-doc builtins
+  "Set of symbols of builtin functions"
+  #{'cd 'exit 'quit})
 
-(def redirect-op #{'> '< '>> '&> '&>> '<> '>&})
-(def pipe-op #{'| '|> '|? '|&})
-(def clause-op #{'|| '&&})
-(def cmd-op #{'&})
+(def ^:no-doc redirect-op
+  "Set of symbols of redirection operators"
+   #{'> '< '>> '&> '&>> '<> '>&})
 
-(def op (clojure.set/union redirect-op pipe-op clause-op cmd-op))
+(def ^:no-doc pipe-op
+  "Set of symbols of pipe operators"
+   #{'| '|> '|? '|&})
+
+(def ^:no-doc clause-op
+  "Set of symbols of command clause operators (conditional execution with `&&` and `||`)"
+   #{'|| '&&})
+
+(def ^:no-doc cmd-op
+  "Set of symbols of operators separating commands"
+  #{'&})
+
+(def ^:no-doc op
+  "Set of symbols of all operators"
+  (clojure.set/union redirect-op pipe-op clause-op cmd-op))
 
 (s/def ::redirect-op redirect-op)
 (s/def ::pipe-op pipe-op)
@@ -53,17 +69,20 @@
 
 (declare parse)
 
-(defn process-arg [arg]
-  (if (list? arg)
-    (if (= (first arg) 'sh)
-      (list 'expand-command (parse (rest arg)))
-      arg)
-    (list (if (string? arg)
-            'expand-partial
-            'expand)
-          (str arg))))
+(defn ^:no-doc process-arg
+  "Transform conformed argument"
+  [arg]
+  (cond
+    ;; clojure form - use as is
+    (list? arg) arg
+    ;; strings do limited expansion
+    (string? arg) (list 'expand-partial arg)
+    ;; otherwise do full expansion
+    :else (list 'expand (str arg))))
 
-(defn process-redirect [{:keys [op fd arg]}]
+(defn ^:no-doc process-redirect
+  "Transform conformed redirection specification"
+  [{:keys [op fd arg]}]
   (let [arg (cond
               (list? arg) arg
               (number? arg) arg
@@ -79,7 +98,9 @@
       <> [[:rw (or fd 0) arg]]
       >& [[:set (or fd 1) arg]])))
 
-(defn process-command [[cmd & args]]
+(defn ^:no-doc process-command
+  "Transform conformed command specification"
+  [[cmd & args]]
   (if (and (= (first cmd) :arg)
            (list? (second cmd))
            (not= 'cmd (first (second cmd))))
@@ -107,14 +128,19 @@
             [(vec parameters)]
             (if (seq redirects) [{:redir redirects}]))))))
 
-(defn special? [symb]
+(defn ^:no-doc special?
+  "Predicate to detect special form so we know not to partial apply it when piping.
+  CLJS does not support dynamic macro detection so we also list selected macros."
+  [symb]
   (or
    (special-symbol? symb)
    (#{'shx 'fn} symb)))
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
-(defn process-pipeline [{:keys [cmd cmds]}]
+(defn ^:no-doc process-pipeline
+  "Transform conformed pipeline specification"
+  [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
    (for [{:keys [op cmd]} cmds]
@@ -125,7 +151,9 @@
          (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
          :else (list fn cmd))))))
 
-(defn process-command-clause [{:keys [pipeline pipelines]}]
+(defn ^:no-doc process-command-clause
+  "Transform conformed command clause specification, handle conditional execution"
+  [{:keys [pipeline pipelines]}]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
     (:pipeline
       (reduce
@@ -144,10 +172,13 @@
             (update :pipeline process-pipeline))
         (rest items)))))
 
-(defn process-command-list [{:keys [cmd cmds]}]
+;; TODO: handle rest of commands when job control is implemented
+(defn ^:no-doc process-command-list
+  "Transform conformed command list specification"
+  [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
-(defn parse [coll]
+(defn parse
+  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result."
+  [coll]
   (process-command-list (s/conform ::cmd-list coll)))
-
-; (process-command-list (s/conform ::cmd-list '(diff < (sh sort L.txt) < (sh sort R.txt))))

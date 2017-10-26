@@ -1,36 +1,48 @@
 (ns closh.core
   (:require [clojure.string]))
 
-(def fs (js/require "fs"))
-(def child-process (js/require "child_process"))
-(def stream (js/require "stream"))
-(def glob (.-sync (js/require "glob")))
-(def deasync (js/require "deasync"))
+(def ^:no-doc fs (js/require "fs"))
+(def ^:no-doc child-process (js/require "child_process"))
+(def ^:no-doc stream (js/require "stream"))
+(def ^:no-doc glob (.-sync (js/require "glob")))
+(def ^:no-doc deasync (js/require "deasync"))
 
-
-(defn expand-variable [s]
+(defn expand-variable
+  "Expands env variable, it does not look inside string."
+  [s]
   (if (re-find #"^\$" s)
     (aget js/process.env (subs s 1))
     s))
 
-(defn expand-tilde [s]
+(defn expand-tilde
+  "Expands tilde character to a path to user's home directory"
+  [s]
   (clojure.string/replace-first s #"^~" (.-HOME js/process.env)))
 
-(defn expand-filename [s]
+(defn expand-filename
+  "Expands filename based on globbing patterns"
+  [s]
   (seq (glob s #js{:nonull true})))
 
-; Expand for redirect targets
-(defn expand-redirect [s]
+(defn expand-redirect
+  "Expand redirect targets. It does tilde and variable expansion."
+  [s]
   (-> s
       (expand-tilde)
       (expand-variable)))
 
 ; Bash: Partial quote (allows variable and command expansion)
-(defn expand-partial [s]
+(defn expand-partial
+  "Partially expands parameter which is used when parameter is quoted as string. It only does variable expansion."
+  [s]
   (or (expand-variable s) (list)))
 
 ; Bash: The order of expansions is: brace expansion; tilde expansion, parameter and variable expansion, arithmetic expansion, and command substitution (done in a left-to-right fashion); word splitting; and filename expansion.
-(defn expand [s]
+(defn expand
+  "Expands command-line parameter.
+
+  The order of expansions is variable expansion, tilde expansion and filename expansin."
+  [s]
   (if-let [x (expand-variable s)]
     (-> x
       expand-tilde
@@ -133,11 +145,6 @@
     (stream-output (get-out-stream proc))
 
     :else proc))
-
-(defn expand-command [proc]
-  (-> (process-output proc)
-      (clojure.string/trim)
-      (clojure.string/split  #"\s+")))
 
 (defn get-streams [redir]
   (let [result (atom nil)

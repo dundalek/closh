@@ -3,7 +3,7 @@
             [clojure.tools.reader.impl.commons]
             [clojure.pprint :refer [pprint]]
             [clojure.string]
-            [lumo.io]
+            ; [lumo.io]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]
@@ -14,10 +14,12 @@
 
 (enable-console-print!)
 
-(def readline (js/require "readline"))
-(def child-process (js/require "child_process"))
+(def ^:no-doc readline (js/require "readline"))
+(def ^:no-doc child-process (js/require "child_process"))
 
-(defn -main []
+(defn -main
+  "Start closh REPL with readline"
+  []
   (patch-reader)
   (let [rl (.createInterface readline
              #js{:input js/process.stdin

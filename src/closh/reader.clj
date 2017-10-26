@@ -1,11 +1,15 @@
 (ns closh.reader)
 
-(defmacro patch-reader []
+(defmacro patch-reader
+  "Macro that expands to code patching `clojure.tools.reader` to accept symbols containing multiple slashes.
+
+  The namespace `clojure.tools.reader.impl.commons` and function `alter-var-root` must be required in the namespace."
+  []
   '(do
 
-     (def parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
+     (def ^:no-doc parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
 
-     (defn parse-symbol [token]
+     (defn ^:no-doc parse-symbol [token]
        (let [parts (.split token "/")
              symbols (map (comp second parse-symbol-orig) parts)
              pairs (->> (interleave parts symbols)
