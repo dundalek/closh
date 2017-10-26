@@ -59,19 +59,18 @@
         (.on "data" #(.push buf %)))
       (line-seq (fn []
                   (when (not @done)
-                    (.loopWhile deasync #(or (not @done)
-                                             (zero? (.-length buf))))
+                    (.loopWhile deasync #(and (not @done) (empty? buf)))
                     (.shift buf)))
         nil)))
   ([read-chunk line]
    (if-let [chunk (read-chunk)]
      (if (re-find #"\n" (str line chunk))
-       (let [lines (clojure.string/split (str line chunk) #"\n")]
+       (let [lines (.split (str line chunk) "\n")]
          (if (= 1 (count lines))
            (lazy-cat lines (line-seq read-chunk nil))
            (lazy-cat (butlast lines) (line-seq read-chunk (last lines)))))
        (recur read-chunk (str line chunk)))
-     (if line
+     (if (not (empty? line))
        (list line)
        (list)))))
 
