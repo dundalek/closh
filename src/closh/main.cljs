@@ -4,6 +4,7 @@
             [clojure.pprint :refer [pprint]]
             [clojure.string]
             ; [lumo.io]
+            [lumo.repl]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]
@@ -16,11 +17,25 @@
 
 (def ^:no-doc readline (js/require "readline"))
 (def ^:no-doc child-process (js/require "child_process"))
+(def ^:no-doc fs (js/require "fs"))
+(def ^:no-doc os (js/require "os"))
+(def ^:no-doc path (js/require "path"))
+
+(defn load-init-file
+  "Loads init file."
+  [init-path]
+  (when (try (-> (fs.statSync init-path)
+                 (.isFile))
+             (catch :default _))
+    (try (lumo.repl/execute-path init-path {})
+         (catch :default e
+           (js/console.error "Error while loading " init-path ":\n" e)))))
 
 (defn -main
   "Start closh REPL with prompt and readline."
   []
   (patch-reader)
+  (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
                  :output js/process.stdout
