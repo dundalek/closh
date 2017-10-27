@@ -31,8 +31,15 @@
          (catch :default e
            (js/console.error "Error while loading " init-path ":\n" e)))))
 
+(defn prompt
+  "Prints prompt to a readline instance."
+  [rl]
+  (doto rl
+    (.setPrompt (execute-text "(closh-prompt)"))
+    (.prompt)))
+
 (defn -main
-  "Start closh REPL with prompt and readline."
+  "Starts closh REPL with prompt and readline."
   []
   (patch-reader)
   (load-init-file (path.join (os.homedir) ".closhrc"))
@@ -48,8 +55,8 @@
               (when-not (or (nil? result)
                             (instance? child-process.ChildProcess result))
                 (.write js/process.stdout (with-out-str (pprint result))))))
-          (.prompt rl)))
+          (prompt rl)))
       (.on "close" #(.exit js/process 0))
-      (.prompt rl))))
+      (prompt))))
 
 (set! *main-cli-fn* -main)
