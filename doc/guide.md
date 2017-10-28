@@ -122,6 +122,41 @@ closh: (sh ls) (sh echo hi)
 
 ## Reference
 
+### Custom prompt
+
+The prompt can be customized by defining `closh-prompt` function in `~/.closhrc` file.
+
+For example you can use [powerline](https://github.com/banga/powerline-shell) prompt like this:
+
+```clojure
+(require-macros '[closh.core :refer [sh-str]])
+
+(defn closh-prompt []
+  (sh-str powerline-shell --shell bare))
+```
+
+Or you can reuse existing prompt from [fish](http://fishshell.com/) shell:
+
+```clojure
+(require-macros '[closh.core :refer [sh-str]])
+
+(defn closh-prompt []
+  (sh-str fish -c fish_prompt)
+```
+
+Bash [prompt format](http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html) can be used via [decode-prompt](https://github.com/substack/decode-prompt) module. Install it with `npm install -g decode-prompt`. Then use it like:
+
+```clojure
+(require '[cljs.nodejs])
+
+(def decode-prompt (js/require "decode-prompt"))
+
+(def PS1 "\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ ")
+
+(defn closh-prompt []
+  (decode-prompt PS1 #js{:env js/process.env}))
+```
+
 ### Quoting
 
 Prevent some expansion is same like bash with double-quoted string:
