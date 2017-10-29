@@ -7,16 +7,15 @@
   []
   '(do
 
-     (def ^:no-doc parse-symbol-orig clojure.tools.reader.impl.commons/parse-symbol)
-
      (defn ^:no-doc parse-symbol [token]
-       (let [parts (.split token "/")
-             symbols (map (comp second parse-symbol-orig) parts)
-             pairs (->> (interleave parts symbols)
-                        (partition 2))]
-         (if (every? #(or (second %) (empty? (first %))) pairs)
-           [nil (clojure.string/join "/" symbols)]
-           parse-symbol-orig)))
+       (when-not (or (= "" token)
+                     (.endsWith token ":")
+                     (.startsWith token "::"))
+         (let [parts (.split token "/")]
+             (case (count parts)
+               1 [nil (first parts)]
+               2 [(first parts) (second parts)]
+               [nil token]))))
 
      ; Hack reader to accept symbols with multiple slashes
      (alter-var-root
