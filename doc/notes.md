@@ -13,4 +13,8 @@ wc -l fish-shell/src/*.{h,cpp} | tail -1
 
 wc -l mksh/*.{h,c} | tail -1
 34286 total
+
+git clone git@github.com:elves/elvish.git
+find elvish -name '*.go' | grep -v '^elvish/vendor/\|_test.go$' | xargs wc -l | tail -n 1
+21673 total
 ```

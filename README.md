@@ -65,30 +65,49 @@ Read the [guide](./doc/guide.md) to learn more.
 
 ## Roadmap
 
-Features needed for daily use:
+#### Stage 1
 
-- [x] Commmand execution
+Initial proof-of-concept, try out if the combination of shell and Clojure could work. [COMPLETED]
+
+- [x] Command execution
 - [x] Pipes
 - [x] IO Redirects
 - [x] Interactive mode REPL
+
+#### Stage 2
+
+Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
+
+- [x] Dynamic prompt
 - [ ] Persistent history
-- [ ] Dynamic prompt
 - [ ] Autocomplete
-- [ ] Handle common erros
-- [ ] Testing and stability
-- [ ] Configuration and init scripts
+- [ ] Configuration
+  - [x] Loads `~/.closhrc` on startup
+  - [ ] Aliases
+  - [ ] Key bindings
+  - [ ] Life-cycle hooks
+
+#### Stage 3
+
+Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use.
+
+- [ ] Handle common errors
 - [ ] Signal control
 - [ ] Job control
 - [ ] Environment variable integration
 - [ ] Builtin utility functions
-- [ ] Script mode
+- [ ] Testing and stability
 
-Cool things and ideas for exploration:
+#### Stage 4
+
+At this point we can start to experiment with innovative ideas and paradigms. For example:
 
 - [ ] Syntax highlighting
 - [ ] Automatic alias suggestion
 - [ ] Automatically generate autocompletions for unknown / custom programs
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
+- [ ] Data helpers that automatically parse command output into data structures
+- [ ] Structured output ala [TermKit](https://github.com/unconed/TermKit) or [lisp machines](https://youtu.be/o4-YnLpLgtk?t=3m12s)
 
 ## Tech details
 

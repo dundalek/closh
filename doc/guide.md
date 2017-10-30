@@ -173,3 +173,16 @@ closh: echo '$HOME ; notice there is only one quote
 bash:  echo '$HOME $PWD'
 closh: echo '"$HOME $PWD"
 ```
+
+### Current known reader limitations
+
+Following forms do not currently work:
+
+- IP adresses (invalid number error)
+  replace `ping 8.8.8.8`
+  with `ping "8.8.8.8"`
+- unquoted brace expansion (gets parsed as symbol and a map)
+  replace `ls *.{cljc,clj}`
+  with `ls (expand "*.{cljc,clj}")`
+- dot after slash
+  e.g. `vim ~/.closhrc`
