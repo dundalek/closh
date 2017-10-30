@@ -5,6 +5,9 @@
 # Install dependency with:
 # sudo apt install randtype
 
+# KEY_UP=$'\e'[A
+# echo -n $KEY_UP
+
 echo "> closh"
 (sleep 2; randtype << END) | node bin/closh.js
 date
@@ -19,6 +22,6 @@ ls | wc -l
 ls |> (count)
 ls |> (reverse)
 ls |> (group-by #(re-find #"[^.]*$" %))
-(for [[k v] *1] (str k ": " (count v))) | cat
+(for [[k v] *2] (str k ": " (count v))) | cat
 echo The End
 END
