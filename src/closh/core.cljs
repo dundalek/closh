@@ -219,7 +219,8 @@
      (cond
        (instance? child-process.ChildProcess to)
        (do
-         (.pipe (get-out-stream from) (.-stdin to))
+         (when-let [stdin (.-stdin to)]
+           (.pipe (get-out-stream from) stdin))
          to)
 
        :else (to (process-output from)))
@@ -238,8 +239,9 @@
      (cond
        (instance? child-process.ChildProcess to)
        (do
-         (.write (.-stdin to) (str from))
-         (.end (.-stdin to))
+         (when-let [stdin (.-stdin to)]
+           (.write stdin (str from))
+           (.end stdin))
          to)
 
        :else (to from))))

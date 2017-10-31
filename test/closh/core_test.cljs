@@ -268,8 +268,7 @@
 
     "cat < package.json"
 
-    ; TODO: fix redirect
-    ; "echo x | cat < package.json"
+    "echo x | cat < package.json"
 
     "cat < package.json | cat")
 
