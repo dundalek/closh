@@ -9,7 +9,7 @@
 # echo -n $KEY_UP
 
 echo "> closh"
-(sleep 2; randtype << END) | node bin/closh.js
+(sleep 2; while read line; do echo "$line" | randtype; sleep 0.3; done << END) | node bin/closh.js
 date
 (def x "Clojure")
 (str "Hello " x)
