@@ -141,6 +141,9 @@
     '(-> (shx "ls" [] {:redir [[:rw 3 (expand-redirect "file.txt")]]}))
     '(ls 3 <> file.txt)
 
+    '(-> (shx "wc" [(expand "-l")] {:redir [[:set 2 1]]}))
+    '(wc -l 2 >& 1)
+
     '(-> (cd (expand "dirname")))
     '(cd dirname))
 

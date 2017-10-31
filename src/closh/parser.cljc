@@ -101,33 +101,35 @@
 
 (defn ^:no-doc process-command
   "Transform conformed command specification."
-  [[cmd & args]]
-  (if (and (= (first cmd) :arg)
-           (list? (second cmd))
-           (not= 'cmd (first (second cmd))))
-    (if (seq args)
-      (concat
-        (list 'do (second cmd))
-        (map second args))
-      (second cmd))
-    (let [name (second cmd)
-          name-val (if (list? name)
-                     (second name) ; when using cmd helper
-                     (str name))
-          redirects (->> args
-                         (mapcat #(if (vector? (first %)) % [%]))
-                         (filter #(= (first %) :redirect))
-                         (mapcat (comp process-redirect second))
-                         (into []))
-          parameters (->> args
-                          (filter #(= (first %) :arg))
-                          (map #(process-arg (second %))))]
-        (if (builtins name)
-          (conj parameters name)
-          (concat
-            (list 'shx name-val)
-            [(vec parameters)]
-            (if (seq redirects) [{:redir redirects}]))))))
+  [[cmd & rest]]
+  (let [args (if (vector? (ffirst rest))
+               (apply concat rest)
+               rest)]
+    (if (and (= (first cmd) :arg)
+             (list? (second cmd))
+             (not= 'cmd (first (second cmd))))
+      (if (seq args)
+        (concat
+          (list 'do (second cmd))
+          (map second args))
+        (second cmd))
+      (let [name (second cmd)
+            name-val (if (list? name)
+                       (second name) ; when using cmd helper
+                       (str name))
+            redirects (->> args
+                           (filter #(= (first %) :redirect))
+                           (mapcat (comp process-redirect second))
+                           (into []))
+            parameters (->> args
+                            (filter #(= (first %) :arg))
+                            (map (comp process-arg second)))]
+          (if (builtins name)
+            (conj parameters name)
+            (concat
+              (list 'shx name-val)
+              [(vec parameters)]
+              (if (seq redirects) [{:redir redirects}])))))))
 
 (defn ^:no-doc special?
   "Predicate to detect special form so we know not to partial apply it when piping.
