@@ -68,6 +68,7 @@
               ;        :number number?))))
 
 (declare parse)
+(declare ^:dynamic *process-pipeline*)
 
 (defn ^:no-doc process-arg
   "Transform conformed argument."
@@ -138,8 +139,46 @@
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
-(defn ^:no-doc process-pipeline
-  "Transform conformed pipeline specification."
+(defn ^:no-doc augment-command-redirects
+  "Updates command redirection options which are used to set up pipeline."
+  [cmd redir]
+  (if (and (seq cmd) (= (first cmd) 'shx))
+    (let [opts (nth cmd 3 {})]
+      (-> (take 3 cmd)
+          (concat [(update opts :redir #(into [] (concat redir %)))])))
+    cmd))
+
+(defn ^:no-doc process-pipeline-command
+  "Processes single command within a pipeline."
+  ([cmd] (process-pipeline-command cmd []))
+  ([{:keys [op cmd]} redir]
+   (let [cmd (process-command cmd)
+         fn (pipes op)]
+     (cond
+       (and (= op '|>) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
+       (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
+       :else (list fn (augment-command-redirects cmd redir))))))
+
+(defn ^:no-doc process-pipeline-interactive
+  "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
+  [{:keys [cmd cmds]}]
+  (let [pipeline (butlast cmds)
+        end (last cmds)
+        redir-begin
+           [[:set 0 :stdin]
+            [:set 1 (if end "pipe" :stdout)]
+            [:set 2 :stderr]]
+        redir-end
+           [[:set 0 "pipe"]
+            [:set 1 :stdout]
+            [:set 2 :stderr]]]
+    (concat
+     ['-> (augment-command-redirects (process-command cmd) redir-begin)]
+     (map process-pipeline-command pipeline)
+     (when end [(process-pipeline-command end redir-end)]))))
+
+(defn ^:no-doc process-pipeline-batch
+  "Transform conformed pipeline specification in batch mode. Pipeline does not write to stdout by default but has a stream that can be redirected."
   [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
@@ -163,13 +202,13 @@
                 pred (if neg 'true? 'false?)
                 tmp (gensym)]
             (assoc pipeline :pipeline
-                   `(let [~tmp (closh.core/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
+                   `(let [~tmp (closh.core/wait-for-pipeline ~(*process-pipeline* (:pipeline pipeline)))]
                       (if (~pred (closh.core/pipeline-condition ~tmp))
                         ~child
                         ~tmp)))))
         (-> items
             (first)
-            (update :pipeline process-pipeline))
+            (update :pipeline *process-pipeline*))
         (rest items)))))
 
 ;; TODO: handle rest of commands when job control is implemented
@@ -178,7 +217,14 @@
   [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
-(defn parse
-  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result."
+(defn parse-interactive
+  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
   [coll]
-  (process-command-list (s/conform ::cmd-list coll)))
+  (binding [*process-pipeline* process-pipeline-interactive]
+    (process-command-list (s/conform ::cmd-list coll))))
+
+(defn parse-batch
+  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses batch pipeline mode."
+  [coll]
+  (binding [*process-pipeline* process-pipeline-batch]
+    (process-command-list (s/conform ::cmd-list coll))))

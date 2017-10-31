@@ -168,7 +168,11 @@
            (doseq [[fd target] @result]
              (aset arr fd (if (number? target)
                             (aget arr target)
-                            target)))))
+                            (case target
+                              :stdin js/process.stdin
+                              :stdout js/process.stdout
+                              :stderr js/process.stderr
+                              target))))))
     arr))
 
 (defn handle-spawn-error

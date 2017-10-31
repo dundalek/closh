@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is are]]
             [clojure.spec.alpha :as s]
             [clojure.string]
-            [closh.parser :refer [parse]]
+            [closh.parser :refer [parse-batch]]
             [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
                         :refer-macros [sh]]))
 
@@ -70,7 +70,7 @@
                    (pipe (shx "wc" ["-l"]))
                    process-output)))
 
-  (is (= '(shx "ls" [(expand "-l")])
+  (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
          (macroexpand '(sh ls -l))))
 
   (is (= "_asdfghj_: command not found\n"
@@ -86,7 +86,7 @@
          (-> (closh "_asdfghj_ || echo YES")
              (select-keys [:stdout :stderr]))))
 
-  (are [x y] (= x (parse y))
+  (are [x y] (= x (parse-batch y))
     '(-> (shx "ls" [(expand "-l")]))
     '(ls -l)
 
