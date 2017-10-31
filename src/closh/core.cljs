@@ -7,6 +7,8 @@
 (def ^:no-doc glob (.-sync (js/require "glob")))
 (def ^:no-doc deasync (js/require "deasync"))
 
+(def command-not-found-bin "/usr/lib/command-not-found")
+
 (defn expand-variable
   "Expands env variable, it does not look inside string."
   [s]
@@ -175,11 +177,25 @@
                               target))))))
     arr))
 
+(defn get-command-suggestion
+  "Get suggestion for a missing command using command-not-found utility."
+  [cmdname]
+  (try
+    (fs.accessSync command-not-found-bin fs.constants.X_OK)
+    (-> (child-process.spawnSync command-not-found-bin #js["--no-failure-msg" cmdname] #js{:encoding "utf-8"})
+        (.-stderr)
+        (clojure.string/trim))
+    (catch :default _)))
+
 (defn handle-spawn-error
   "Formats and prints error from spawn."
   [err]
   (case (.-errno err)
-    "ENOENT" (js/console.error (str (.-path err) ": command not found"))
+    "ENOENT" (let [cmdname (.-path err)
+                   suggestion (get-command-suggestion cmdname)]
+               (when (not (clojure.string/blank? suggestion))
+                 (js.console.error suggestion))
+               (js/console.error (str cmdname ": command not found")))
     (js/console.error "Unexpected error:\n" err)))
 
 (defn shx
