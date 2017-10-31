@@ -160,9 +160,8 @@
     "HI\n"
     "echo hi | (clojure.string/upper-case)"
 
-    ; TODO: Fix str alias
-    ; "HI\n"
-    ; "echo hi | (str/upper-case)"
+    "HI\n"
+    "echo hi | (st/upper-case)"
 
     "3\n"
     "echo (+ 1 2)"
