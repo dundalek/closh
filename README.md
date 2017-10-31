@@ -1,5 +1,5 @@
 
-# closh - Command shell based on Clojure
+# closh - Bash-like shell based on Clojure
 
 Closh combines the best of traditional unix shells with the power of Clojure. It aims to be a modern alternative to bash.
 
