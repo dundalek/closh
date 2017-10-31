@@ -36,7 +36,7 @@
   [rl]
   (doto rl
     (.setPrompt (execute-text "(closh-prompt)"))
-    (.prompt)))
+    (.prompt true)))
 
 (defn -main
   "Starts closh REPL with prompt and readline."
@@ -50,12 +50,14 @@
     (doto rl
       (.on "line"
         (fn [input]
+          (.pause rl)
           (when (not (clojure.string/blank? input))
             (let [result (handle-line input execute-text)]
               (when-not (or (nil? result)
                             (instance? child-process.ChildProcess result))
                 (.write js/process.stdout (with-out-str (pprint result))))))
-          (prompt rl)))
+          (prompt rl)
+          (.resume rl)))
       (.on "close" #(.exit js/process 0))
       (prompt))))
 
