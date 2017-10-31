@@ -17,9 +17,16 @@
   (patch-reader)
   (let [cmd (-> (seq js/process.argv)
                 (nth 5))
-        proc (handle-line cmd execute-text)]
-    (if (instance? child-process.ChildProcess proc)
-      (js/process.exit (.-exitCode proc))
-      (.write js/process.stdout (str proc)))))
+        result (handle-line cmd execute-text)]
+    (cond
+      (instance? child-process.ChildProcess result)
+      (js/process.exit (.-exitCode result))
+
+      (and (seq? result)
+           (every? #(instance? child-process.ChildProcess %) result))
+      (js/process.exit (.-exitCode (last result)))
+
+      :else
+      (.write js/process.stdout (str result)))))
 
 (set! *main-cli-fn* -main)

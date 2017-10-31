@@ -54,7 +54,9 @@
           (when (not (clojure.string/blank? input))
             (let [result (handle-line input execute-text)]
               (when-not (or (nil? result)
-                            (instance? child-process.ChildProcess result))
+                            (instance? child-process.ChildProcess result)
+                            (and (seq? result)
+                                 (every? #(instance? child-process.ChildProcess %) result)))
                 (.write js/process.stdout (with-out-str (pprint result))))))
           (prompt rl)
           (.resume rl)))

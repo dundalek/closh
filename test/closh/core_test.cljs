@@ -321,9 +321,8 @@
     "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
     "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
 
-    ; TODO: fix printing out seq of subcommands
-    ; "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
-    ; "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+    "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
+    "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
