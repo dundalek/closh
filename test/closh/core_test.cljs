@@ -341,7 +341,20 @@
     ; "(sh ls) (sh echo hi)")
 
     "ls -l `echo *.json *.md`"
-    "ls -l (sh-seq echo *.json *.md)")
+    "ls -l (sh-seq echo *.json *.md)"
+
+    "echo x 1>&2"
+    "echo x 1 >& 2"
+
+    "bash -c \"echo err 1>&2; echo out\""
+    "bash -c \"echo err 1>&2; echo out\""
+
+    "bash -c \"echo err 1>&2; echo out\" 2>&1"
+    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
+
+    ; TODO: fix stderr redirects
+    ; "bash -c \"echo err 1>&2; echo out\" 2>&1 | cat"
+    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
 
   (are [x y] (= x (pipeline-value y))
     ; process to process - redirect stdout
