@@ -333,9 +333,8 @@
     "if test -f asdfgh.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f asdfgh.json) \"file exists\" \"no file\")"
 
-    ; TODO: output for sequential commands
-    ; "ls; echo hi"
-    ; "(sh ls) (sh echo hi)")
+    "ls; echo hi"
+    "(sh ls) (sh echo hi)"
 
     "ls -l `echo *.json *.md`"
     "ls -l (sh-seq echo *.json *.md)"
@@ -437,6 +436,7 @@
     "x1\n"
     (str "echo x1 > " f)
 
+    ; TODO: enable spit - there is a problem with test runner when lumo.io is required
     ; "x2\n"
     ; (str "echo x2 | (spit \"" f "\")")
 
