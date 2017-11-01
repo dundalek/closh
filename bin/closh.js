@@ -12,9 +12,14 @@ var args = [
   '-m', 'closh.main',
 ];
 
-
 // NODE_PATH seems to be missing when running as global binary
-var modules_path = path.join(__dirname, '..', 'node_modules');
-process.env.NODE_PATH = process.env.NODE_PATH ? modules_path + ':' + process.env.NODE_PATH : modules_path;
+var paths = [
+  path.join(__dirname, '..', 'node_modules'),
+  path.join(__dirname, '..', '..')
+];
+if (process.env.NODE_PATH) {
+  paths.push(process.env.NODE_PATH);
+}
+process.env.NODE_PATH = paths.join(':');
 
 spawn(bin, args, { stdio: 'inherit' }).on('exit', process.exit);
