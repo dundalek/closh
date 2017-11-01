@@ -1,6 +1,8 @@
 
 # closh - Bash-like shell based on Clojure
 
+[![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Closh combines the best of traditional unix shells with the power of Clojure. It aims to be a modern alternative to bash.
 
 Demo showing how to execute commands and using Clojure to manipulate outputs in shell:
