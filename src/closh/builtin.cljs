@@ -5,9 +5,11 @@
   "Changes current working directory to a path of a first given argument."
   [& args]
   ;; flatten is used because we can get arguments from expand which are collections
-  (js/process.chdir (first (flatten args)))
-  (aset js/process.env "PWD" (js/process.cwd))
-  nil)
+  (let [dir (or (first (flatten args))
+                js/process.env.HOME)]
+    (js/process.chdir dir)
+    (aset js/process.env "PWD" (js/process.cwd))
+    nil))
 
 (defn exit
   "Exits the process using optional first argument as exit code."
