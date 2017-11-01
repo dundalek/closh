@@ -22,9 +22,13 @@ Why shell based on Clojure(Script)?
 
 **Warning:** *Closh is still in a early stage and under a heavy development. It is not ready for daily use yet since it is quite easy to get it to crash. At this moment I am most interested in gathering feedback and use cases to help make the best possible design trade-offs. Closh is tested on Linux, should run on macOS too. Windows who knows.*
 
+## Get in touch
+
+Feedback is greatly appreciated. If you have feedback about a specific feature or to report a bug feel free to open an [issue](https://github.com/dundalek/closh/issues). For general discussion you can use [gitter](https://gitter.im/closh/Lobby).
+
 ## Quick Start
 
-Install closh with (requires [node.js](https://nodejs.org/))
+Install closh (requires [node.js](https://nodejs.org/)):
 ```
 npm install -g lumo-cljs closh
 ```
