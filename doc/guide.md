@@ -26,7 +26,7 @@ Use output from a command or function as arguments to other command
 
 ```
 echo (+ 1 2)
-echo (sh date)
+echo (sh-str date)
 ```
 
 Piping output between commands
@@ -113,7 +113,7 @@ if test -f package.json; then echo file exists; else echo no file; fi
 echo (if (sh-ok test -f package.json) "file exists" "no file")
 ```
 
-### Sequnce of commands
+### Sequence of commands
 
 ```
 bash:  ls; echo hi
@@ -178,11 +178,11 @@ closh: echo '"$HOME $PWD"
 
 Following forms do not currently work:
 
-- IP adresses (invalid number error)
+- IP addresses (invalid number error)
   replace `ping 8.8.8.8`
   with `ping "8.8.8.8"`
 - unquoted brace expansion (gets parsed as symbol and a map)
   replace `ls *.{cljc,clj}`
   with `ls (expand "*.{cljc,clj}")`
-- dot after slash
+- tilde with slash
   e.g. `vim ~/.closhrc`
