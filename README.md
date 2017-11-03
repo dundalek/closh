@@ -22,11 +22,12 @@ Why shell based on Clojure(Script)?
 
 **Warning:** *Closh is still in a early stage and under a heavy development. It is not ready for daily use yet since it is quite easy to get it to crash. At this moment I am most interested in gathering feedback and use cases to help make the best possible design trade-offs. Closh is tested on Linux, should run on macOS too. Windows who knows.*
 
-## Get in touch
+## Community and Contribution
 
-Feedback is greatly appreciated.
-If you have feedback about a specific feature feel free to open an [issue](https://github.com/dundalek/closh/issues).
-For general discussion you can use [gitter](https://gitter.im/closh/Lobby).
+If you have feedback about a specific feature feel free to open an [issue](https://github.com/dundalek/closh/issues).  
+For general discussion you can use [gitter chat](https://gitter.im/closh/Lobby).  
+
+If you would like to contribute take look at [open issues](https://github.com/dundalek/closh/issues). Leave a comment if you find anything interesting  and we can improve the project together.
 
 ## Quick Start
 
@@ -88,12 +89,13 @@ Implement essential functionality needed for daily use by early adopters. [IN PR
 
 - [x] Dynamic prompt
 - [ ] Persistent history
-- [ ] Autocomplete
+- [ ] [Autocomplete](https://github.com/dundalek/closh/issues/6)
 - [ ] Configuration
   - [x] Loads `~/.closhrc` on startup
-  - [ ] Aliases
+  - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
   - [ ] Key bindings
   - [ ] Life-cycle hooks
+  - [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
 
 #### Stage 3
 
@@ -102,7 +104,7 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 - [ ] Handle common errors
 - [ ] Signal control
 - [ ] Job control
-- [ ] Environment variable integration
+- [ ] [Environment variable integration](https://github.com/dundalek/closh/issues/16)
 - [ ] Builtin utility functions
 - [ ] Testing and stability
 
@@ -111,8 +113,8 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 At this point we can start to experiment with innovative ideas and paradigms. For example:
 
 - [ ] Syntax highlighting
-- [ ] Automatic alias suggestion
-- [ ] Automatically generate autocompletions for unknown / custom programs
+- [ ] Automatic abbreviation suggestion
+- [ ] [Automatically generate autocompletions for unknown / custom programs](https://github.com/dundalek/closh/issues/13)
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
 - [ ] Data helpers that automatically parse command output into data structures
 - [ ] Structured output ala [TermKit](https://github.com/unconed/TermKit) or [lisp machines](https://youtu.be/o4-YnLpLgtk?t=3m12s)
@@ -158,6 +160,6 @@ lein doc
 
 ## Copyright & License
 
-Copyright (c) Jakub Dundalek
+Copyright (c) Jakub Dundalek and contributors
 
 Distributed under the Eclipse Public License 1.0.
