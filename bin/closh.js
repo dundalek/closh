@@ -5,7 +5,8 @@ var path = require('path');
 var os = require('os');
 var fs = require('fs');
 
-var bin = /^win/.test(process.platform) ? 'lumo.cmd' : 'lumo';
+var isWindows = /^win/.test(process.platform);
+var bin = isWindows ? 'lumo.cmd' : 'lumo';
 var args = [
   '--classpath', path.join(__dirname, '..', 'src'),
   '--cache', path.join(os.homedir(), '.lumo_cache'),
@@ -20,6 +21,6 @@ var paths = [
 if (process.env.NODE_PATH) {
   paths.push(process.env.NODE_PATH);
 }
-process.env.NODE_PATH = paths.join(':');
+process.env.NODE_PATH = paths.join(isWindows ? ';' : ':');
 
 spawn(bin, args, { stdio: 'inherit' }).on('exit', process.exit);
