@@ -17,7 +17,8 @@
     '(do
        (require '[lumo.io :refer [slurp spit]]
                 '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process wait-for-pipeline pipeline-condition process-value]]
-                '[closh.builtin :refer [cd exit quit]]
+                '[closh.builtin :refer [cd exit quit getenv setenv]]
+                '[closh.util :refer [source-shell]]
                 '[clojure.string :as st])
        (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value]])
 
