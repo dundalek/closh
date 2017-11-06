@@ -274,3 +274,13 @@
   (-> (str "(sh " input ")")
       (eval-cljs)
       (wait-for-pipeline)))
+
+(defn getenv
+  "Returns an environment variable, given its key as a string"
+  [k]
+  (aget js/process.env k))
+
+(defn setenv
+  "Sets an environment variable, given its key and a new value as strings"
+  [k v]
+  (aset js/process.env k v))
