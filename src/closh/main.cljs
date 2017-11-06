@@ -52,12 +52,15 @@
         (fn [input]
           (.pause rl)
           (when (not (clojure.string/blank? input))
-            (let [result (handle-line input execute-text)]
-              (when-not (or (nil? result)
-                            (instance? child-process.ChildProcess result)
-                            (and (seq? result)
-                                 (every? #(instance? child-process.ChildProcess %) result)))
-                (.write js/process.stdout (with-out-str (pprint result))))))
+            (try
+              (let [result (handle-line input execute-text)]
+                (when-not (or (nil? result)
+                              (instance? child-process.ChildProcess result)
+                              (and (seq? result)
+                                   (every? #(instance? child-process.ChildProcess %) result)))
+                  (.write js/process.stdout (with-out-str (pprint result)))))
+              (catch :default e
+                (js/console.error e))))
           (prompt rl)
           (.resume rl)))
       (.on "close" #(.exit js/process 0))
