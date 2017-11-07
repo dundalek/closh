@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "deasync": "0.1.10",
-    "glob": "7.1.2"
+    "glob": "7.1.2",
+    "sqlite3": "^3.1.13"
   },
   "devDependencies": {
     "nodemon": "1.12.1",

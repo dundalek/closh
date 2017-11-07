@@ -8,7 +8,8 @@
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-text]]
-            [closh.core :refer [handle-line]])
+            [closh.core :refer [handle-line]]
+            [closh.history :refer [init-database load-history add-history]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]
                    [closh.reader :refer [patch-reader]]
                    [closh.core :refer [sh]]))
@@ -47,11 +48,22 @@
              #js{:input js/process.stdin
                  :output js/process.stdout
                  :prompt "$ "})]
+    (init-database
+     (fn [err]
+       (if err
+         (do (js/console.error "Error initializing database:" err)
+             (js/process.exit 1))
+         (load-history
+           (fn [err rows]
+             (if err (js/console.error "Error loading history:" err)
+                     (doseq [r rows] (.push (.-history rl) (.-command r)))))))))
     (doto rl
       (.on "line"
         (fn [input]
           (.pause rl)
           (when (not (clojure.string/blank? input))
+            (add-history input (js/process.cwd)
+              (fn [err] (when err (js/console.error "Error saving history:" err))))
             (try
               (let [result (handle-line input execute-text)]
                 (when-not (or (nil? result)
