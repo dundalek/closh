@@ -36,6 +36,11 @@ Install closh (requires [node.js](https://nodejs.org/)):
 npm install -g lumo-cljs closh
 ```
 
+To install development version from master branch:
+```
+npm i -g dundalek/closh
+```
+
 Start the shell:
 ```
 closh
@@ -70,7 +75,11 @@ $ ls *.json |> (reverse)
 $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (reverse)
 ```
 
-Read the [guide](./doc/guide.md) to learn more.
+## Documentation
+
+- [Guide and Reference](./doc/guide.md)
+- [Design Principles](./doc/principles.md)
+- [Notes on Existing Shells](./doc/notes.md)
 
 ## Roadmap
 
@@ -88,22 +97,20 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
 - [x] Dynamic prompt
-- [ ] Persistent history
+- [ ] [Persistent history](https://github.com/dundalek/closh/pull/23)
 - [ ] [Autocomplete](https://github.com/dundalek/closh/issues/6)
+- [ ] Signal control / Job control
 - [ ] Configuration
   - [x] Loads `~/.closhrc` on startup
   - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
-  - [ ] Key bindings
-  - [ ] Life-cycle hooks
   - [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
 
 #### Stage 3
 
 Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use.
 
+- [ ] Key bindings
 - [ ] Handle common errors
-- [ ] Signal control
-- [ ] Job control
 - [ ] [Environment variable integration](https://github.com/dundalek/closh/issues/16)
 - [ ] Builtin utility functions
 - [ ] Testing and stability
@@ -112,7 +119,7 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 
 At this point we can start to experiment with innovative ideas and paradigms. For example:
 
-- [ ] Syntax highlighting
+- [ ] [Syntax highlighting](https://github.com/dundalek/closh/issues/21)
 - [ ] Automatic abbreviation suggestion
 - [ ] [Automatically generate autocompletions for unknown / custom programs](https://github.com/dundalek/closh/issues/13)
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)

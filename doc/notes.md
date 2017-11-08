@@ -17,4 +17,12 @@ wc -l mksh/*.{h,c} | tail -1
 git clone git@github.com:elves/elvish.git
 find elvish -name '*.go' | grep -v '^elvish/vendor/\|_test.go$' | xargs wc -l | tail -n 1
 21673 total
+
+git clone git@github.com:PowerShell/PowerShell.git
+find PowerShell/src/ -name "*.cs" | xargs wc -l | tail -n 1
+744909 total
+
+git clone git@github.com:xonsh/xonsh.git
+find xonsh/xonsh -name "*.py" | grep -v 'xonsh/xonsh/ply' | xargs wc -l | tail -n 1
+32283 total
 ```
