@@ -1,10 +1,14 @@
 (ns closh.core-test
-  (:require [cljs.test :refer-macros [deftest testing is are]]
+  (:require [clojure.tools.reader.impl.commons]
+            [cljs.test :refer-macros [deftest testing is are run-tests]]
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.parser :refer [parse-batch]]
-            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
-                        :refer-macros [sh]]))
+            [closh.eval :refer [execute-text]]
+            [closh.core :refer [handle-line shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
+             :refer-macros [sh sh-str]])
+  (:require-macros [closh.reader :refer [patch-reader]]
+                   [alter-cljs.core :refer [alter-var-root]]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -12,6 +16,18 @@
 
 ;; Clean up tmp files on unhandled exception
 (tmp.setGracefulCleanup)
+
+;; Get ready to eval closh
+(patch-reader)
+
+(defn hook-stream [stream cb]
+  (let [old-write (-> (aget stream "write"))]
+    (aset stream "write" (fn [string encoding fd] (cb string encoding fd)))
+    #(aset stream "write" old-write)))
+
+(defn save-stream
+  [a]
+  (fn [string encoding fd] (swap! a str string)))
 
 (defn bash [cmd]
   (let [proc (.spawnSync child-process
@@ -23,13 +39,25 @@
      :code (.-status proc)}))
 
 (defn closh [cmd]
-  (let [proc (.spawnSync child-process
-                         "lumo"
-                         #js["--classpath" "src" "test/closh/tester.cljs" cmd]
-                         #js{:encoding "utf-8"})]
-    {:stdout (.-stdout proc)
-     :stderr (.-stderr proc)
-     :code (.-status proc)}))
+  (let [stdout (atom "")
+        stderr (atom "")]
+      (let[unhook-stdout (hook-stream js/process.stdout (save-stream stdout))
+           unhook-stderr (hook-stream js/process.stderr (save-stream stderr))]
+        (print (execute-text (str "(sh-str " cmd ")")))
+        (unhook-stdout)
+        (unhook-stderr)
+        {:stdout @stdout
+         :stderr @stderr
+         :code 0})))
+
+(deftest sample
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout "YES"}
+         (-> (closh "_asdfghj_ || echo YES")
+             (select-keys [:stdout :stderr]))))
+  (are [x y] (= (bash x) (closh y))
+    "bash -c \"echo err 1>&2; echo out\""
+    "bash -c \"echo err 1>&2; echo out\""))
 
 (deftest run-test
 
