@@ -140,6 +140,7 @@ Clone the repo and install dependencies
 git clone git@github.com:dundalek/closh.git
 cd closh
 npm install
+npm install -g lumo-cljs
 ```
 
 Run the app
