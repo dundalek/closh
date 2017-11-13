@@ -62,8 +62,9 @@
         (fn [input]
           (.pause rl)
           (when (not (clojure.string/blank? input))
-            (add-history input (js/process.cwd)
-              (fn [err] (when err (js/console.error "Error saving history:" err))))
+            (when-not (re-find #"^\s+" input)
+              (add-history input (js/process.cwd)
+                (fn [err] (when err (js/console.error "Error saving history:" err)))))
             (try
               (let [result (handle-line input execute-text)]
                 (when-not (or (nil? result)
