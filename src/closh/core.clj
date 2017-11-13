@@ -7,6 +7,12 @@
   [& tokens]
   (closh.parser/parse-interactive tokens))
 
+(defmacro sh-value
+  "Expands tokens in command mode to executable code."
+  [& tokens]
+  `(-> ~(closh.parser/parse-batch tokens)
+       (process-value)))
+
 (defmacro sh-str
   "Expands command mode returning process output as string."
   [& tokens]
