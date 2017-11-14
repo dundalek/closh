@@ -5,3 +5,4 @@ package-lock.json
 .lein-repl-history
 .nrepl-port
 /doc/api
+.lumo_cache

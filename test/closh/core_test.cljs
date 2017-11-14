@@ -411,54 +411,55 @@
     ""
     (str "echo x4 2 > " f)))
 
-(deftest run-special-cases
-  (are [x y] (= (bash x) (closh-spawn y))
-    "echo hi && echo OK"
-    "echo hi && echo OK"
+(when (not= js/process.env.NODE_ENV "development")
+  (deftest run-special-cases
+    (are [x y] (= (bash x) (closh-spawn y))
+      "echo hi && echo OK"
+      "echo hi && echo OK"
 
-    "echo hi || echo NO"
-    "echo hi || echo NO"
+      "echo hi || echo NO"
+      "echo hi || echo NO"
 
-    "! echo hi || echo OK"
-    "! echo hi || echo OK"
+      "! echo hi || echo OK"
+      "! echo hi || echo OK"
 
-    "echo a && echo b && echo c"
-    "echo a && echo b && echo c"
+      "echo a && echo b && echo c"
+      "echo a && echo b && echo c"
 
-    "mkdir x/y/z || echo FAILED"
-    "mkdir x/y/z || echo FAILED"
+      "mkdir x/y/z || echo FAILED"
+      "mkdir x/y/z || echo FAILED"
 
-    "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
-    "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+      "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
+      "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
-    "if test -f package.json; then echo file exists; else echo no file; fi"
-    "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
+      "if test -f package.json; then echo file exists; else echo no file; fi"
+      "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
 
-    "ls; echo hi"
-    "(sh ls) (sh echo hi)"
+      "ls; echo hi"
+      "(sh ls) (sh echo hi)"
 
-    "echo x 1>&2"
-    "echo x 1 >& 2"
+      "echo x 1>&2"
+      "echo x 1 >& 2"
 
-    "bash -c \"echo err 1>&2; echo out\" 2>&1"
-    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
+      "bash -c \"echo err 1>&2; echo out\" 2>&1"
+      "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
 
-    ; TODO: fix stderr redirects
-    ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
-    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
+      ; TODO: fix stderr redirects
+      ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
+      ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
 
-  (is (= {:stdout "x\n" :stderr "" :code 0}
-         (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
+    (is (= {:stdout "x\n" :stderr "" :code 0}
+           (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
 
-  (is (= "_asdfghj_: command not found\n"
-         (:stderr (closh-spawn "_asdfghj_"))))
+    (is (= "_asdfghj_: command not found\n"
+           (:stderr (closh-spawn "_asdfghj_"))))
 
-  (is (= {:stderr "_asdfghj_: command not found\n"
-          :stdout ""}
-         (-> (closh-spawn "_asdfghj_ && echo NO")
-             (select-keys [:stdout :stderr]))))
+    (is (= {:stderr "_asdfghj_: command not found\n"
+            :stdout ""}
+           (-> (closh-spawn "_asdfghj_ && echo NO")
+               (select-keys [:stdout :stderr]))))
 
-  (is (= {:stderr "_asdfghj_: command not found\n"
-          :stdout "YES\n"}
-         (-> (closh-spawn "_asdfghj_ || echo YES")
-             (select-keys [:stdout :stderr])))))
+    (is (= {:stderr "_asdfghj_: command not found\n"
+            :stdout "YES\n"}
+           (-> (closh-spawn "_asdfghj_ || echo YES")
+               (select-keys [:stdout :stderr]))))))
