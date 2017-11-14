@@ -20,7 +20,7 @@
   "scripts": {
     "start": "node ./bin/closh.js",
     "dev": "nodemon --config .nodemon.json",
-    "test": "lein test",
+    "test": "lumo -c src:test test.cljs",
     "doc-auto": "nodemon -e clj,cljs,cljc -x 'lein doc'"
   },
   "repository": {

@@ -9,6 +9,10 @@
 
 (def command-not-found-bin "/usr/lib/command-not-found")
 
+(def ^:dynamic *stdin* js/process.stdin)
+(def ^:dynamic *stdout* js/process.stdout)
+(def ^:dynamic *stderr* js/process.stderr)
+
 (defn expand-variable
   "Expands env variable, it does not look inside string."
   [s]
@@ -96,7 +100,8 @@
 (defn wait-for-process
   "Wait untils process exits and all of its stdio streams are closed."
   [proc]
-  (when (nil? (.-exitCode proc))
+  (when (and (instance? child-process.ChildProcess proc)
+             (nil? (.-exitCode proc)))
     (wait-for-event proc "close"))
   proc)
 
@@ -106,8 +111,8 @@
   (if (instance? child-process.ChildProcess proc)
     (let [stdout (get-out-stream proc)]
       (when-let [stderr (and proc (.-stderr proc))]
-        (.pipe stderr js/process.stderr))
-      (.pipe stdout js/process.stdout)
+        (.pipe stderr *stderr*))
+      (.pipe stdout *stdout*)
       (wait-for-process proc))
     proc))
 
@@ -134,6 +139,22 @@
   (if (seq? proc)
     (str (clojure.string/join "\n" proc) "\n")
     (pipeline-value proc)))
+
+(defn process-value
+  "Returns for a process to finish and returns map of exit code, stdout and stderr."
+  [proc]
+  (if (instance? child-process.ChildProcess proc)
+    (let [stdout #js[]
+          stderr #js[]]
+      (when-let [stream (.-stdout proc)] (.on stream "data" #(.push stdout %)))
+      (when-let [stream (.-stderr proc)] (.on stream "data" #(.push stderr %)))
+      (wait-for-process proc)
+      {:stdout (.join stdout "")
+       :stderr (.join stderr "")
+       :code (.-exitCode proc)})
+    {:stdout (str proc)
+     :stderr ""
+     :code 0}))
 
 (defn open-io-stream
   "Opens a stream based on operation and target, returns a promise."
@@ -171,9 +192,9 @@
              (aset arr fd (if (number? target)
                             (aget arr target)
                             (case target
-                              :stdin js/process.stdin
-                              :stdout js/process.stdout
-                              :stderr js/process.stderr
+                              :stdin *stdin*
+                              :stdout *stdout*
+                              :stderr *stderr*
                               target))))))
     arr))
 
