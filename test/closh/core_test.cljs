@@ -20,15 +20,6 @@
 ;; Get ready to eval closh
 (patch-reader)
 
-(defn hook-stream [stream cb]
-  (let [old-write (-> (aget stream "write"))]
-    (aset stream "write" (fn [string encoding fd] (cb string encoding fd)))
-    #(aset stream "write" old-write)))
-
-(defn save-stream
-  [a]
-  (fn [string encoding fd] (swap! a str string)))
-
 (defn bash [cmd]
   (let [proc (.spawnSync child-process
                          "bash"
@@ -38,26 +29,17 @@
      :stderr (.-stderr proc)
      :code (.-status proc)}))
 
-(defn closh [cmd]
-  (let [stdout (atom "")
-        stderr (atom "")]
-      (let[unhook-stdout (hook-stream js/process.stdout (save-stream stdout))
-           unhook-stderr (hook-stream js/process.stderr (save-stream stderr))]
-        (print (execute-text (str "(sh-str " cmd ")")))
-        (unhook-stdout)
-        (unhook-stderr)
-        {:stdout @stdout
-         :stderr @stderr
-         :code 0})))
+(defn closh-spawn [cmd]
+  (let [proc (.spawnSync child-process
+                         "lumo"
+                         #js["--classpath" "src" "test/closh/tester.cljs" cmd]
+                         #js{:encoding "utf-8"})]
+    {:stdout (.-stdout proc)
+     :stderr (.-stderr proc)
+     :code (.-status proc)}))
 
-(deftest sample
-  (is (= {:stderr "_asdfghj_: command not found\n"
-          :stdout "YES"}
-         (-> (closh "_asdfghj_ || echo YES")
-             (select-keys [:stdout :stderr]))))
-  (are [x y] (= (bash x) (closh y))
-    "bash -c \"echo err 1>&2; echo out\""
-    "bash -c \"echo err 1>&2; echo out\""))
+(defn closh [cmd]
+  (execute-text (str "(sh-value " cmd ")")))
 
 (deftest run-test
 
@@ -100,19 +82,6 @@
 
   (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
          (macroexpand '(sh ls -l))))
-
-  (is (= "_asdfghj_: command not found\n"
-         (:stderr (closh "_asdfghj_"))))
-
-  (is (= {:stderr "_asdfghj_: command not found\n"
-          :stdout ""}
-         (-> (closh "_asdfghj_ && echo NO")
-             (select-keys [:stdout :stderr]))))
-
-  (is (= {:stderr "_asdfghj_: command not found\n"
-          :stdout "YES\n"}
-         (-> (closh "_asdfghj_ || echo YES")
-             (select-keys [:stdout :stderr]))))
 
   (are [x y] (= x (parse-batch y))
     '(-> (shx "ls" [(expand "-l")]))
@@ -263,10 +232,7 @@
 
     ; cmd helper to invoke command name by value
     "x\n"
-    "(cmd \"echo\") x"
-
-    "x\n"
-    "(sh (cmd (str \"ec\" \"ho\")) x)")
+    "(cmd \"echo\") x")
 
   (are [x] (= (bash x) (closh x))
     "ls"
@@ -279,20 +245,10 @@
 
     "ls | head"
 
-    "echo hi && echo OK"
-
     ; TODO: fix exit code
     ; "! echo hi && echo NO"
 
-    "echo hi || echo NO"
-
-    "! echo hi || echo OK"
-
-    "echo a && echo b && echo c"
-
     "echo a | egrep b || echo OK"
-
-    "mkdir x/y/z || echo FAILED"
 
     "cat < package.json"
 
@@ -349,36 +305,17 @@
     "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
     "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
 
-    "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
-    "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
-
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
-
-    "if test -f package.json; then echo file exists; else echo no file; fi"
-    "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
 
     "if test -f asdfgh.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f asdfgh.json) \"file exists\" \"no file\")"
 
-    "ls; echo hi"
-    "(sh ls) (sh echo hi)"
-
     "ls -l `echo *.json *.md`"
     "ls -l (sh-seq echo *.json *.md)"
 
-    "echo x 1>&2"
-    "echo x 1 >& 2"
-
     "bash -c \"echo err 1>&2; echo out\""
-    "bash -c \"echo err 1>&2; echo out\""
-
-    "bash -c \"echo err 1>&2; echo out\" 2>&1"
-    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
-
-    ; TODO: fix stderr redirects
-    ; "bash -c \"echo err 1>&2; echo out\" 2>&1 | cat"
-    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
+    "bash -c \"echo err 1>&2; echo out\"")
 
   (are [x y] (= x (pipeline-value y))
     ; process to process - redirect stdout
@@ -473,3 +410,55 @@
 
     ""
     (str "echo x4 2 > " f)))
+
+(deftest run-special-cases
+  (are [x y] (= (bash x) (closh-spawn y))
+    "echo hi && echo OK"
+    "echo hi && echo OK"
+
+    "echo hi || echo NO"
+    "echo hi || echo NO"
+
+    "! echo hi || echo OK"
+    "! echo hi || echo OK"
+
+    "echo a && echo b && echo c"
+    "echo a && echo b && echo c"
+
+    "mkdir x/y/z || echo FAILED"
+    "mkdir x/y/z || echo FAILED"
+
+    "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
+    "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+
+    "if test -f package.json; then echo file exists; else echo no file; fi"
+    "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
+
+    "ls; echo hi"
+    "(sh ls) (sh echo hi)"
+
+    "echo x 1>&2"
+    "echo x 1 >& 2"
+
+    "bash -c \"echo err 1>&2; echo out\" 2>&1"
+    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
+
+    ; TODO: fix stderr redirects
+    ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
+    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
+
+  (is (= {:stdout "x\n" :stderr "" :code 0}
+         (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
+
+  (is (= "_asdfghj_: command not found\n"
+         (:stderr (closh-spawn "_asdfghj_"))))
+
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout ""}
+         (-> (closh-spawn "_asdfghj_ && echo NO")
+             (select-keys [:stdout :stderr]))))
+
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout "YES\n"}
+         (-> (closh-spawn "_asdfghj_ || echo YES")
+             (select-keys [:stdout :stderr])))))
