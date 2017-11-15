@@ -1,8 +1,12 @@
 #!/usr/bin/env lumo
 
-(require '[closh.core-test :refer [closh]]
-         '[clojure.test :refer [run-tests]])
+(require '[goog.object :as gobj]
+         '[clojure.test :refer [report run-tests]]
+         '[closh.core-test])
 
-; (closh.core-test/sample)
+(defmethod report [:cljs.test/default :end-run-tests] [m]
+  (if (cljs.test/successful? m)
+    (gobj/set js/process "exitCode" 0)
+    (gobj/set js/process "exitCode" 1)))
 
-(run-tests 'closh.core-test)
+(time (run-tests 'closh.core-test))

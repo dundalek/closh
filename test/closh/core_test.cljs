@@ -47,7 +47,7 @@
 
   (is (= (.-USER js/process.env) (first (expand "$USER"))))
 
-  (is (= "project.clj\n" (process-output (shx "ls" [(expand "project*")]))))
+  (is (= "test.cljs\n" (process-output (shx "ls" [(expand "test.clj*")]))))
 
   (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
              (.trimRight)
@@ -64,7 +64,7 @@
                        process-output))
 
   (is (= "2\n" (-> (shx "echo" ["a\nb"])
-                   (pipe (shx "wc" ["-l"]))
+                   (pipe (shx "awk" ["END {print NR}"]))
                    process-output)))
 
   (is (= (list 3 2 1) (-> (list 1 2 3) (pipe reverse))))
@@ -77,7 +77,7 @@
   ; '(echo hi 1 >& 2 | wc -l))
   (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
                                                 [:set 1 2]]})
-                   (pipe (shx "wc" ["-l"]))
+                   (pipe (shx "awk" ["END {print NR}"]))
                    process-output)))
 
   (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
@@ -188,7 +188,7 @@
 
     ; process to sequence - split lines
     "(\"c\" \"b\" \"a\")"
-    "echo -e \"a\\nb\\nc\" |> (reverse)"
+    "printf \"a\\nb\\nc\" |> (reverse)"
 
     ; sequence to fn
     "1"
@@ -275,7 +275,7 @@
     "ls -a | grep \"^\\.\""
     "ls -a |> (filter #(re-find #\"^\\.\" %)) | cat"
 
-    "ls | sed -n 1~2p"
+    "ls | ls | awk 'NR%2==1'"
     "ls |> (keep-indexed #(when (odd? (inc %1)) %2)) | cat"
 
     "ls | sort -r | head -n 5"
@@ -302,8 +302,8 @@
     "cat < package.json 2>/dev/null | cat"
     "cat < package.json 2 > /dev/null | cat"
 
-    "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
-    "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
+    "for f in test/closh/*; do echo $f; cat $f; done"
+    "ls test/closh/* |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
@@ -333,7 +333,7 @@
     ; process to sequence - split lines
     '("c" "b" "a")
     ; "echo -e \"a\\nb\\nc\" |> (reverse)"
-    (-> (shx "echo" ["-e" "a\\nb\\nc"])
+    (-> (shx "printf" ["a\\nb\\nc"])
         (pipe-multi reverse))
 
     ; ; sequence to fn
@@ -429,8 +429,8 @@
       "mkdir x/y/z || echo FAILED"
       "mkdir x/y/z || echo FAILED"
 
-      "for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done"
-      "ls /sys/bus/usb/devices/*/power/wakeup |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+      "for f in test/closh/*; do echo $f; cat $f; done"
+      "ls test/closh/* |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
       "if test -f package.json; then echo file exists; else echo no file; fi"
       "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
