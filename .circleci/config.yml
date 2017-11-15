@@ -1,0 +1,63 @@
+# Clojure CircleCI 2.0 configuration file
+#
+version: 2
+jobs:
+
+  test-linux:
+    docker:
+      - image: pritunl/archlinux
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-linux-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-linux-
+
+      - run: scripts/ci_linux
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-linux-{{ checksum "package.json" }}
+
+      # run tests
+      - run: npm run test
+
+  test-macos:
+    macos:
+      xcode: "9.1.0"
+
+    working_directory: /Users/distiller/project
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-macos-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-macos-
+
+      - run: scripts/ci_macos
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-macos-{{ checksum "package.json" }}
+
+      # run tests
+      - run: . "$HOME/.nvm/nvm.sh" && nvm use $(lumo -e '(println process.version)') && npm run test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-linux
+      - test-macos
