@@ -22,6 +22,10 @@
 (def ^:no-doc os (js/require "os"))
 (def ^:no-doc path (js/require "path"))
 
+(def readline-tty-write readline.Interface.prototype._ttyWrite)
+
+(def readline-state (atom {:history-index -1}))
+
 (defn load-init-file
   "Loads init file."
   [init-path]
@@ -32,12 +36,58 @@
          (catch :default e
            (js/console.error "Error while loading " init-path ":\n" e)))))
 
+(defn search-history-prev [{:keys [history-index] :as state} rl]
+  (if (< (inc history-index)
+         (.-history.length rl))
+    (let [index (inc history-index)
+          line (aget rl "history" index)
+          cursor (.-length line)]
+      (assoc state :history-index index
+                   :line line
+                   :cursor cursor))
+    state))
+
+(defn search-history-next [{:keys [history-index] :as state} rl]
+  (cond
+    (pos? history-index)
+    (let [index (dec history-index)
+          line (aget rl "history" index)
+          cursor (.-length line)]
+      (assoc state :history-index index
+                   :line line
+                   :cursor cursor))
+
+    (zero? history-index)
+    (assoc state :history-index -1
+                 :cursor 0
+                 :line "")
+
+    :default state))
+
+(defn render-line [rl {:keys [line cursor]}]
+  (when-not (nil? line) (aset rl "line" line))
+  (when-not (nil? cursor) (aset rl "cursor" cursor))
+  (._refreshLine rl))
+
 (defn prompt
   "Prints prompt to a readline instance."
   [rl]
   (doto rl
     (.setPrompt (execute-text "(closh-prompt)"))
     (.prompt true)))
+
+(defn handle-keypress [rl c key]
+  (when-not (or (.-shift key) (.-ctrl key) (.-meta key))
+    (case (.-name key)
+      "up" (do
+             (swap! readline-state search-history-prev rl)
+             (render-line rl @readline-state)
+             true)
+      "down" (do
+               (swap! readline-state search-history-next rl)
+               (render-line rl @readline-state)
+               true)
+      false)))
 
 (defn -main
   "Starts closh REPL with prompt and readline."
@@ -48,6 +98,11 @@
              #js{:input js/process.stdin
                  :output js/process.stdout
                  :prompt "$ "})]
+    (aset rl "_ttyWrite"
+      (fn [c key]
+        (this-as self
+          (when-not (handle-keypress self c key)
+              (.call readline-tty-write self c key)))))
     (init-database
      (fn [err]
        (if err
