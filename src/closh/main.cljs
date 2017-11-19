@@ -37,34 +37,68 @@
          (catch :default e
            (js/console.error "Error while loading " init-path ":\n" e)))))
 
-(defn search-history-prev [{:keys [history-index] :as state} rl]
-  (when (< (inc history-index)
-           (.-history.length rl))
-    (let [index (inc history-index)
-          line (aget rl "history" index)
-          cursor (.-length line)]
-      (assoc state :history-index index
-                   :line line
-                   :cursor cursor))))
+(defn restore-previous-state [state]
+  (assoc state
+    :history-index -1
+    :mode :input
+    :prompt (:previous-prompt state)
+    :previous-line nil
+    :previous-prompt nil
+    :query nil
+    :failed-search false))
 
-(defn search-history-next [{:keys [history-index] :as state} rl]
-  (when (pos? history-index)
-    (let [index (dec history-index)
-          line (aget rl "history" index)
-          cursor (.-length line)]
-      (assoc state :history-index index
-                   :line line
-                   :cursor cursor))))
+(defn activate-search-state [state rl search-mode]
+  (assoc state
+    :mode :search
+    :previous-prompt (.-_prompt rl)
+    :previous-line (.-line rl)
+    :query (.-line rl)
+    :search-mode search-mode))
 
-(defn render-line [rl {:keys [line cursor prompt mode search-mode query]}]
+(defn search-history-prev [{:keys [history-index query search-mode] :as state} rl]
+  (let [comp-fn (if (= search-mode :prefix) clojure.string/starts-with? clojure.string/includes?)]
+    (if-let [index
+             (loop [i (inc history-index)]
+               (cond (>= i (.-history.length rl)) nil
+                     (comp-fn (aget rl "history" i) query) i
+                     :else (recur (inc i))))]
+      (let [line (aget rl "history" index)
+            cursor (.-length line)]
+        (assoc state :history-index index
+                     :line line
+                     :cursor cursor
+                     :failed-search false))
+      (assoc state :failed-search true))))
+
+(defn search-history-next [{:keys [history-index query search-mode] :as state} rl]
+  (let [comp-fn (if (= search-mode :prefix) clojure.string/starts-with? clojure.string/includes?)]
+    (if-let [index
+             (loop [i (dec history-index)]
+               (cond (neg? i) nil
+                     (comp-fn (aget rl "history" i) query) i
+                     :else (recur (dec i))))]
+      (let [line (aget rl "history" index)
+            cursor (.-length line)]
+        (assoc state :history-index index
+                     :line line
+                     :cursor cursor
+                     :failed-search false))
+      (let [line (or (:previous-line state) "")
+            cursor (.-length line)]
+        (assoc (restore-previous-state state)
+               :cursor cursor
+               :line line)))))
+
+(defn render-line [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
   (when-not (nil? line) (aset rl "line" line))
   (when-not (nil? cursor) (aset rl "cursor" cursor))
   (when-let [p (if (and (= mode :search) (not (empty? query)))
-                 (let [label (case search-mode
-                               :prefix "(history-prefix-search)"
-                               :substr "(history-search)"
-                               "(unknown-type-of-search)")]
-                   (str label "`" query "': "))
+                 (let [kind (case search-mode
+                              :prefix "history-prefix-search"
+                              :substr "history-search"
+                              "unknown-type-of-search")
+                       label (if failed-search (str "failed " kind) kind)]
+                   (str "(" label ")`" query "': "))
                  prompt)]
     (aset rl "_prompt" p))
   (._refreshLine rl))
@@ -87,23 +121,6 @@
        (.-name key)]
       (filter identity)
       (clojure.string/join "-"))))
-
-(defn restore-previous-state [state]
-  (assoc state
-    :history-index -1
-    :mode :input
-    :prompt (:previous-prompt state)
-    :previous-line nil
-    :previous-prompt nil
-    :query nil))
-
-(defn activate-search-state [state rl search-mode]
-  (assoc state
-    :mode :search
-    :previous-prompt (.-_prompt rl)
-    :previous-line (.-line rl)
-    :query (.-line rl)
-    :search-mode search-mode))
 
 (defn handle-keypress [{:keys [query history-index] :as state} rl c key]
   ; (assoc state :line (key-value key)))
