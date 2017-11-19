@@ -1,42 +1,28 @@
-(defproject closh "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+(defproject closh "0.1.3"
+  :description "Bash-like shell based on Clojure"
+  :url "https://github.com/dundalek/closh"
 
   :clean-targets ["build" :target-path]
 
-  :dependencies [[org.clojure/clojure "1.9.0-beta2"]
+  :dependencies [[org.clojure/clojure "1.9.0-RC1"]
                  [org.clojure/clojurescript "1.9.946"]
-                ;  [org.clojure/spec.alpha "0.1.134"]
+                ;  [org.clojure/spec.alpha "0.1.143"]
 
                  ; Lumo dependencies
-                 [com.cognitect/transit-cljs  "0.8.239"]
+                 [com.cognitect/transit-cljs  "0.8.243"]
                  [malabarba/lazy-map          "1.3"]
-                 [fipp                        "0.6.10"]]
+                 [fipp                        "0.6.12"]]
 
-  :plugins [[lein-cljsbuild "1.1.1"]
-            [lein-npm "0.6.1"]
-            [lein-doo "0.1.6"]
-            [org.bodil/lein-noderepl "0.1.11"]
-            [lein-kibit "0.1.6-beta2"]
+  :plugins [[lein-cljsbuild "1.1.7"]
+            [lein-kibit "0.1.6"]
             [lein-bikeshed "0.5.0"]
             [venantius/yagni "0.1.4"]
             [jonase/eastwood "0.2.5"]
             [funcool/codeina "0.4.0" :exclusions [org.clojure/clojure]]]
 
-  :profiles {:dev {:dependencies [[lein-doo "0.1.6"]]}}
-
-  :npm {:dependencies [[source-map-support "0.4.0"]]
-        :package {}};; To distribute a node binary, set :bin
-                  ; :bin {"closh" "bin/main.js"}
-                  ;; To distribute a node library, set :main
-                  ; :main "bin/main.js"
-                  ;; To push to a publicly available npm name set :private
-                  ; :private false
-
+  :jvm-opts ["--add-modules" "java.xml.bind"]
 
   :aliases {"build" ["cljsbuild" "once" "main"]
-            "test" ["doo" "node" "test-node" "once"]
-            "test-auto" ["doo" "node" "test-node" "auto"]
             "lint" ["do" ["kibit"] ["eastwood"] ["bikeshed"] ["yagni"]]}
 
   :codeina {:reader :clojurescript}
@@ -64,12 +50,4 @@
                                    :output-dir "build/js"
                                    :optimizations :advanced
                                    :target :nodejs
-                                   :source-map "build/main.js.map"}}
-                       {:id "test-node"
-                        :source-paths ["src" "test"]
-                        :compiler {:main closh.core-runner
-                                   :output-to     "build/test-node.js"
-                                   :target :nodejs
-                                   :output-dir    "build/test-js"
-                                   :optimizations :none
-                                   :pretty-print  true}}]})
+                                   :source-map "build/main.js.map"}}]})
