@@ -1,5 +1,6 @@
 (ns closh.builtin
-  (:require [clojure.string]))
+  (:require [clojure.string]
+            [goog.object :as gobj]))
 
 (defn cd
   "Changes current working directory to a path of a first given argument."
@@ -8,7 +9,7 @@
   (let [dir (or (first (flatten args))
                 js/process.env.HOME)]
     (js/process.chdir dir)
-    (aset js/process.env "PWD" (js/process.cwd))
+    (gobj/set js/process.env "PWD" (js/process.cwd))
     nil))
 
 (defn exit

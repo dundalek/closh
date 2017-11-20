@@ -1,5 +1,6 @@
 (ns closh.core
-  (:require [clojure.string]))
+  (:require [clojure.string]
+            [goog.object :as gobj]))
 
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc child-process (js/require "child_process"))
@@ -17,7 +18,7 @@
   "Expands env variable, it does not look inside string."
   [s]
   (if (re-find #"^\$" s)
-    (aget js/process.env (subs s 1))
+    (gobj/get js/process.env (subs s 1))
     s))
 
 (defn expand-tilde

@@ -1,8 +1,9 @@
 (ns closh.eval
-  (:require [lumo.repl]))
+  (:require [lumo.repl]
+            [goog.object :as gobj]))
 
 ;; Make lumo's print a noop since we process resulting value ourselves
-(aset js/$$LUMO_GLOBALS "doPrint" identity)
+(gobj/set js/$$LUMO_GLOBALS "doPrint" identity)
 
 (defn execute-text
   "Evals a string via lumo."
