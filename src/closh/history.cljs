@@ -1,4 +1,6 @@
-(ns closh.history)
+(ns closh.history
+  (:require [clojure.string]
+            [goog.object :as gobj]))
 
 (def os (js/require "os"))
 (def path (js/require "path"))
@@ -7,9 +9,7 @@
                 (.verbose)))
 
 (def db-file
-  (path.join (os.homedir)
-             ".closh"
-             "closh.sqlite"))
+  (path.join (os.homedir) ".closh" "closh.sqlite"))
 
 (declare ^:dynamic db session-id)
 
@@ -55,4 +55,28 @@
                     (this-as t
                       (do
                         (set! session-id (.-lastID t))
-                        (cb)))))))))))))
+                        (cb nil db session-id)))))))))))))
+
+(defn search-history [query history-state search-mode operator direction cb]
+  (let [escaped (clojure.string/replace query #"[%_]" #(str "\\" %))
+        expr (case search-mode
+               :prefix (str escaped "%")
+               :substr (str "%" escaped "%")
+               escaped)
+        index (:index history-state)
+        sql (str "SELECT id, command FROM history WHERE command LIKE $expr ESCAPE '\\' "
+                 (when index (str " AND id " operator " $index "))
+                 " ORDER BY id " direction " LIMIT 1;")
+        params #js{:$expr expr}]
+    (when index (gobj/set params "$index" index))
+    (.get db sql params
+      (fn [err data]
+        (cb err
+            (when data
+              [(.-command data) (assoc history-state :index (.-id data))]))))))
+
+(defn search-history-prev [query history-state search-mode cb]
+  (search-history query history-state search-mode "<" "DESC" cb))
+
+(defn search-history-next [query history-state search-mode cb]
+  (search-history query history-state search-mode ">" "ASC" cb))

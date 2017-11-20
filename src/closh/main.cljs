@@ -24,8 +24,7 @@
 
 (def readline-tty-write readline.Interface.prototype._ttyWrite)
 
-(def readline-state (atom {:history-index -1
-                           :mode :input}))
+(def readline-state (atom {:mode :input}))
 
 (defn load-init-file
   "Loads init file."
@@ -39,7 +38,7 @@
 
 (defn restore-previous-state [state]
   (assoc state
-    :history-index -1
+    :history-state nil
     :mode :input
     :prompt (:previous-prompt state)
     :previous-line nil
@@ -50,44 +49,45 @@
 (defn activate-search-state [state rl search-mode]
   (assoc state
     :mode :search
+    :search-mode search-mode
+    :line ""
+    :cursor 0
+    :query (subs (.-line rl) 0 (.-cursor rl))
     :previous-prompt (.-_prompt rl)
-    :previous-line (.-line rl)
-    :query (.-line rl)
-    :search-mode search-mode))
+    :previous-line (.-line rl)))
 
-(defn search-history-prev [{:keys [history-index query search-mode] :as state} rl]
-  (let [comp-fn (if (= search-mode :prefix) clojure.string/starts-with? clojure.string/includes?)]
-    (if-let [index
-             (loop [i (inc history-index)]
-               (cond (>= i (.-history.length rl)) nil
-                     (comp-fn (aget rl "history" i) query) i
-                     :else (recur (inc i))))]
-      (let [line (aget rl "history" index)
-            cursor (.-length line)]
-        (assoc state :history-index index
-                     :line line
-                     :cursor cursor
-                     :failed-search false))
-      (assoc state :failed-search true))))
+(defn search-history-prev [{:keys [query history-state search-mode] :as state} rl]
+  (closh.history/search-history-prev query history-state search-mode
+    (fn [err data]
+      (when err (js/console.log "Error searching history:" err))
+      (swap! readline-state
+        #(if-let [[line index] data]
+           (assoc % :history-state index
+                    :line line
+                    :cursor (count line)
+                    :failed-search false)
+           (assoc % :failed-search true)))
+      (render-line rl @readline-state)))
+  ;; Maybe some loading indicator?
+  state)
 
-(defn search-history-next [{:keys [history-index query search-mode] :as state} rl]
-  (let [comp-fn (if (= search-mode :prefix) clojure.string/starts-with? clojure.string/includes?)]
-    (if-let [index
-             (loop [i (dec history-index)]
-               (cond (neg? i) nil
-                     (comp-fn (aget rl "history" i) query) i
-                     :else (recur (dec i))))]
-      (let [line (aget rl "history" index)
-            cursor (.-length line)]
-        (assoc state :history-index index
-                     :line line
-                     :cursor cursor
-                     :failed-search false))
-      (let [line (or (:previous-line state) "")
-            cursor (.-length line)]
-        (assoc (restore-previous-state state)
-               :cursor cursor
-               :line line)))))
+(defn search-history-next [{:keys [query history-state search-mode] :as state} rl]
+  (closh.history/search-history-next query history-state search-mode
+    (fn [err data]
+      (when err (js/console.log "Error searching history:" err))
+      (swap! readline-state
+        #(if-let [[line index] data]
+           (assoc % :history-state index
+                    :line line
+                    :cursor (count line)
+                    :failed-search false)
+           (let [line (or (:previous-line %) "")
+                 cursor (count line)]
+             (assoc (restore-previous-state %)
+                    :cursor cursor
+                    :line line))))
+      (render-line rl @readline-state)))
+  state)
 
 (defn render-line [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
   (when-not (nil? line) (aset rl "line" line))
@@ -122,9 +122,7 @@
       (filter identity)
       (clojure.string/join "-"))))
 
-(defn handle-keypress [{:keys [query history-index] :as state} rl c key]
-  ; (assoc state :line (key-value key)))
-; (comment
+(defn handle-keypress [{:keys [query] :as state} rl c key]
   (case (:mode state)
    :input
    (case (key-value key)
@@ -139,13 +137,7 @@
    :search
    (case (key-value key)
      "up" (search-history-prev state rl)
-     "down" (if (zero? history-index)
-              (let [line (or (:previous-line state) "")
-                    cursor (.-length line)]
-                (assoc (restore-previous-state state)
-                       :cursor cursor
-                       :line line))
-              (search-history-next state rl))
+     "down" (search-history-next state rl)
      ;; Accept current line
      "tab" (restore-previous-state state)
      ;; Accept and execute current line
@@ -170,7 +162,7 @@
                     (str query c)))]
        (when (not= query q)
          (let [next-state (assoc state :query q
-                                       :history-index -1)]
+                                       :history-state nil)]
            (search-history-prev next-state rl)))))
 
    nil))
@@ -205,10 +197,10 @@
       (.on "line"
         (fn [input]
           (.pause rl)
-          (when (not (clojure.string/blank? input))
-            (when-not (re-find #"^\s+" input)
+          (when-not (or (clojure.string/blank? input)
+                        (re-find #"^\s+" input))
               (add-history input (js/process.cwd)
-                (fn [err] (when err (js/console.error "Error saving history:" err)))))
+                (fn [err] (when err (js/console.error "Error saving history:" err))))
             (try
               (let [result (handle-line input execute-text)]
                 (when-not (or (nil? result)
