@@ -33,9 +33,6 @@
            #js[nil session-id (Date.now) cmd cwd]
            cb))
 
-(defn load-history [cb]
-  (.all db "SELECT * from history ORDER BY id DESC" cb))
-
 (defn init-database [cb]
   (fs.mkdir (path.dirname db-file)
     (fn [err]

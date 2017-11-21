@@ -9,7 +9,7 @@
             [closh.builtin]
             [closh.eval :refer [execute-text]]
             [closh.core :refer [handle-line]]
-            [closh.history :refer [init-database load-history add-history]])
+            [closh.history :refer [init-database add-history]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]
                    [closh.reader :refer [patch-reader]]
                    [closh.core :refer [sh]]))
@@ -187,12 +187,8 @@
     (init-database
      (fn [err]
        (if err
-         (do (js/console.error "Error initializing database:" err)
-             (js/process.exit 1))
-         (load-history
-           (fn [err rows]
-             (if err (js/console.error "Error loading history:" err)
-                     (doseq [r rows] (.push (.-history rl) (.-command r)))))))))
+         (do (js/console.error "Error initializing history database:" err)
+             (js/process.exit 1)))))
     (doto rl
       (.on "line"
         (fn [input]
