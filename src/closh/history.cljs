@@ -64,9 +64,12 @@
                :prefix (str escaped "%")
                :substr (str "%" escaped "%")
                escaped)
-        sql (str "SELECT id, command FROM history WHERE command LIKE $expr ESCAPE '\\' "
-                 (when index (str " AND id " operator " $index "))
-                 " AND session_id " (if skip-session "!=" "=") " $sid "
+        sql (str " SELECT id, command "
+                 " FROM history "
+                 " WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) "
+                    (when index (str " AND id " operator " $index "))
+                    " AND session_id " (if skip-session "!=" "=") " $sid "
+                    " AND command LIKE $expr ESCAPE '\\' "
                  " ORDER BY id " direction " LIMIT 1;")
         params #js{:$expr expr
                    :$sid session-id}]
