@@ -58,16 +58,18 @@
                         (cb nil db session-id)))))))))))))
 
 (defn search-history [query history-state search-mode operator direction cb]
-  (let [escaped (clojure.string/replace query #"[%_]" #(str "\\" %))
+  (let [{:keys [index skip-session]} history-state
+        escaped (clojure.string/replace query #"[%_]" #(str "\\" %))
         expr (case search-mode
                :prefix (str escaped "%")
                :substr (str "%" escaped "%")
                escaped)
-        index (:index history-state)
         sql (str "SELECT id, command FROM history WHERE command LIKE $expr ESCAPE '\\' "
                  (when index (str " AND id " operator " $index "))
+                 " AND session_id " (if skip-session "!=" "=") " $sid "
                  " ORDER BY id " direction " LIMIT 1;")
-        params #js{:$expr expr}]
+        params #js{:$expr expr
+                   :$sid session-id}]
     (when index (gobj/set params "$index" index))
     (.get db sql params
       (fn [err data]
@@ -76,7 +78,25 @@
               [(.-command data) (assoc history-state :index (.-id data))]))))))
 
 (defn search-history-prev [query history-state search-mode cb]
-  (search-history query history-state search-mode "<" "DESC" cb))
+  (search-history query history-state search-mode "<" "DESC"
+    (fn [err data]
+      (if err
+        (cb err)
+        (if (and (not data)
+                 (not (:skip-session history-state)))
+          (search-history-prev query
+                               (assoc history-state :skip-session true :index nil)
+                               search-mode cb)
+          (cb err data))))))
 
 (defn search-history-next [query history-state search-mode cb]
-  (search-history query history-state search-mode ">" "ASC" cb))
+  (search-history query history-state search-mode ">" "ASC"
+    (fn [err data]
+      (if err
+        (cb err)
+        (if (and (not data)
+                 (:skip-session history-state))
+          (search-history-next query
+                               (assoc history-state :skip-session false :index nil)
+                               search-mode cb)
+          (cb err data))))))
