@@ -2,18 +2,20 @@
   (:require [clojure.string]
             [goog.object :as gobj]))
 
-(def os (js/require "os"))
-(def path (js/require "path"))
-(def fs (js/require "fs"))
-(def sqlite (-> (js/require "sqlite3")
-                (.verbose)))
+(def ^:no-doc os (js/require "os"))
+(def ^:no-doc path (js/require "path"))
+(def ^:no-doc fs (js/require "fs"))
+(def ^:no-doc sqlite (-> (js/require "sqlite3")
+                         (.verbose)))
 
 (def db-file
+  "Path to the db file, defaults to ~/.closh/closh.sqlite"
   (path.join (os.homedir) ".closh" "closh.sqlite"))
 
-(declare ^:dynamic db session-id)
+(declare ^:dynamic db)
+(declare ^:dynamic session-id)
 
-(def table-history
+(def ^:no-doc table-history
   "CREATE TABLE IF NOT EXISTS history (
  id INTEGER PRIMARY KEY,
  session_id INTEGER NOT NULL,
@@ -22,18 +24,22 @@
  cwd TEXT NOT NULL
 );")
 
-(def table-session
+(def ^:no-doc table-session
   "CREATE TABLE IF NOT EXISTS session (
  id INTEGER PRIMARY KEY,
  time INTEGER NOT NULL
 );")
 
-(defn add-history [cmd cwd cb]
+(defn add-history
+  "Adds a new item to history."
+  [command cwd cb]
   (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
-           #js[nil session-id (Date.now) cmd cwd]
+           #js[nil session-id (Date.now) command cwd]
            cb))
 
-(defn init-database [cb]
+(defn init-database
+  "Creates the db connection and gets a new session id (creates the tables if they not exist)."
+  [cb]
   (fs.mkdir (path.dirname db-file)
     (fn [err]
       (if (and err (not= (.-code err) "EEXIST"))
@@ -54,12 +60,15 @@
                         (set! session-id (.-lastID t))
                         (cb nil db session-id)))))))))))))
 
-(defn search-history [query history-state search-mode operator direction cb]
+;; TODO: Potential trouble if search gets triggered before init-database completes, maybe we want to wrap it a promise
+(defn search-history
+  "Searches the history DB."
+  [query history-state search-mode operator direction cb]
   (let [{:keys [index skip-session]} history-state
         escaped (clojure.string/replace query #"[%_]" #(str "\\" %))
         expr (case search-mode
                :prefix (str escaped "%")
-               :substr (str "%" escaped "%")
+               :substring (str "%" escaped "%")
                escaped)
         sql (str " SELECT id, command "
                  " FROM history "
@@ -77,7 +86,9 @@
             (when data
               [(.-command data) (assoc history-state :index (.-id data))]))))))
 
-(defn search-history-prev [query history-state search-mode cb]
+(defn search-history-prev
+  "Searches for the previous item in history DB."
+  [query history-state search-mode cb]
   (search-history query history-state search-mode "<" "DESC"
     (fn [err data]
       (if err
@@ -89,7 +100,9 @@
                                search-mode cb)
           (cb err data))))))
 
-(defn search-history-next [query history-state search-mode cb]
+(defn search-history-next
+  "Searches for the next item in history DB."
+  [query history-state search-mode cb]
   (search-history query history-state search-mode ">" "ASC"
     (fn [err data]
       (if err

@@ -22,10 +22,10 @@
 (def ^:no-doc os (js/require "os"))
 (def ^:no-doc path (js/require "path"))
 
-(def readline-tty-write readline.Interface.prototype._ttyWrite)
+(def ^:no-doc readline-tty-write readline.Interface.prototype._ttyWrite)
 
-(def initial-readline-state {:mode :input})
-(def readline-state (atom initial-readline-state))
+(def ^:no-doc initial-readline-state {:mode :input})
+(def ^:no-doc readline-state (atom initial-readline-state))
 
 (defn load-init-file
   "Loads init file."
@@ -37,7 +37,9 @@
          (catch :default e
            (js/console.error "Error while loading " init-path ":\n" e)))))
 
-(defn restore-previous-state [state]
+(defn restore-previous-state
+  "Helper to restore the previously backed up readline state after search is canceled or finished."
+  [state]
   (assoc state
     :history-state nil
     :mode :input
@@ -47,7 +49,9 @@
     :query nil
     :failed-search false))
 
-(defn activate-search-state [state rl search-mode]
+(defn activate-search-state
+  "Helper to update state when search is triggered. Mainly it backs up previous readline state so it can be later restored if search is canceled."
+  [state rl search-mode]
   (if (:history-state state)
     (assoc state :search-mode search-mode
                  :mode (if (= search-mode :prefix) (:mode state) :search))
@@ -65,13 +69,15 @@
         :previous-prompt (.-_prompt rl)
         :previous-line (.-line rl)))))
 
-(defn render-line [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
+(defn render-line
+  "Renders the readline, first it sets the properties from state and then refreshes the line."
+  [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
   (when-not (nil? line) (aset rl "line" line))
   (when-not (nil? cursor) (aset rl "cursor" cursor))
   (when-let [p (if (= mode :search)
                  (let [kind (case search-mode
                               :prefix "history-prefix-search"
-                              :substr "history-search"
+                              :substring "history-search"
                               "unknown-type-of-search")
                        label (if failed-search (str "failed " kind) kind)]
                    (str "(" label ")`" query "': "))
@@ -88,7 +94,9 @@
 
 ;; TODO: Potencial race condition if latter history call returns before the previous one
 ;; Maybe some loading indicator?
-(defn search-history-prev [{:keys [query history-state search-mode] :as state} rl]
+(defn search-history-prev
+  "Searches previous item in history."
+  [{:keys [query history-state search-mode] :as state} rl]
   (closh.history/search-history-prev query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
@@ -103,7 +111,9 @@
       (render-line rl @readline-state)))
   state)
 
-(defn search-history-next [{:keys [query history-state search-mode] :as state} rl]
+(defn search-history-next
+  "Searches next item in history."
+  [{:keys [query history-state search-mode] :as state} rl]
   (closh.history/search-history-next query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
@@ -121,7 +131,9 @@
       (render-line rl @readline-state)))
   state)
 
-(defn key-value [key]
+(defn key-value
+  "Returns a canonical string for a key press, e.g. ctrl-r or ctrl-meta-shift-delete."
+  [key]
   ;; escape seems to come with meta always switched on, so lets strip it for now
   (if (= (.-name key) "escape")
     "escape"
@@ -133,7 +145,9 @@
       (filter identity)
       (clojure.string/join "-"))))
 
-(defn handle-keypress [{:keys [query] :as state} rl c key]
+(defn handle-keypress
+  "Handles a keypress event by returning updated state. It returns nil when it did not handle the event, it that case falling back to default handler is recommended."
+  [{:keys [query] :as state} rl c key]
   (case (:mode state)
    :input
    (case (key-value key)
@@ -146,7 +160,7 @@
                 (search-history-next rl))
               state)
      "ctrl-r" (-> state
-                (activate-search-state rl :substr)
+                (activate-search-state rl :substring)
                 (search-history-prev rl))
      nil)
 
@@ -168,9 +182,9 @@
                      :line ""
                      :cursor 0)
      ;; Search for previous entry (switches to substr search mode if necessary)
-     "ctrl-r" (search-history-prev (assoc state :search-mode :substr) rl)
+     "ctrl-r" (search-history-prev (assoc state :search-mode :substring) rl)
      ;; Search for next entry (switches to substr search mode if necessary)
-     "ctrl-s" (search-history-next (assoc state :search-mode :substr) rl)
+     "ctrl-s" (search-history-next (assoc state :search-mode :substring) rl)
      ;; Default case - update search query based on typed character
      (if-let [q (when (not (or (.-meta key) (.-ctrl key)))
                   (if (and (not (.-shift key)) (= (.-name key) "backspace"))
