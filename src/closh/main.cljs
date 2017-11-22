@@ -24,7 +24,8 @@
 
 (def readline-tty-write readline.Interface.prototype._ttyWrite)
 
-(def readline-state (atom {:mode :input}))
+(def initial-readline-state {:mode :input})
+(def readline-state (atom initial-readline-state))
 
 (defn load-init-file
   "Loads init file."
@@ -47,15 +48,46 @@
     :failed-search false))
 
 (defn activate-search-state [state rl search-mode]
-  (assoc state
-    :mode :search
-    :search-mode search-mode
-    :line ""
-    :cursor 0
-    :query (subs (.-line rl) 0 (.-cursor rl))
-    :previous-prompt (.-_prompt rl)
-    :previous-line (.-line rl)))
+  (if (:history-state state)
+    (assoc state :search-mode search-mode
+                 :mode (if (= search-mode :prefix) (:mode state) :search))
+    (let [query (subs (.-line rl) 0 (.-cursor rl))
+          mode (if (and (= search-mode :prefix)
+                        (empty? query))
+                 :input
+                 :search)]
+      (assoc state
+        :mode mode
+        :search-mode search-mode
+        :query query
+        :line ""
+        :cursor 0
+        :previous-prompt (.-_prompt rl)
+        :previous-line (.-line rl)))))
 
+(defn render-line [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
+  (when-not (nil? line) (aset rl "line" line))
+  (when-not (nil? cursor) (aset rl "cursor" cursor))
+  (when-let [p (if (= mode :search)
+                 (let [kind (case search-mode
+                              :prefix "history-prefix-search"
+                              :substr "history-search"
+                              "unknown-type-of-search")
+                       label (if failed-search (str "failed " kind) kind)]
+                   (str "(" label ")`" query "': "))
+                 prompt)]
+    (aset rl "_prompt" p))
+  (._refreshLine rl))
+
+(defn prompt
+  "Prints prompt to a readline instance."
+  [rl]
+  (doto rl
+    (.setPrompt (execute-text "(closh-prompt)"))
+    (.prompt true)))
+
+;; TODO: Potencial race condition if latter history call returns before the previous one
+;; Maybe some loading indicator?
 (defn search-history-prev [{:keys [query history-state search-mode] :as state} rl]
   (closh.history/search-history-prev query history-state search-mode
     (fn [err data]
@@ -66,9 +98,9 @@
                     :line line
                     :cursor (count line)
                     :failed-search false)
-           (assoc % :failed-search true)))
+           (assoc % :mode :search ;; Make sure we are in search mode when search fails to display user a message
+                    :failed-search true)))
       (render-line rl @readline-state)))
-  ;; Maybe some loading indicator?
   state)
 
 (defn search-history-next [{:keys [query history-state search-mode] :as state} rl]
@@ -89,27 +121,6 @@
       (render-line rl @readline-state)))
   state)
 
-(defn render-line [rl {:keys [line cursor prompt mode search-mode query failed-search]}]
-  (when-not (nil? line) (aset rl "line" line))
-  (when-not (nil? cursor) (aset rl "cursor" cursor))
-  (when-let [p (if (and (= mode :search) (not (empty? query)))
-                 (let [kind (case search-mode
-                              :prefix "history-prefix-search"
-                              :substr "history-search"
-                              "unknown-type-of-search")
-                       label (if failed-search (str "failed " kind) kind)]
-                   (str "(" label ")`" query "': "))
-                 prompt)]
-    (aset rl "_prompt" p))
-  (._refreshLine rl))
-
-(defn prompt
-  "Prints prompt to a readline instance."
-  [rl]
-  (doto rl
-    (.setPrompt (execute-text "(closh-prompt)"))
-    (.prompt true)))
-
 (defn key-value [key]
   ;; escape seems to come with meta always switched on, so lets strip it for now
   (if (= (.-name key) "escape")
@@ -129,6 +140,11 @@
      "up" (-> state
             (activate-search-state rl :prefix)
             (search-history-prev rl))
+     "down" (if (:history-state state)
+              (-> state
+                (activate-search-state rl :prefix)
+                (search-history-next rl))
+              state)
      "ctrl-r" (-> state
                 (activate-search-state rl :substr)
                 (search-history-prev rl))
@@ -155,6 +171,8 @@
                      :cursor 0)
      ;; Search for previous entry (switches to substr search mode if necessary)
      "ctrl-r" (search-history-prev (assoc state :search-mode :substr) rl)
+     ;; Search for next entry (switches to substr search mode if necessary)
+     "ctrl-s" (search-history-next (assoc state :search-mode :substr) rl)
      ;; Default case - update search query based on typed character
      (if-let [q (when (not (or (.-meta key) (.-ctrl key)))
                   (if (and (not (.-shift key)) (= (.-name key) "backspace"))
@@ -195,6 +213,7 @@
           (.pause rl)
           (when-not (or (clojure.string/blank? input)
                         (re-find #"^\s+" input))
+              (reset! readline-state initial-readline-state)
               (add-history input (js/process.cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err))))
             (try
