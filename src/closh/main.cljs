@@ -156,12 +156,10 @@
      "down" (search-history-next state rl)
      ;; Accept current line
      "tab" (restore-previous-state state)
-     ;; Accept and execute current line
-     ;; TODO: Execute
-     "enter" (restore-previous-state state)
-     ;; Cancel search
+     ;; Accept and execute current line (execution is handled by caller)
+     "return" (restore-previous-state state)
      "escape" (let [line (or (:previous-line state) "")
-                    cursor (.-length line)]
+                    cursor (count line)]
                 (assoc (restore-previous-state state)
                        :cursor cursor
                        :line line))
@@ -200,7 +198,10 @@
           (if-let [state (handle-keypress @readline-state self c key)]
             (do
               (reset! readline-state state)
-              (render-line rl state))
+              (render-line rl state)
+              ;; When return key is pressed pass it down to readline to execute the current line
+              (when (= (key-value key) "return")
+                (.call readline-tty-write self c key)))
             (.call readline-tty-write self c key)))))
     (init-database
      (fn [err]
