@@ -7,7 +7,7 @@ History gets saved to the file `~/.closh/closh.sqlite` which is a SQLite databas
 
 Use <kbd>up</kbd> and <kbd>down</kbd> arrows to cycle through history. First history from a current session is used, then history from all other sessions is used.
 
-If you type some text and press <kbd>up</kbd> then the text will be used to match beginning of the command (prefix mode). Pressing <kbd>ctrl-r</kbd> will switch to matching anywhere in the command (substring mode).
+If you type some text and press <kbd>up</kbd> then the text will be used to match beginning of the command (prefix mode). Pressing <kbd>ctrl-r</kbd> will switch to matching anywhere in the command (substring mode). The search is case insensitive.
 
 While in the history search mode you can use following controls:
 - <kbd>enter</kbd> to accept the command and execute it
