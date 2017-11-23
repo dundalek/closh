@@ -97,9 +97,10 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
 - [x] Dynamic prompt
-- [ ] [Persistent history](https://github.com/dundalek/closh/pull/23)
+- [x] [Persistent history](https://github.com/dundalek/closh/pull/23)
 - [ ] [Autocomplete](https://github.com/dundalek/closh/issues/6)
 - [ ] Signal control / Job control
+- [ ] Improved reader
 - [ ] Configuration
   - [x] Loads `~/.closhrc` on startup
   - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
