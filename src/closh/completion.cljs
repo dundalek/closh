@@ -10,29 +10,30 @@
       (.on "end" #(cb nil (.join out "")))
       (.on "error" #(cb % "")))))
 
-(defn get-completions-spawn [cmd args cb]
-  (let [proc (child-process.spawn cmd args #js{:encoding "utf-8"})]
-    (stream-output (.-stdout proc)
-      (fn [err stdout]
-        (if err
-          (cb err)
-          (let [completions (if (clojure.string/blank? stdout)
-                              #js[]
-                              (apply array (clojure.string/split (clojure.string/trim stdout) #"\n")))]
-            (cb nil completions)))))))
+(defn get-completions-spawn [cmd args]
+  (js/Promise.
+    (fn [resolve reject]
+      (let [proc (child-process.spawn cmd args #js{:encoding "utf-8"})]
+        (stream-output (.-stdout proc)
+          (fn [_ stdout]
+            (let [completions (if (clojure.string/blank? stdout)
+                                #js[]
+                                (apply array (clojure.string/split (clojure.string/trim stdout) #"\n")))]
+              (resolve completions))))))))
 
-(defn complete-fish [line cb]
-  (get-completions-spawn "fish" #js["/home/me/github/closh/scripts/shell/completion.fish" line] cb))
+(defn complete-fish [line]
+  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.fish" #js[line]))
 
-(defn complete-bash [line cb]
-  (get-completions-spawn "bash" #js["/home/me/github/closh/scripts/shell/completion.bash" line] cb))
+(defn complete-bash [line]
+  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.bash" #js[line]))
 
-(defn complete-zsh [line cb]
-  (get-completions-spawn "zsh" #js["/home/me/github/closh/scripts/shell/completion.zsh" line] cb))
+(defn complete-zsh [line]
+  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.zsh" #js[line]))
 
 (defn complete [line cb]
-  (complete-fish line
-    (fn [err completions]
-      (if err
-        (cb err)
-        (cb nil #js[completions line])))))
+  (->
+    (complete-fish line)
+    (.then #(if (seq %) % (complete-bash line)))
+    (.then #(if (seq %) % (complete-zsh line)))
+    (.then #(cb nil #js[% line]))
+    (.catch #(cb %))))
