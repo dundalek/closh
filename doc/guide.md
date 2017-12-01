@@ -163,6 +163,15 @@ getenv "SET_BY_COMPLICATED_SCRIPT"
 => "..."
 ```
 
+To set a temporary variable while running a command, do this:
+```
+env VAR=1 command
+```
+Which is equivalent to bash:
+```
+VAR=1 command
+```
+
 ### Custom prompt
 
 The prompt can be customized by defining `closh-prompt` function in `~/.closhrc` file.
