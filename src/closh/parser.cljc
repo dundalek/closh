@@ -15,7 +15,7 @@
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
-  #{'cd 'exit 'quit})
+  #{'cd 'exit 'quit 'getenv 'setenv})
 
 (def ^:no-doc redirect-op
   "Set of symbols of redirection operators"

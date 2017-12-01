@@ -122,6 +122,56 @@ closh: (sh ls) (sh echo hi)
 
 ## Reference
 
+### Environment variables
+
+There are some helper functions for doing common things with environment variables
+
+**setenv**: set environment variable
+```
+setenv "ONE" "1"
+=> ("1")
+(setenv "ONE" "1")
+=> ("1")
+(setenv "ONE" "1" "TWO" "2")
+=> ("1" "2")
+```
+
+**getenv**: get environment variable
+```
+getenv "ONE"
+=> "1"
+(getenv "ONE")
+=> "1"
+(getenv "ONE" "TWO")
+=> {"ONE" "1", "TWO" "2"}
+getenv
+=> ;; returns a map of all environment variables
+```
+
+**source-shell**: run bash scripts and import the resulting environment variables into the closh environment
+```
+(source-shell "export ONE=42")
+=> nil
+getenv "ONE"
+=> "42"
+```
+`source-shell` defaults to `bash` but you can use other shells:
+```
+(source-shell "zsh" "source complicated_script.zsh")
+=> nil
+getenv "SET_BY_COMPLICATED_SCRIPT"
+=> "..."
+```
+
+To set a temporary variable while running a command, do this:
+```
+env VAR=1 command
+```
+Which is equivalent to bash:
+```
+VAR=1 command
+```
+
 ### Custom prompt
 
 The prompt can be customized by defining `closh-prompt` function in `~/.closhrc` file.

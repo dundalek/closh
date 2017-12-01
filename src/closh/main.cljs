@@ -7,6 +7,7 @@
             [lumo.repl]
             [closh.parser]
             [closh.builtin]
+            [closh.util]
             [closh.eval :refer [execute-text]]
             [closh.core :refer [handle-line]]
             [closh.history :refer [init-database add-history]])

@@ -3,6 +3,8 @@
             [cljs.test :refer-macros [deftest testing is are run-tests]]
             [clojure.spec.alpha :as s]
             [clojure.string]
+            [goog.object :as gobj]
+            [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
             [closh.eval :refer [execute-text]]
             [closh.core :refer [handle-line shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
@@ -463,3 +465,21 @@
             :stdout "YES\n"}
            (-> (closh-spawn "_asdfghj_ || echo YES")
                (select-keys [:stdout :stderr]))))))
+
+(deftest test-builtin-getenv-setenv
+
+  (is (= (jsx->clj js/process.env) (getenv)))
+
+  (is (= '("forty two") (setenv "A" "forty two")))
+  (is (= (gobj/get js/process.env "A") (getenv "A")))
+
+  (setenv "A" "forty
+two")
+  (is (= "forty\ntwo" (getenv "A")))
+
+  (is (= '("1" "2") (setenv "ONE" "1" "TWO" "2")))
+  (is (= {"ONE" "1", "TWO" "2"}
+         (getenv "ONE" "TWO")))
+
+  (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
+  (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
