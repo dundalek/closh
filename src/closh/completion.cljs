@@ -1,5 +1,6 @@
 (ns closh.completion
-  (:require [clojure.string]))
+  (:require [clojure.string]
+            [lumo.repl]))
 
 (def child-process (js/require "child_process"))
 
@@ -30,10 +31,20 @@
 (defn complete-zsh [line]
   (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.zsh" #js[line]))
 
+(defn complete-lumo [line]
+  (js/Promise.
+    (fn [resolve reject]
+      (try
+        (lumo.repl/get-completions line resolve)
+        (catch :default e (reject e))))))
+
 (defn complete [line cb]
-  (->
-    (complete-fish line)
-    (.then #(if (seq %) % (complete-bash line)))
-    (.then #(if (seq %) % (complete-zsh line)))
+  (-> (js/Promise.all
+       #js[(-> (complete-fish line)
+               (.then #(if (seq %) % (complete-bash line)))
+               (.then #(if (seq %) % (complete-zsh line))))
+           (complete-lumo line)])
+    (.then #(->> (apply concat %)
+                 (apply array)))
     (.then #(cb nil #js[% line]))
     (.catch #(cb %))))
