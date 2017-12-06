@@ -26,6 +26,20 @@
   [s]
   (clojure.string/replace-first s #"^~" (.-HOME js/process.env)))
 
+(defn expand-tilde-line
+  "Takes a line (string) and expands all tildes that are outside of parens"
+  ([line] (expand-tilde-line (seq line) "" 0 false))
+  ([[c & cs] line count escape?]
+   (cond
+     (nil? c) line
+     (= c \() (recur cs (str line c) (inc count) false)
+     (= c \)) (recur cs (str line c) (dec count) false)
+     (> count 0) (recur cs (str line c) count false)
+     escape? (recur cs (str line c) count false)
+     (= c \\) (recur cs line count true)
+     (= c \~) (recur cs (str line (.-HOME js/process.env)) count false)
+     :else (recur cs (str line c) count false))))
+
 (defn expand-filename
   "Expands filename based on globbing patterns"
   [s]
@@ -293,6 +307,7 @@
 (defn handle-line
   "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
   [input eval-cljs]
-  (-> (str "(sh " input ")")
+  (-> (expand-tilde-line input)
+      (#(str "(sh " % ")"))
       (eval-cljs)
       (wait-for-pipeline)))
