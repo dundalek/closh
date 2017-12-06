@@ -23,7 +23,8 @@
               (resolve completions))))))))
 
 (defn complete-fish [line]
-  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.fish" #js[line]))
+  (-> (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.fish" #js[line])
+      (.then (fn [completions] (.map completions #(first (clojure.string/split % #"\t"))))))) ; discard the tab-separated description
 
 (defn complete-bash [line]
   (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.bash" #js[line]))
