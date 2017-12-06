@@ -227,11 +227,11 @@
       (.on "line"
         (fn [input]
           (.pause rl)
-          (when-not (or (clojure.string/blank? input)
-                        (re-find #"^\s+" input))
-              (reset! readline-state initial-readline-state)
+          (when-not (clojure.string/blank? input)
+            (reset! readline-state initial-readline-state)
+            (when-not (re-find #"^\s+" input)
               (add-history input (js/process.cwd)
-                (fn [err] (when err (js/console.error "Error saving history:" err))))
+                (fn [err] (when err (js/console.error "Error saving history:" err)))))
             (try
               (let [result (handle-line input execute-text)]
                 (when-not (or (nil? result)
