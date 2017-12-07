@@ -99,8 +99,8 @@ Implement essential functionality needed for daily use by early adopters. [IN PR
 - [x] Dynamic prompt
 - [x] [Persistent history](https://github.com/dundalek/closh/pull/23)
 - [ ] [Autocomplete](https://github.com/dundalek/closh/issues/6)
-- [ ] Signal control / Job control
-- [ ] Improved reader
+- [ ] [Signal control](https://github.com/dundalek/closh/issues/30) / Job control
+- [ ] [Improved reader](https://github.com/dundalek/closh/issues/39)
 - [ ] Configuration
   - [x] Loads `~/.closhrc` on startup
   - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
@@ -112,7 +112,7 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 
 - [ ] Key bindings
 - [ ] Handle common errors
-- [ ] [Environment variable integration](https://github.com/dundalek/closh/issues/16)
+- [x] [Environment variable integration](https://github.com/dundalek/closh/issues/16)
 - [ ] Builtin utility functions
 - [ ] Testing and stability
 
