@@ -42,8 +42,8 @@ jobs:
       - restore_cache:
           keys:
           - v1-dependencies-macos-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-macos-
+      #     # fallback to using the latest cache if no exact match is found
+      #     - v1-dependencies-macos-
 
       - run: scripts/ci_macos
 
