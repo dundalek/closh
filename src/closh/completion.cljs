@@ -23,14 +23,14 @@
               (resolve completions))))))))
 
 (defn complete-fish [line]
-  (-> (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.fish" #js[line])
+  (-> (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.fish") #js[line])
       (.then (fn [completions] (.map completions #(first (clojure.string/split % #"\t"))))))) ; discard the tab-separated description
 
 (defn complete-bash [line]
-  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.bash" #js[line]))
+  (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.bash") #js[line]))
 
 (defn complete-zsh [line]
-  (get-completions-spawn "/home/me/github/closh/scripts/shell/completion.zsh" #js[line]))
+  (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.zsh") #js[line]))
 
 (defn complete-lumo [line]
   (js/Promise.

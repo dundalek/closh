@@ -23,4 +23,6 @@ if (process.env.NODE_PATH) {
 }
 process.env.NODE_PATH = paths.join(isWindows ? ';' : ':');
 
+process.env.CLOSH_SOURCES_PATH = path.join(__dirname, '..');
+
 spawn(bin, args, { stdio: 'inherit' }).on('exit', process.exit);
