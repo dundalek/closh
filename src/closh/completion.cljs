@@ -39,13 +39,32 @@
         (lumo.repl/get-completions line resolve)
         (catch :default e (reject e))))))
 
+(defn join-string [line s]
+  (loop [i (count s)]
+    (if (zero? i)
+      (str line s)
+      (let [sub (subs s 0 i)]
+        (if (clojure.string/ends-with? line sub)
+          (str line (subs s i))
+          (recur (dec i)))))))
+
+(defn process-completions [line completions]
+  (->> completions
+    (map #(join-string line %))
+    (filter #(not= line %))))
+
 (defn complete [line cb]
   (-> (js/Promise.all
-       #js[(-> (complete-fish line)
+       #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
+             (complete-lumo line))
+           (-> (complete-fish line)
                (.then #(if (seq %) % (complete-bash line)))
-               (.then #(if (seq %) % (complete-zsh line))))
-           (complete-lumo line)])
-    (.then #(->> (apply concat %)
-                 (apply array)))
+               (.then #(if (seq %) % (complete-zsh line))))])
+    (.then (fn [completions]
+             (->> completions
+               (map #(process-completions line %))
+               (interpose [""])
+               (apply concat)
+               (apply array))))
     (.then #(cb nil #js[% line]))
     (.catch #(cb %))))
