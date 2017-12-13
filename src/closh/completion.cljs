@@ -39,19 +39,22 @@
         (lumo.repl/get-completions line resolve)
         (catch :default e (reject e))))))
 
-(defn join-string [line s]
-  (loop [i (count s)]
-    (if (zero? i)
-      (str line s)
-      (let [sub (subs s 0 i)]
-        (if (clojure.string/ends-with? line sub)
-          (str line (subs s i))
-          (recur (dec i)))))))
+(defn join-strings-insensitive [line-in s-in]
+  (let [line (clojure.string/lower-case line-in)
+        s (clojure.string/lower-case s-in)]
+    (loop [i (count s)]
+      (if (zero? i)
+        (str line-in s-in)
+        (let [sub (subs s 0 i)]
+          (if (clojure.string/ends-with? line sub)
+            (str (subs line-in 0 (- (count line-in) i)) s-in)
+            (recur (dec i))))))))
 
 (defn process-completions [line completions]
   (->> completions
-    (map #(join-string line %))
-    (filter #(not= line %))))
+    (map #(join-strings-insensitive line %))
+    (filter #(not= line %))
+    (distinct))) ; bash seems to return duplicates sometimes
 
 (defn complete [line cb]
   (-> (js/Promise.all
