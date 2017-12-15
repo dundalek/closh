@@ -8,6 +8,7 @@
             [closh.parser]
             [closh.builtin]
             [closh.util]
+            [closh.completion]
             [closh.eval :refer [execute-text]]
             [closh.core :refer [handle-line]]
             [closh.history :refer [init-database add-history]])
@@ -206,6 +207,7 @@
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
                  :output js/process.stdout
+                 :completer closh.completion/complete
                  :prompt "$ "})]
     (aset rl "_ttyWrite"
       (fn [c key]
