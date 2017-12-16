@@ -34,7 +34,7 @@
 (defn closh-spawn [cmd]
   (let [proc (.spawnSync child-process
                          "lumo"
-                         #js["--classpath" "src" "test/closh/tester.cljs" cmd]
+                         #js["--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
                          #js{:encoding "utf-8"})]
     {:stdout (.-stdout proc)
      :stderr (.-stderr proc)
@@ -49,7 +49,7 @@
 
   (is (= (.-USER js/process.env) (first (expand "$USER"))))
 
-  (is (= "test.cljs\n" (process-output (shx "ls" [(expand "test.clj*")]))))
+  (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
 
   (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
              (.trimRight)
@@ -304,8 +304,8 @@
     "cat < package.json 2>/dev/null | cat"
     "cat < package.json 2 > /dev/null | cat"
 
-    "for f in test/closh/*; do echo $f; cat $f; done"
-    "ls test/closh/* |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
+    "for f in test/closh/*.cljs; do echo $f; cat $f; done"
+    "ls test/closh/*.cljs |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
@@ -431,8 +431,8 @@
       "mkdir x/y/z || echo FAILED"
       "mkdir x/y/z || echo FAILED"
 
-      "for f in test/closh/*; do echo $f; cat $f; done"
-      "ls test/closh/* |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+      "for f in test/closh/*.cljs; do echo $f; cat $f; done"
+      "ls test/closh/*.cljs |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
       "if test -f package.json; then echo file exists; else echo no file; fi"
       "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"

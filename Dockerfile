@@ -17,7 +17,6 @@ COPY src src
 COPY test test
 COPY package.json .
 COPY package-lock.json .
-COPY test.cljs .
 
 RUN . "$HOME/.nvm/nvm.sh" && \
     nvm install $(lumo -e '(println process.version)') && \

@@ -23,7 +23,7 @@
     "dev": "nodemon --config .nodemon.json",
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
-    "test": "lumo -K -c src:test test.cljs",
+    "test": "lumo -K -c src:test test/closh/test_util/runner.cljs",
     "test-auto": "nodemon -e clj,cljs,cljc -x 'npm test'",
     "test-dev-once": "NODE_ENV=development npm test",
     "test-dev": "nodemon -e clj,cljs,cljc -x 'npm run test-dev-once'",
