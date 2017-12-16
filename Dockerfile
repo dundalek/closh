@@ -12,14 +12,15 @@ RUN pacman -Syy --noconfirm git wget npm python2 make gcc bc && \
 
 WORKDIR /root/closh
 
-COPY bin bin
-COPY src src
-COPY test test
 COPY package.json .
 COPY package-lock.json .
 
 RUN . "$HOME/.nvm/nvm.sh" && \
     nvm install $(lumo -e '(println process.version)') && \
     npm install
+
+COPY bin bin
+COPY src src
+COPY test test
 
 CMD ["/usr/sbin/npm", "run", "start"]
