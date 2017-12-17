@@ -18,7 +18,7 @@
   "Evals a string in command mode via lumo."
   [source]
   ;; Execute does not return value but binds it to *1
-  (binding [cljs.tools.reader/read closh.reader/read]
+  (with-redefs [cljs.tools.reader/read closh.reader/read]
     (lumo.repl/execute-text source {:expression? true}))
   *1)
 
@@ -26,7 +26,7 @@
   "Evals a string in command mode via lumo."
   [source]
   ;; Execute does not return value but binds it to *1
-  (binding [cljs.tools.reader/read closh.reader/read-value]
+  (with-redefs [cljs.tools.reader/read closh.reader/read-value]
     (lumo.repl/execute-text source {:expression? true}))
   *1)
 

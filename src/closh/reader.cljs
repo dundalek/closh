@@ -20,7 +20,7 @@
   (.test ws-rx ch))
 
 (defn read-token [& args]
-  (binding [cljs.tools.reader/macro-terminating? macro-terminating?
+  (with-redefs [cljs.tools.reader/macro-terminating? macro-terminating?
             cljs.tools.reader.impl.utils/whitespace? whitespace?]
     (apply cljs.tools.reader/read-token args)))
 
@@ -48,7 +48,7 @@
             (= \~ ch) (read-symbol reader ch)
             :else (let [f (macros ch)]
                     (if-not (nil? f)
-                      (binding [cljs.tools.reader/read*-internal read-internal-orig]
+                      (with-redefs [cljs.tools.reader/read*-internal read-internal-orig]
                         (let [res (f reader ch opts pending-forms)]
                           (if (identical? res reader)
                             (recur)
@@ -65,7 +65,7 @@
   ([reader]
    (read {} reader))
   ([opts reader]
-   (binding [cljs.tools.reader/read*-internal read-internal-custom]
+   (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
      (loop [coll (transient [])]
        (let [[item exception] (try
                                 [(read-orig opts reader) nil]
@@ -81,7 +81,7 @@
   ([reader]
    (read {} reader))
   ([opts reader]
-   (binding [cljs.tools.reader/read*-internal read-internal-custom]
+   (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
      (loop [coll (transient [])]
        (let [[item exception] (try
                                 [(read-orig opts reader) nil]
