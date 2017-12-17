@@ -1,7 +1,5 @@
 (ns closh.test-util.spawn-helper
-  (:require [clojure.tools.reader]
-            [clojure.tools.reader.impl.commons]
-            [clojure.string]
+  (:require [clojure.string]
             [closh.parser]
             [closh.builtin]
             [closh.eval :refer [execute-command-text]]

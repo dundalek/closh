@@ -1,9 +1,6 @@
 (ns closh.main
-  (:require [clojure.tools.reader]
-            [clojure.tools.reader.impl.commons]
-            [clojure.pprint :refer [pprint]]
+  (:require [clojure.pprint :refer [pprint]]
             [clojure.string]
-            ; [lumo.io]
             [lumo.repl]
             [closh.parser]
             [closh.builtin]

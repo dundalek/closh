@@ -1,6 +1,5 @@
 (ns closh.core-test
-  (:require [clojure.tools.reader.impl.commons]
-            [cljs.test :refer-macros [deftest testing is are run-tests]]
+  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
             [clojure.spec.alpha :as s]
             [clojure.string]
             [goog.object :as gobj]
