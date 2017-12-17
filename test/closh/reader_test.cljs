@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
             [closh.reader :refer [read-string]]))
 
-(deftest test-append-commpletion
+(deftest test-reader
 
   (are [x y] (= x (read-string y))
 

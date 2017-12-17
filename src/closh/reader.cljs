@@ -21,7 +21,7 @@
 
 (defn read-token [& args]
   (with-redefs [cljs.tools.reader/macro-terminating? macro-terminating?
-            cljs.tools.reader.impl.utils/whitespace? whitespace?]
+                cljs.tools.reader.impl.utils/whitespace? whitespace?]
     (apply cljs.tools.reader/read-token args)))
 
 (defn read-symbol [reader ch]
@@ -61,40 +61,33 @@
   ([{eof :eof :as opts :or {eof :eofthrow}} reader] (cljs.tools.reader/read* reader (= eof :eofthrow) eof nil opts (to-array [])))
   ([reader eof-error? sentinel] (cljs.tools.reader/read* reader eof-error? sentinel nil {} (to-array []))))
 
-(defn read
-  ([reader]
-   (read {} reader))
-  ([opts reader]
-   (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
-     (loop [coll (transient [])]
-       (let [[item exception] (try
-                                [(read-orig opts reader) nil]
-                                (catch :default e [nil e]))]
-         (if (or exception
-                 (and (:eof opts) (= (:eof opts) item)))
-           (if-let [result (seq (persistent! coll))]
-             (conj result 'sh)
-             item)
-           (recur (conj! coll item))))))))
+(defn read [opts reader wrapper]
+  (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
+    (loop [coll (transient [])]
+      (let [[item exception] (try
+                               [(read-orig opts reader) nil]
+                               (catch :default e [nil e]))]
+        (if (or exception
+                (and (:eof opts) (= (:eof opts) item)))
+          (if-let [result (seq (persistent! coll))]
+            (conj result wrapper)
+            item)
+          (recur (conj! coll item)))))))
 
-(defn read-value
+(defn read-sh
   ([reader]
-   (read {} reader))
+   (read-sh {} reader))
   ([opts reader]
-   (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
-     (loop [coll (transient [])]
-       (let [[item exception] (try
-                                [(read-orig opts reader) nil]
-                                (catch :default e [nil e]))]
-         (if (or exception
-                 (and (:eof opts) (= (:eof opts) item)))
-           (if-let [result (seq (persistent! coll))]
-             (conj result 'sh-value)
-             item)
-           (recur (conj! coll item))))))))
+   (read opts reader 'sh)))
+
+(defn read-sh-value
+  ([reader]
+   (read-sh {} reader))
+  ([opts reader]
+   (read opts reader 'sh-value)))
 
 (defn read-string
   ([s]
    (read-string {} s))
   ([opts s]
-   (read opts (string-push-back-reader s))))
+   (read-sh opts (string-push-back-reader s))))

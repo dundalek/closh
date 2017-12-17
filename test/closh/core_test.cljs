@@ -3,9 +3,10 @@
             [clojure.spec.alpha :as s]
             [clojure.string]
             [goog.object :as gobj]
+            [closh.reader]
             [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
-            [closh.eval :refer [execute-command-value-text]]
+            [closh.eval :refer [execute-command-text]]
             [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
              :refer-macros [sh sh-str]]))
 
@@ -35,7 +36,7 @@
      :code (.-status proc)}))
 
 (defn closh [cmd]
-  (execute-command-value-text cmd))
+  (execute-command-text cmd closh.reader/read-sh-value))
 
 (deftest run-test
 
@@ -401,7 +402,7 @@
     ; "x2\n"
     ; (str "echo x2 | (spit \"" f "\")")
 
-    ; TODO: maybe move to spaw-helper test
+    ; TODO: maybe move to spawn-helper test
     ; "x3\ny1\n"
     ; (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
 
