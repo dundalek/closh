@@ -6,14 +6,11 @@
             [closh.builtin]
             [closh.eval :refer [execute-text]]
             [closh.core :refer [handle-line]])
-  (:require-macros [alter-cljs.core :refer [alter-var-root]]
-                   [closh.reader :refer [patch-reader]]
-                   [closh.core :refer [sh]]))
+  (:require-macros [closh.core :refer [sh]]))
 
 (def child-process (js/require "child_process"))
 
 (defn -main []
-  (patch-reader)
   (let [cmd (-> (seq js/process.argv)
                 (nth 5))
         result (handle-line cmd execute-text)]

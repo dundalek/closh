@@ -6,11 +6,9 @@
             [goog.object :as gobj]
             [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
-            [closh.eval :refer [execute-text]]
-            [closh.core :refer [handle-line shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
-             :refer-macros [sh sh-str]])
-  (:require-macros [closh.reader :refer [patch-reader]]
-                   [alter-cljs.core :refer [alter-var-root]]))
+            [closh.eval :refer [execute-command-value-text]]
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
+             :refer-macros [sh sh-str]]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -18,9 +16,6 @@
 
 ;; Clean up tmp files on unhandled exception
 (tmp.setGracefulCleanup)
-
-;; Get ready to eval closh
-(patch-reader)
 
 (defn bash [cmd]
   (let [proc (.spawnSync child-process
@@ -41,7 +36,7 @@
      :code (.-status proc)}))
 
 (defn closh [cmd]
-  (execute-text (str "(sh-value " cmd ")")))
+  (execute-command-value-text cmd))
 
 (deftest run-test
 

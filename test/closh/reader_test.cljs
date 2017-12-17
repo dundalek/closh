@@ -6,20 +6,23 @@
 
   (are [x y] (= x (read-string y))
 
-    '("ping" "8.8.8.8")
+    (list 'sh 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
 
-    '("ls" "*.{cljc,clj}")
+    (list 'sh 'ls (symbol "*.{cljc,clj}"))
     "ls *.{cljc,clj}"
 
-    '("vim" "~/.closhrc")
+    (list 'sh 'vim (symbol "~/.closhrc"))
     "vim ~/.closhrc"
 
-    '("git" "clone" "git@github.com:dundalek/closh.git")
+    (list 'sh 'git 'clone (symbol "git@github.com:dundalek/closh.git"))
     "git clone git@github.com:dundalek/closh.git"
 
-    '("echo" "$USER/$DISPLAY")
+    '(sh echo $USER/$DISPLAY)
     "echo $USER/$DISPLAY"
 
-    '("echo" (+ 2 3))
-    "echo (+ 2 3)"))
+    '(sh echo (+ 2 3))
+    "echo (+ 2 3)"
+
+    '(sh echo hi | cat)
+    "echo hi | cat"))

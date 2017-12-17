@@ -12,9 +12,7 @@
             [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line]]
             [closh.history :refer [init-database add-history]])
-  (:require-macros [alter-cljs.core :refer [alter-var-root]]
-                   [closh.reader :refer [patch-reader]]
-                   [closh.core :refer [sh]]))
+  (:require-macros [closh.core :refer [sh]]))
 
 (enable-console-print!)
 
@@ -202,7 +200,6 @@
 (defn -main
   "Starts closh REPL with prompt and readline."
   []
-  (patch-reader)
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
