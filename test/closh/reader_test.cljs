@@ -28,4 +28,8 @@
     "echo hi | cat"
 
     '(sh echo 2 > tmp)
-    "echo 2 > tmp"))
+    "echo 2 > tmp")
+
+  (is (thrown? js/Error (read-string "echo (str 8.8.8)")))
+  (is (thrown? js/Error (read-string "echo \"")))
+  (is (thrown? js/Error (read-string "echo (+ 1"))))

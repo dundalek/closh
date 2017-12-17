@@ -61,30 +61,29 @@
   ([{eof :eof :as opts :or {eof :eofthrow}} reader] (cljs.tools.reader/read* reader (= eof :eofthrow) eof nil opts (to-array [])))
   ([reader eof-error? sentinel] (cljs.tools.reader/read* reader eof-error? sentinel nil {} (to-array []))))
 
-(defn read [opts reader wrapper]
+(defn read [opts reader cb]
   (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
     (loop [coll (transient [])]
-      (let [[item exception] (try
-                               [(read-orig opts reader) nil]
-                               (catch :default e [nil e]))]
-        (if (or exception
-                (and (:eof opts) (= (:eof opts) item)))
-          (if-let [result (seq (persistent! coll))]
-            (conj result wrapper)
-            item)
-          (recur (conj! coll item)))))))
+      (let [ch (read-char reader)]
+        (cond
+          (nil? ch) (if-let [result (seq (persistent! coll))]
+                      (cb result)
+                      (read-orig opts reader))
+          (whitespace? ch) (recur coll)
+          :else (do (unread reader ch)
+                    (recur (conj! coll (read-orig opts reader)))))))))
 
 (defn read-sh
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader 'sh)))
+   (read opts reader #(conj % 'sh))))
 
 (defn read-sh-value
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader 'sh-value)))
+   (read opts reader #(conj % 'sh-value))))
 
 (defn read-string
   ([s]
