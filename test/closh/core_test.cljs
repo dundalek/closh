@@ -28,7 +28,7 @@
 (defn closh-spawn [cmd]
   (let [proc (.spawnSync child-process
                          "lumo"
-                         #js["--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
+                         #js["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
                          #js{:encoding "utf-8"})]
     {:stdout (.-stdout proc)
      :stderr (.-stderr proc)

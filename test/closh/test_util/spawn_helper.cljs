@@ -10,7 +10,7 @@
 
 (defn -main []
   (let [cmd (-> (seq js/process.argv)
-                (nth 5))
+                (nth 6))
         result (handle-line cmd execute-command-text)]
     (cond
       (instance? child-process.ChildProcess result)
