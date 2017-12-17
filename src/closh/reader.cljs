@@ -25,7 +25,11 @@
     (apply cljs.tools.reader/read-token args)))
 
 (defn read-symbol [reader ch]
-  (symbol (read-token reader :symbol ch)))
+  (let [token (read-token reader :symbol ch)
+        number (js/Number token)]
+    (if (js/isNaN number)
+      (symbol token)
+      number)))
 
 (defn read-internal-custom
   [^not-native reader ^boolean eof-error? sentinel return-on opts pending-forms]

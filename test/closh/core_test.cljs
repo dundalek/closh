@@ -402,8 +402,9 @@
     ; "x2\n"
     ; (str "echo x2 | (spit \"" f "\")")
 
-    "x3\ny1\n"
-    (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
+    ; TODO: maybe move to spaw-helper test
+    ; "x3\ny1\n"
+    ; (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
 
     ""
     (str "echo x4 2 > " f)))

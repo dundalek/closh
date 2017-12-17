@@ -25,4 +25,7 @@
     "echo (+ 2 3)"
 
     '(sh echo hi | cat)
-    "echo hi | cat"))
+    "echo hi | cat"
+
+    '(sh echo 2 > tmp)
+    "echo 2 > tmp"))

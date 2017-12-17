@@ -4,7 +4,7 @@
             [clojure.string]
             [closh.parser]
             [closh.builtin]
-            [closh.eval :refer [execute-text]]
+            [closh.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]])
   (:require-macros [closh.core :refer [sh]]))
 
@@ -13,7 +13,7 @@
 (defn -main []
   (let [cmd (-> (seq js/process.argv)
                 (nth 5))
-        result (handle-line cmd execute-text)]
+        result (handle-line cmd execute-command-text)]
     (cond
       (instance? child-process.ChildProcess result)
       (js/process.exit (.-exitCode result))
