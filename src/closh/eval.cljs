@@ -1,5 +1,7 @@
 (ns closh.eval
   (:require [lumo.repl]
+            [cljs.tools.reader]
+            [closh.reader]
             [goog.object :as gobj]))
 
 ;; Make lumo's print a noop since we process resulting value ourselves
@@ -10,6 +12,14 @@
   [source]
   ;; Execute does not return value but binds it to *1
   (lumo.repl/execute-text source {:expression? true})
+  *1)
+
+(defn execute-command-text
+  "Evals a string in command mode via lumo."
+  [source]
+  ;; Execute does not return value but binds it to *1
+  (binding [cljs.tools.reader/read closh.reader/read]
+    (lumo.repl/execute-text source {:expression? true}))
   *1)
 
 (execute-text

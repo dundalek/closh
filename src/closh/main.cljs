@@ -9,7 +9,7 @@
             [closh.builtin]
             [closh.util]
             [closh.completion]
-            [closh.eval :refer [execute-text]]
+            [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line]]
             [closh.history :refer [init-database add-history]])
   (:require-macros [alter-cljs.core :refer [alter-var-root]]
@@ -235,7 +235,7 @@
               (add-history input (js/process.cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             (try
-              (let [result (handle-line input execute-text)]
+              (let [result (handle-line input execute-command-text)]
                 (when-not (or (nil? result)
                               (instance? child-process.ChildProcess result)
                               (and (seq? result)

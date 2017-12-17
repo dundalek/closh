@@ -293,6 +293,6 @@
 (defn handle-line
   "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
   [input eval-cljs]
-  (-> (str "(sh " input ")")
-      (eval-cljs)
-      (wait-for-pipeline)))
+  (-> input
+    (eval-cljs)
+    (wait-for-pipeline)))
