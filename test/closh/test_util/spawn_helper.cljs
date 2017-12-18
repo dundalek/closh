@@ -1,22 +1,17 @@
 (ns closh.test-util.spawn-helper
-  (:require [clojure.tools.reader]
-            [clojure.tools.reader.impl.commons]
-            [clojure.string]
+  (:require [clojure.string]
             [closh.parser]
             [closh.builtin]
-            [closh.eval :refer [execute-text]]
+            [closh.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]])
-  (:require-macros [alter-cljs.core :refer [alter-var-root]]
-                   [closh.reader :refer [patch-reader]]
-                   [closh.core :refer [sh]]))
+  (:require-macros [closh.core :refer [sh]]))
 
 (def child-process (js/require "child_process"))
 
 (defn -main []
-  (patch-reader)
   (let [cmd (-> (seq js/process.argv)
-                (nth 5))
-        result (handle-line cmd execute-text)]
+                (nth 6))
+        result (handle-line cmd execute-command-text)]
     (cond
       (instance? child-process.ChildProcess result)
       (js/process.exit (.-exitCode result))

@@ -99,8 +99,9 @@ Implement essential functionality needed for daily use by early adopters. [IN PR
 - [x] Dynamic prompt
 - [x] [Persistent history](https://github.com/dundalek/closh/pull/23)
 - [x] [Tab-completion](https://github.com/dundalek/closh/issues/6)
-- [ ] [Signal control](https://github.com/dundalek/closh/issues/30) / Job control
-- [ ] [Improved reader](https://github.com/dundalek/closh/issues/39)
+- [ ] [Signal control](https://github.com/dundalek/closh/issues/30)
+- [ ] Job control
+- [x] [Improved reader](https://github.com/dundalek/closh/issues/39)
 - [ ] Configuration
   - [x] Loads `~/.closhrc` on startup
   - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)

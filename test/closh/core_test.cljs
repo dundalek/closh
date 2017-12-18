@@ -1,16 +1,14 @@
 (ns closh.core-test
-  (:require [clojure.tools.reader.impl.commons]
-            [cljs.test :refer-macros [deftest testing is are run-tests]]
+  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
             [clojure.spec.alpha :as s]
             [clojure.string]
             [goog.object :as gobj]
+            [closh.reader]
             [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
-            [closh.eval :refer [execute-text]]
-            [closh.core :refer [handle-line shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
-             :refer-macros [sh sh-str]])
-  (:require-macros [closh.reader :refer [patch-reader]]
-                   [alter-cljs.core :refer [alter-var-root]]))
+            [closh.eval :refer [execute-command-text]]
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
+             :refer-macros [sh sh-str]]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -18,9 +16,6 @@
 
 ;; Clean up tmp files on unhandled exception
 (tmp.setGracefulCleanup)
-
-;; Get ready to eval closh
-(patch-reader)
 
 (defn bash [cmd]
   (let [proc (.spawnSync child-process
@@ -34,14 +29,14 @@
 (defn closh-spawn [cmd]
   (let [proc (.spawnSync child-process
                          "lumo"
-                         #js["--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
+                         #js["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
                          #js{:encoding "utf-8"})]
     {:stdout (.-stdout proc)
      :stderr (.-stderr proc)
      :code (.-status proc)}))
 
 (defn closh [cmd]
-  (execute-text (str "(sh-value " cmd ")")))
+  (execute-command-text cmd closh.reader/read-sh-value))
 
 (deftest run-test
 
@@ -265,6 +260,9 @@
     "echo '$HOME $PWD'"
     "echo '\"$HOME $PWD\""
 
+    "echo '$HOME'"
+    "echo '$HOME"
+
     "ls | head -n 5"
     "ls |> (take 5) | cat"
 
@@ -408,7 +406,7 @@
     ; (str "echo x2 | (spit \"" f "\")")
 
     "x3\ny1\n"
-    (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
+    (str "(sh echo x3 > \"" f "\") (sh echo y1 >> \"" f "\")")
 
     ""
     (str "echo x4 2 > " f)))

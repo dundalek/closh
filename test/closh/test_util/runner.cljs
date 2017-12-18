@@ -1,9 +1,10 @@
 (ns closh.test-util.runner
   (:require [goog.object :as gobj]
             [clojure.test :refer [report run-tests]]
+            [closh.completion-test]
             [closh.core-test]
-            [closh.util-test]
-            [closh.completion-test]))
+            [closh.reader-test]
+            [closh.util-test]))
 
 (defmethod report [:cljs.test/default :end-run-tests] [m]
   (if (cljs.test/successful? m)
@@ -12,6 +13,7 @@
 
 (time
  (run-tests
+   'closh.completion-test
    'closh.core-test
-   'closh.util-test
-   'closh.completion-test))
+   'closh.reader-test
+   'closh.util-test))

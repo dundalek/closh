@@ -1,20 +1,15 @@
 (ns closh.main
-  (:require [clojure.tools.reader]
-            [clojure.tools.reader.impl.commons]
-            [clojure.pprint :refer [pprint]]
+  (:require [clojure.pprint :refer [pprint]]
             [clojure.string]
-            ; [lumo.io]
             [lumo.repl]
             [closh.parser]
             [closh.builtin]
             [closh.util]
             [closh.completion]
-            [closh.eval :refer [execute-text]]
+            [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line]]
             [closh.history :refer [init-database add-history]])
-  (:require-macros [alter-cljs.core :refer [alter-var-root]]
-                   [closh.reader :refer [patch-reader]]
-                   [closh.core :refer [sh]]))
+  (:require-macros [closh.core :refer [sh]]))
 
 (enable-console-print!)
 
@@ -202,7 +197,6 @@
 (defn -main
   "Starts closh REPL with prompt and readline."
   []
-  (patch-reader)
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
@@ -235,7 +229,7 @@
               (add-history input (js/process.cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             (try
-              (let [result (handle-line input execute-text)]
+              (let [result (handle-line input execute-command-text)]
                 (when-not (or (nil? result)
                               (instance? child-process.ChildProcess result)
                               (and (seq? result)
