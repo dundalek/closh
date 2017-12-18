@@ -260,6 +260,9 @@
     "echo '$HOME $PWD'"
     "echo '\"$HOME $PWD\""
 
+    "echo '$HOME'"
+    "echo '$HOME"
+
     "ls | head -n 5"
     "ls |> (take 5) | cat"
 
@@ -402,9 +405,8 @@
     ; "x2\n"
     ; (str "echo x2 | (spit \"" f "\")")
 
-    ; TODO: maybe move to spawn-helper test
-    ; "x3\ny1\n"
-    ; (str "(sh echo x3 > " f ") (sh echo y1 >> " f ")")
+    "x3\ny1\n"
+    (str "(sh echo x3 > \"" f "\") (sh echo y1 >> \"" f "\")")
 
     ""
     (str "echo x4 2 > " f)))

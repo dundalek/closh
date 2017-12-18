@@ -31,6 +31,11 @@
     '(echo 2 > tmp)
     "echo 2 > tmp")
 
-  (is (thrown? js/Error (read-string "echo (str 8.8.8)")))
-  (is (thrown? js/Error (read-string "echo \"")))
-  (is (thrown? js/Error (read-string "echo (+ 1"))))
+
+  (are [x] (thrown? js/Error (read (string-push-back-reader x)))
+
+    "echo (str 8.8.8)"
+
+    "echo \""
+
+    "echo (+ 1"))
