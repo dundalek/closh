@@ -187,7 +187,7 @@
      ;; Search for next entry (switches to substr search mode if necessary)
      "ctrl-s" (search-history-next (assoc state :search-mode :substring) rl)
      ;; Default case - update search query based on typed character
-     (if-let [q (when (not (or (.-meta key) (.-ctrl key)))
+     (if-let [q (when-not (or (.-meta key) (.-ctrl key))
                   (if (and (not (.-shift key)) (= (.-name key) "backspace"))
                     (.slice query 0 -1)
                     (str query c)))]
@@ -220,9 +220,9 @@
             (.call readline-tty-write self c key)))))
     (init-database
      (fn [err]
-       (if err
-         (do (js/console.error "Error initializing history database:" err)
-             (js/process.exit 1)))))
+       (when err
+         (js/console.error "Error initializing history database:" err)
+         (js/process.exit 1))))
     (doto rl
       (.on "line"
         (fn [input]

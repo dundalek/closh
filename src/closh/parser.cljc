@@ -120,7 +120,7 @@
             redirects (->> args
                            (filter #(= (first %) :redirect))
                            (mapcat (comp process-redirect second))
-                           (into []))
+                           (vec))
             parameters (->> args
                             (filter #(= (first %) :arg))
                             (map (comp process-arg second)))]
@@ -147,7 +147,7 @@
   (if (and (seq cmd) (= (first cmd) 'shx))
     (let [opts (nth cmd 3 {})]
       (-> (take 3 cmd)
-          (concat [(update opts :redir #(into [] (concat redir %)))])))
+          (concat [(update opts :redir #(vec (concat redir %)))])))
     cmd))
 
 (defn ^:no-doc process-pipeline-command

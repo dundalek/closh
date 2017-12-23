@@ -65,7 +65,7 @@
         (.on "end" #(reset! done true))
         (.on "data" #(.push buf %)))
       (line-seq (fn []
-                  (when (not @done)
+                  (when-not @done
                     (.loopWhile deasync #(and (not @done) (empty? buf)))
                     (.shift buf)))
         nil)))
@@ -215,7 +215,7 @@
   (case (.-errno err)
     "ENOENT" (let [cmdname (.-path err)
                    suggestion (get-command-suggestion cmdname)]
-               (when (not (clojure.string/blank? suggestion))
+               (when-not (clojure.string/blank? suggestion)
                  (js.console.error suggestion))
                (js/console.error (str cmdname ": command not found")))
     (js/console.error "Unexpected error:\n" err)))
