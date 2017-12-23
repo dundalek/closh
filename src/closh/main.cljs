@@ -232,15 +232,20 @@
             (when-not (re-find #"^\s+" input)
               (add-history input (js/process.cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
-            (try
-              (let [result (handle-line input execute-command-text)]
-                (when-not (or (nil? result)
-                              (instance? child-process.ChildProcess result)
-                              (and (seq? result)
-                                   (every? #(instance? child-process.ChildProcess %) result)))
-                  (.write js/process.stdout (with-out-str (pprint result)))))
-              (catch :default e
-                (js/console.error e))))
+            ; (.startSigintWatchdog util-binding)
+            (let [previous-mode (._setRawMode rl false)]
+              (try
+                (let [result (handle-line input execute-command-text)]
+                  (when-not (or (nil? result)
+                                (instance? child-process.ChildProcess result)
+                                (and (seq? result)
+                                     (every? #(instance? child-process.ChildProcess %) result)))
+                    (.write js/process.stdout (with-out-str (pprint result)))))
+                (catch :default e
+                  (js/console.error e)))
+              (._setRawMode rl previous-mode)))
+            ; (when (.stopSigintWatchdog util-binding)
+            ;   (.emit rl "SIGINT")))
           (prompt rl)
           (.resume rl)))
       (.on "close" #(.exit js/process 0))
