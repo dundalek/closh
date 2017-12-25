@@ -43,4 +43,7 @@
        (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value]])
 
        (defn closh-prompt []
-         "$ "))))
+         "$ ")
+
+       ;; Return nil otherwise #'cljs.user/closh-prompt got printed every time exception was thrown
+       nil)))
