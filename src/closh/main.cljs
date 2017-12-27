@@ -249,6 +249,12 @@
           (prompt rl)
           (.resume rl)))
       (.on "close" #(.exit js/process 0))
+      ;; clear line on ctrl+c
+      (.on "SIGINT" (fn []
+                      (doto rl
+                        (aset "line" "")
+                        (aset "cursor" 0)
+                        (._refreshLine))))
       (prompt))))
 
 (set! *main-cli-fn* -main)
