@@ -19,6 +19,8 @@
 (def ^:no-doc os (js/require "os"))
 (def ^:no-doc path (js/require "path"))
 
+; (def util-binding (js/process.binding "util"))
+
 (def ^:no-doc readline-tty-write readline.Interface.prototype._ttyWrite)
 
 (def ^:no-doc initial-readline-state {:mode :input})
@@ -201,6 +203,11 @@
 (defn -main
   "Starts closh REPL with prompt and readline."
   []
+  (doto js/process
+    ; ignore SIGQUIT like Bash
+    (.on "SIGQUIT" (fn []))
+    ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
+    (.on "SIGINT" (fn [])))
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
