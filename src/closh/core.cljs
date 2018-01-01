@@ -29,7 +29,7 @@
 (defn expand-filename
   "Expands filename based on globbing patterns"
   [s]
-  (seq (glob s #js{:nonull true})))
+  (seq (glob (expand-tilde s) #js{:nonull true})))
 
 (defn expand-redirect
   "Expand redirect targets. It does tilde and variable expansion."
