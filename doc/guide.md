@@ -191,7 +191,7 @@ Or you can reuse existing prompt from [fish](http://fishshell.com/) shell:
 (require-macros '[closh.core :refer [sh-str]])
 
 (defn closh-prompt []
-  (sh-str fish -c fish_prompt)
+  (sh-str fish -c fish_prompt))
 ```
 
 Bash [prompt format](http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html) can be used via [decode-prompt](https://github.com/substack/decode-prompt) module. Install it with `npm install -g decode-prompt`. Then use it like:
