@@ -223,3 +223,8 @@ closh: echo '$HOME ; notice there is only one quote
 bash:  echo '$HOME $PWD'
 closh: echo '"$HOME $PWD"
 ```
+
+### Signal handling
+
+- SIGINT interrupts currently running command or code
+- SIGQUIT is ignored
