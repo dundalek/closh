@@ -110,10 +110,8 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
-- [ ] Job control
-- [ ] Configuration
-  - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
-  - [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
+- [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
+- [ ] [Single binary distribution](https://github.com/dundalek/closh/issues/42)
 
 #### Stage 3
 
@@ -121,6 +119,8 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 
 - [ ] Key bindings
 - [ ] Handle common errors
+- [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
+- [ ] Job control
 - [ ] Builtin utility functions
 - [ ] Testing and stability
 
