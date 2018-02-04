@@ -19,6 +19,8 @@
 (def ^:no-doc os (js/require "os"))
 (def ^:no-doc path (js/require "path"))
 
+; (def util-binding (js/process.binding "util"))
+
 (def ^:no-doc readline-tty-write readline.Interface.prototype._ttyWrite)
 
 (def ^:no-doc initial-readline-state {:mode :input})
@@ -201,6 +203,11 @@
 (defn -main
   "Starts closh REPL with prompt and readline."
   []
+  (doto js/process
+    ; ignore SIGQUIT like Bash
+    (.on "SIGQUIT" (fn []))
+    ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
+    (.on "SIGINT" (fn [])))
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
@@ -232,18 +239,29 @@
             (when-not (re-find #"^\s+" input)
               (add-history input (js/process.cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
-            (try
-              (let [result (handle-line input execute-command-text)]
-                (when-not (or (nil? result)
-                              (instance? child-process.ChildProcess result)
-                              (and (seq? result)
-                                   (every? #(instance? child-process.ChildProcess %) result)))
-                  (.write js/process.stdout (with-out-str (pprint result)))))
-              (catch :default e
-                (js/console.error e))))
+            ; (.startSigintWatchdog util-binding)
+            (let [previous-mode (._setRawMode rl false)]
+              (try
+                (let [result (handle-line input execute-command-text)]
+                  (when-not (or (nil? result)
+                                (instance? child-process.ChildProcess result)
+                                (and (seq? result)
+                                     (every? #(instance? child-process.ChildProcess %) result)))
+                    (.write js/process.stdout (with-out-str (pprint result)))))
+                (catch :default e
+                  (js/console.error e)))
+              (._setRawMode rl previous-mode)))
+            ; (when (.stopSigintWatchdog util-binding)
+            ;   (.emit rl "SIGINT")))
           (prompt rl)
           (.resume rl)))
       (.on "close" #(.exit js/process 0))
+      ;; clear line on ctrl+c
+      (.on "SIGINT" (fn []
+                      (doto rl
+                        (aset "line" "")
+                        (aset "cursor" 0)
+                        (._refreshLine))))
       (prompt))))
 
 (set! *main-cli-fn* -main)
