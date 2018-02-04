@@ -88,12 +88,15 @@
   "Prints prompt to a readline instance."
   [rl]
   (let [result (atom nil)
-        process (fn [_ value] (reset! result value))]
-    (with-redefs [lumo.repl/process-1-2-3 process]
+        process-fn (fn [_ value] (reset! result value))]
+    (with-redefs [lumo.repl/process-1-2-3 process-fn]
       (execute-text "(closh-prompt)"))
     (doto rl
       (.setPrompt @result)
-      (.prompt true))))
+      (.prompt true))
+    (with-redefs [lumo.repl/process-1-2-3 process-fn]
+      (execute-text "(closh-title)"))
+    (.write js/process.stdout (str "\033]0;" @result "\007"))))
 
 ;; TODO: Potencial race condition if latter history call returns before the previous one
 ;; Maybe some loading indicator?

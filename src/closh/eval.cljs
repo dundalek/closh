@@ -45,5 +45,8 @@
        (defn closh-prompt []
          "$ ")
 
+       (defn closh-title []
+         (str "closh " (js/process.cwd)))
+
        ;; Return nil otherwise #'cljs.user/closh-prompt got printed every time exception was thrown
        nil)))
