@@ -81,29 +81,37 @@ $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (rever
 - [Design Principles](./doc/principles.md)
 - [Notes on Existing Shells](./doc/notes.md)
 
+## Changelog
+
+#### unreleased in master branch
+
+- [Environment variable integration](https://github.com/dundalek/closh/issues/16)
+- [Persistent history](https://github.com/dundalek/closh/pull/23)
+- [Tab-completion](https://github.com/dundalek/closh/issues/6)
+- [Improved reader](https://github.com/dundalek/closh/issues/39)
+- [Signal control](https://github.com/dundalek/closh/issues/30)
+
+#### v0.1
+
+- Command execution
+- Pipes
+- IO Redirects
+- Interactive mode REPL
+- Dynamic prompt
+- Load `~/.closhrc` on startup
+
 ## Roadmap
 
 #### Stage 1
 
 Initial proof-of-concept, try out if the combination of shell and Clojure could work. [COMPLETED]
 
-- [x] Command execution
-- [x] Pipes
-- [x] IO Redirects
-- [x] Interactive mode REPL
-
 #### Stage 2
 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
-- [x] Dynamic prompt
-- [x] [Persistent history](https://github.com/dundalek/closh/pull/23)
-- [x] [Tab-completion](https://github.com/dundalek/closh/issues/6)
-- [x] [Signal control](https://github.com/dundalek/closh/issues/30)
 - [ ] Job control
-- [x] [Improved reader](https://github.com/dundalek/closh/issues/39)
 - [ ] Configuration
-  - [x] Loads `~/.closhrc` on startup
   - [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
   - [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
 
@@ -113,7 +121,6 @@ Add additional features users expect from a shell. Then fix bugs and stabilize t
 
 - [ ] Key bindings
 - [ ] Handle common errors
-- [x] [Environment variable integration](https://github.com/dundalek/closh/issues/16)
 - [ ] Builtin utility functions
 - [ ] Testing and stability
 
