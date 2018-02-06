@@ -50,3 +50,15 @@
        (wait-for-process)
        (.-exitCode)
        (zero?)))
+
+(defmacro defalias [name value]
+  `(set! closh.core/*closh-aliases* (assoc closh.core/*closh-aliases* ~name ~value)))
+
+(defmacro defabbr [name value]
+  `(set! closh.core/*closh-abbreviations* (assoc closh.core/*closh-abbreviations* ~name ~value)))
+
+(defmacro defcmd
+  ([name fn]
+   `(set! closh.core/*closh-commands* (assoc closh.core/*closh-commands* ~name ~fn))))
+  ; ([name &body]
+  ;  `(defn ~name ~@body)))

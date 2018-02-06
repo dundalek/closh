@@ -2,6 +2,10 @@
   (:require [clojure.string]
             [goog.object :as gobj]))
 
+(def *closh-aliases* {})
+(def *closh-abbreviations* {})
+(def *closh-commands* {})
+
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc child-process (js/require "child_process"))
 (def ^:no-doc stream (js/require "stream"))

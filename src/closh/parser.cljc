@@ -1,7 +1,8 @@
 (ns closh.parser
   (:require [clojure.string]
             [clojure.set]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as s]
+            [closh.core :refer [*closh-aliases* *closh-aliases* *closh-commands*]]))
 
 (def ^:no-doc pipes
   "Maps shorthand symbols of pipe functions to full name"
@@ -124,8 +125,14 @@
             parameters (->> args
                             (filter #(= (first %) :arg))
                             (map (comp process-arg second)))]
-          (if (builtins name)
+          (cond
+            (builtins name)
             (conj parameters name)
+
+            (*closh-commands* name)
+            (list 'apply (list 'closh.core/*closh-commands* (list 'quote name)) (conj parameters 'list))
+
+            :else
             (concat
               (list 'shx name-val)
               [(vec parameters)]
