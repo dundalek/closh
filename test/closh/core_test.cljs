@@ -7,7 +7,7 @@
             [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
             [closh.eval :refer [execute-command-text]]
-            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias]
              :refer-macros [sh sh-str]]))
 
 (def fs (js/require "fs"))
@@ -481,3 +481,9 @@ two")
 
   (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
+
+(deftest aliases
+  (is (= "ls --color=auto" (expand-alias {"ls" "ls --color=auto"} "ls")))
+  (is (= " ls --color=auto" (expand-alias {"ls" "ls --color=auto"} " ls")))
+  (is (= "ls --color=auto -l" (expand-alias {"ls" "ls --color=auto"} "ls -l")))
+  (is (= "lshw" (expand-alias {"ls" "ls --color=auto"} "lshw"))))

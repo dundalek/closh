@@ -294,6 +294,15 @@
   [proc f]
   (pipe-multi proc (partial filter f)))
 
+(defn expand-alias
+  ([input] (expand-alias *closh-aliases* input))
+  ([aliases input]
+   (let [token (re-find #"[^\s]+" input)
+         alias (get aliases token)]
+     (if alias
+       (clojure.string/replace-first input #"[^\s]+" alias)
+       input))))
+
 (defn handle-line
   "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
   [input eval-cljs]
