@@ -7,7 +7,7 @@
             [closh.builtin :refer [jsx->clj getenv setenv]]
             [closh.parser :refer [parse-batch]]
             [closh.eval :refer [execute-command-text]]
-            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias]
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias expand-abbreviation]
              :refer-macros [sh sh-str]]))
 
 (def fs (js/require "fs"))
@@ -487,3 +487,9 @@ two")
   (is (= " ls --color=auto" (expand-alias {"ls" "ls --color=auto"} " ls")))
   (is (= "ls --color=auto -l" (expand-alias {"ls" "ls --color=auto"} "ls -l")))
   (is (= "lshw" (expand-alias {"ls" "ls --color=auto"} "lshw"))))
+
+(deftest abbreviations
+  (is (= "ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} "ls")))
+  (is (= " ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} " ls")))
+  (is (= "ls -l" (expand-abbreviation {"ls" "ls --color=auto"} "ls -l")))
+  (is (= "lshw" (expand-abbreviation {"ls" "ls --color=auto"} "lshw"))))

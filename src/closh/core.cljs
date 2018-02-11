@@ -303,6 +303,16 @@
        (clojure.string/replace-first input #"[^\s]+" alias)
        input))))
 
+(defn expand-abbreviation
+  ([input] (expand-alias *closh-abbreviations* input))
+  ([aliases input]
+   (let [token (re-find #"[^\s]+" input)
+         alias (get aliases token)]
+     (if (and alias
+              (= (clojure.string/trim input) token))
+       (clojure.string/replace-first input #"[^\s]+" alias)
+       input))))
+
 (defn handle-line
   "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
   [input eval-cljs]
