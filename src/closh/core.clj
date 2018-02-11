@@ -52,13 +52,13 @@
        (zero?)))
 
 (defmacro defalias [name value]
-  `(set! closh.core/*closh-aliases* (assoc closh.core/*closh-aliases* (str ~name) ~value)))
+  `(set! closh.core/*closh-aliases* (assoc closh.core/*closh-aliases* (str (quote ~name)) ~value)))
 
 (defmacro defabbr [name value]
-  `(set! closh.core/*closh-abbreviations* (assoc closh.core/*closh-abbreviations* (str ~name) ~value)))
+  `(set! closh.core/*closh-abbreviations* (assoc closh.core/*closh-abbreviations* (str (quote ~name)) ~value)))
 
 (defmacro defcmd
   ([name fn]
-   `(set! closh.core/*closh-commands* (assoc closh.core/*closh-commands* ~name ~fn))))
+   `(set! closh.core/*closh-commands* (assoc closh.core/*closh-commands* (quote ~name) ~fn))))
   ; ([name &body]
   ;  `(defn ~name ~@body)))
