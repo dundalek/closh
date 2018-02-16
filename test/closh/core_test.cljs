@@ -503,3 +503,14 @@ two")
                                  (expand-abbreviation "myabbr"))))
   (is (= "my str abbr" (do (defabbr "myabbr2" "my str abbr")
                            (expand-abbreviation "myabbr2")))))
+
+(deftest commands
+  (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [[s]] (str s "X"))))
+                    (:stdout (closh "cmd-x abc")))))
+
+  (is (= "abcY" (do (closh (pr-str '(defcmd cmd-y (fn [[s]] (str s "Y")))))
+                    (:stdout (closh "cmd-y abc")))))
+
+  (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [[s]] (str s "Z"))
+                                        (defcmd cmd-z fn-z))))
+                    (:stdout (closh "cmd-z abc"))))))
