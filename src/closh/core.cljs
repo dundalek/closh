@@ -46,7 +46,9 @@
 (defn expand-partial
   "Partially expands parameter which is used when parameter is quoted as string. It only does variable expansion."
   [s]
-  (or (expand-variable s) (list)))
+  (if-let [result (expand-variable s)]
+    (list result)
+    (list)))
 
 ; Bash: The order of expansions is: brace expansion; tilde expansion, parameter and variable expansion, arithmetic expansion, and command substitution (done in a left-to-right fashion); word splitting; and filename expansion.
 (defn expand

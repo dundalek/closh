@@ -76,7 +76,7 @@
   [arg]
   (cond
     ;; clojure form - use as is
-    (list? arg) arg
+    (list? arg) [arg]
     ;; strings do limited expansion
     (string? arg) (list 'expand-partial arg)
     ;; otherwise do full expansion
@@ -127,10 +127,10 @@
                             (map (comp process-arg second)))]
           (cond
             (builtins name)
-            (conj parameters name)
+            `(apply ~name (concat ~@parameters))
 
             (*closh-commands* name)
-            (list 'apply (list 'closh.core/*closh-commands* (list 'quote name)) (conj parameters 'list))
+            `(apply (closh.core/*closh-commands* (quote ~name)) (concat ~@parameters))
 
             :else
             (concat

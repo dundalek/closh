@@ -59,7 +59,8 @@
 
 (defmacro defcmd
   ([name fn]
-   `(set! closh.core/*closh-commands* (assoc closh.core/*closh-commands* (quote ~name) ~fn)))
+   `(do (set! closh.core/*closh-commands* (assoc closh.core/*closh-commands* (quote ~name) ~fn))
+        nil))
   ([name & body]
    `(do (defn ~name ~@body)
         (defcmd ~name ~name))))
