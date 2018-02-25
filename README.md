@@ -90,6 +90,7 @@ $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (rever
 - [Tab-completion](https://github.com/dundalek/closh/issues/6)
 - [Improved reader](https://github.com/dundalek/closh/issues/39)
 - [Signal control](https://github.com/dundalek/closh/issues/30)
+- [Aliases](https://github.com/dundalek/closh/issues/12)
 
 #### v0.1
 
@@ -110,13 +111,13 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
-- [ ] [Aliases](https://github.com/dundalek/closh/issues/12)
 - [ ] [Single binary distribution](https://github.com/dundalek/closh/issues/42)
 
 #### Stage 3
 
 Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use.
 
+- [ ] Readline improvements
 - [ ] Key bindings
 - [ ] Handle common errors
 - [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)

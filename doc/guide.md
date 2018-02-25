@@ -207,6 +207,50 @@ Bash [prompt format](http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-esc
   (decode-prompt PS1 #js{:env js/process.env}))
 ```
 
+### Custom commands
+
+You can define helper aliases, abbreviations, functions and commands in your `~/.closhrc` file.
+
+#### Aliases
+
+Aliases for defining or overriding functionality. When alias is used it does not get expanded and is saved into history as is.
+
+Example:
+```clojure
+(defalias ls "ls --color=auto")
+```
+
+#### Abbreviations
+
+Abbreviations are similar to aliases but expand to underlying definition on the command line after you type space or press enter. Therefore autocomplete can work seamlessly and also full command is saved to history. Inspired by [abbr](https://fishshell.com/docs/current/commands.html#abbr) in fish (more [details](https://github.com/fish-shell/fish-shell/issues/731)).
+
+```clojure
+(defabbr gco "git checkout")
+(defabbr gaa "git add --all")
+```
+
+#### Functions
+
+Define Clojure functions, run in command line like: `(hello "World")`.
+
+```clojure
+(defn hello [name]
+  (str "Hello " name))
+```
+
+#### Commands
+
+Similar to functions, but can be executed like commands without using parens. Run in command line like: `hello World`.
+
+```clojure
+; Define commands like with defn
+(defcmd hello [name]
+  (str "Hello " name))
+
+; Promote existing function to a command
+(defcmd upper clojure.string/upper-case)
+```
+
 ### Quoting
 
 Prevent some expansion is same like bash with double-quoted string:

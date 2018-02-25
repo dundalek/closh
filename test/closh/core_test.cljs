@@ -4,11 +4,12 @@
             [clojure.string]
             [goog.object :as gobj]
             [closh.reader]
-            [closh.builtin :refer [jsx->clj getenv setenv]]
+            [closh.util :refer [jsx->clj]]
+            [closh.builtin :refer [getenv setenv]]
             [closh.parser :refer [parse-batch]]
             [closh.eval :refer [execute-command-text]]
-            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition]
-             :refer-macros [sh sh-str]]))
+            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias expand-abbreviation]
+             :refer-macros [sh sh-str defalias defabbr]]))
 
 (def fs (js/require "fs"))
 (def child-process (js/require "child_process"))
@@ -96,9 +97,6 @@
     '(-> (do (list 1 2 3) (reverse)))
     '((list 1 2 3) (reverse))
 
-    '(-> (shx "echo" [(+ 2 3)]))
-    '(echo (+ 2 3))
-
     '(-> (shx "ls" []) (pipe-multi (partial reverse)))
     '(ls |> (reverse))
 
@@ -138,7 +136,7 @@
     '(-> (shx "wc" [(expand "-l")] {:redir [[:set 2 1]]}))
     '(wc -l 2 >& 1)
 
-    '(-> (cd (expand "dirname")))
+    '(-> (cljs.core/apply cd (cljs.core/concat (expand "dirname"))))
     '(cd dirname))
 
   (are [x y] (= x (:stdout (closh y)))
@@ -471,13 +469,47 @@
   (is (= '("forty two") (setenv "A" "forty two")))
   (is (= (gobj/get js/process.env "A") (getenv "A")))
 
-  (setenv "A" "forty
-two")
-  (is (= "forty\ntwo" (getenv "A")))
+  (is (= "forty\ntwo" (do (setenv "A" "forty\ntwo")
+                          (getenv "A"))))
 
   (is (= '("1" "2") (setenv "ONE" "1" "TWO" "2")))
   (is (= {"ONE" "1", "TWO" "2"}
          (getenv "ONE" "TWO")))
 
   (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
+  (is (= "42") (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)")))
+  (is (= "42") (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")")))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
+
+(deftest aliases
+  (is (= "ls --color=auto" (expand-alias {"ls" "ls --color=auto"} "ls")))
+  (is (= " ls --color=auto" (expand-alias {"ls" "ls --color=auto"} " ls")))
+  (is (= "ls --color=auto -l" (expand-alias {"ls" "ls --color=auto"} "ls -l")))
+  (is (= "lshw" (expand-alias {"ls" "ls --color=auto"} "lshw")))
+
+  (is (= "my alias expansion" (do (defalias myalias "my alias expansion")
+                                  (expand-alias "myalias"))))
+  (is (= "my str alias" (do (defalias "myalias2" "my str alias")
+                            (expand-alias "myalias2")))))
+
+(deftest abbreviations
+  (is (= "ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} "ls")))
+  (is (= " ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} " ls")))
+  (is (= "ls -l" (expand-abbreviation {"ls" "ls --color=auto"} "ls -l")))
+  (is (= "lshw" (expand-abbreviation {"ls" "ls --color=auto"} "lshw")))
+
+  (is (= "my abbr expansion" (do (defabbr myabbr "my abbr expansion")
+                                 (expand-abbreviation "myabbr"))))
+  (is (= "my str abbr" (do (defabbr "myabbr2" "my str abbr")
+                           (expand-abbreviation "myabbr2")))))
+
+(deftest commands
+  (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
+                    (:stdout (closh "cmd-x abc")))))
+
+  (is (= "abcY" (do (closh (pr-str '(defcmd cmd-y (fn [s] (str s "Y")))))
+                    (:stdout (closh "cmd-y abc")))))
+
+  (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [s] (str s "Z"))
+                                        (defcmd cmd-z fn-z))))
+                    (:stdout (closh "cmd-z abc"))))))

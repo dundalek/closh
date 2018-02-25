@@ -40,7 +40,7 @@
                 '[closh.builtin :refer [cd exit quit getenv setenv]]
                 '[closh.util :refer [source-shell]]
                 '[clojure.string :as st])
-       (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value]])
+       (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]])
 
        (defn closh-prompt []
          "$ ")

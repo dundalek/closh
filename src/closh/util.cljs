@@ -1,6 +1,5 @@
 (ns closh.util
-  (:require [closh.builtin :refer [jsx->clj]]
-            [clojure.data :refer [diff]]
+  (:require [clojure.data :refer [diff]]
             [goog.object :as gobj]))
 
 (def ^:no-doc fs (js/require "fs"))
@@ -10,6 +9,11 @@
 (def ^:no-doc tmp (js/require "tmp"))
 
 (def ignore-env-vars #{"_" "OLDPWD" "PWD" "SHELLOPTS" "SHLVL"})
+
+(defn jsx->clj
+  "Takes a js object and returns a cljs map. Use this when js->clj doesn't work a nonstandard object"
+  [x]
+  (into {} (for [k (js/Object.keys x)] [k (gobj/get x k)])))
 
 (defn spawn-shell
   [shell exp]

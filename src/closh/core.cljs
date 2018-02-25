@@ -2,6 +2,10 @@
   (:require [clojure.string]
             [goog.object :as gobj]))
 
+(def *closh-aliases* {})
+(def *closh-abbreviations* {})
+(def *closh-commands* {})
+
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc child-process (js/require "child_process"))
 (def ^:no-doc stream (js/require "stream"))
@@ -42,7 +46,9 @@
 (defn expand-partial
   "Partially expands parameter which is used when parameter is quoted as string. It only does variable expansion."
   [s]
-  (or (expand-variable s) (list)))
+  (if-let [result (expand-variable s)]
+    (list result)
+    (list)))
 
 ; Bash: The order of expansions is: brace expansion; tilde expansion, parameter and variable expansion, arithmetic expansion, and command substitution (done in a left-to-right fashion); word splitting; and filename expansion.
 (defn expand
@@ -289,6 +295,25 @@
   "Pipe by filtering based on a function."
   [proc f]
   (pipe-multi proc (partial filter f)))
+
+(defn expand-alias
+  ([input] (expand-alias *closh-aliases* input))
+  ([aliases input]
+   (let [token (re-find #"[^\s]+" input)
+         alias (get aliases token)]
+     (if alias
+       (clojure.string/replace-first input #"[^\s]+" alias)
+       input))))
+
+(defn expand-abbreviation
+  ([input] (expand-alias *closh-abbreviations* input))
+  ([aliases input]
+   (let [token (re-find #"[^\s]+" input)
+         alias (get aliases token)]
+     (if (and alias
+              (= (clojure.string/trim input) token))
+       (clojure.string/replace-first input #"[^\s]+" alias)
+       input))))
 
 (defn handle-line
   "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."

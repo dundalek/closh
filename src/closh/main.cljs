@@ -1,13 +1,14 @@
 (ns closh.main
   (:require [clojure.pprint :refer [pprint]]
             [clojure.string]
+            [goog.object :as gobj]
             [lumo.repl]
             [closh.parser]
             [closh.builtin]
             [closh.util]
             [closh.completion]
             [closh.eval :refer [execute-text execute-command-text]]
-            [closh.core :refer [handle-line]]
+            [closh.core :refer [handle-line expand-alias expand-abbreviation]]
             [closh.history :refer [init-database add-history]])
   (:require-macros [closh.core :refer [sh]]))
 
@@ -227,7 +228,24 @@
               ;; When return key is pressed pass it down to readline to execute the current line
               (when (= (key-value key) "return")
                 (.call readline-tty-write self c key)))
-            (.call readline-tty-write self c key)))))
+            (if (= (.-cursor rl) (.-line.length rl))
+              (case (key-value key)
+                "return" (let [line (.-line rl)
+                               expanded (expand-abbreviation line)]
+                           (if (not= expanded line)
+                             (doto rl
+                               (gobj/set "line" expanded)
+                               (gobj/set "cursor" (.-length expanded))
+                               (._refreshLine))
+                             (.call readline-tty-write self c key)))
+                "space" (let [line (str (.-line rl) " ")
+                              expanded (expand-abbreviation line)]
+                            (doto rl
+                              (gobj/set "line" expanded)
+                              (gobj/set "cursor" (.-length expanded))
+                              (._refreshLine)))
+                (.call readline-tty-write self c key))
+              (.call readline-tty-write self c key))))))
     (init-database
      (fn [err]
        (when err
@@ -245,7 +263,7 @@
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]
               (try
-                (let [result (handle-line input execute-command-text)]
+                (let [result (handle-line (expand-alias input) execute-command-text)]
                   (when-not (or (nil? result)
                                 (instance? child-process.ChildProcess result)
                                 (and (seq? result)
