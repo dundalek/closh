@@ -31,6 +31,8 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 ## Quick Start
 
+**Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
+
 Install closh (requires [node.js](https://nodejs.org/)):
 ```
 npm install -g lumo-cljs closh
@@ -111,12 +113,11 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 
 Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
 
-- [ ] [Single binary distribution](https://github.com/dundalek/closh/issues/42)
-
 #### Stage 3
 
 Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use.
 
+- [ ] [REPL server](https://github.com/dundalek/closh/issues/55)
 - [ ] Readline improvements
 - [ ] Key bindings
 - [ ] Handle common errors
