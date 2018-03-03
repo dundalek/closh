@@ -11,8 +11,9 @@ init:
 install:
   - choco install nodejs
   - npm install -g lumo-cljs closh
+  - npm install
 
 build_script:
-  - npm run test
+  - lumo -K -c src;test test/closh/test_util/runner.cljs
 
 test: off
