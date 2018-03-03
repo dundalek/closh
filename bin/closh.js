@@ -9,7 +9,7 @@ var isWindows = /^win/.test(process.platform);
 var bin = isWindows ? 'lumo.cmd' : 'lumo';
 var args = [
   '--classpath', path.join(__dirname, '..', 'src'),
-  '--cache', path.join(os.homedir(), '.lumo_cache'),
+  '--cache', path.join(os.homedir(), '.closh', 'cache', 'lumo'),
   '-m', 'closh.main',
 ];
 
