@@ -19,7 +19,7 @@
     "tmp": "0.0.33"
   },
   "scripts": {
-    "start": "node ./bin/closh.js",
+    "start": "./bin/closh.sh",
     "dev": "nodemon --config .nodemon.json",
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
