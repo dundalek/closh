@@ -33,9 +33,9 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 **Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
 
-Install closh (requires [node.js](https://nodejs.org/)):
+Install closh (requires [node.js](https://nodejs.org/) version 9.x):
 ```
-npm install -g lumo-cljs closh
+npm install -g closh
 ```
 
 To install development version from master branch:
@@ -151,7 +151,6 @@ Clone the repo and install dependencies
 git clone git@github.com:dundalek/closh.git
 cd closh
 npm install
-npm install -g lumo-cljs
 ```
 
 Run the app

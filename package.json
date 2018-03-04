@@ -12,7 +12,8 @@
   "dependencies": {
     "deasync": "0.1.12",
     "glob": "7.1.2",
-    "sqlite3": "^3.1.13"
+    "lumo-cljs": "1.8.0",
+    "sqlite3": "3.1.13"
   },
   "devDependencies": {
     "nodemon": "1.12.1",
