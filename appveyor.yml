@@ -5,6 +5,7 @@ platform:
 
 cache:
   - node_modules
+  - %APPDATA%\npm
 
 init:
 
