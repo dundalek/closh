@@ -1,4 +1,5 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
+
 # Original source: https://github.com/Valodim/zsh-capture-completion/blob/master/capture.zsh
 # License: MIT
 
