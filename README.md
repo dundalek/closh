@@ -80,6 +80,7 @@ $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (rever
 ## Documentation
 
 - [Guide and Reference](./doc/guide.md)
+- [Cookbook](./doc/cookbook.md)
 - [Design Principles](./doc/principles.md)
 - [Notes on Existing Shells](./doc/notes.md)
 
