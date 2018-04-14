@@ -246,11 +246,10 @@
                               (._refreshLine)))
                 (.call readline-tty-write self c key))
               (.call readline-tty-write self c key))))))
-    (init-database
+    (.catch (init-database)
      (fn [err]
-       (when err
-         (js/console.error "Error initializing history database:" err)
-         (js/process.exit 1))))
+       (js/console.error "Error initializing history database:" err)
+       (js/process.exit 1)))
     (doto rl
       (.on "line"
         (fn [input]

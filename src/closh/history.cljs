@@ -13,6 +13,7 @@
   (path.join (os.homedir) ".closh" "closh.sqlite"))
 
 (declare ^:dynamic db)
+(declare ^:dynamic db-promise)
 (declare ^:dynamic session-id)
 
 (def ^:no-doc table-history
@@ -33,34 +34,50 @@
 (defn add-history
   "Adds a new item to history."
   [command cwd cb]
-  (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
-           #js[nil session-id (Date.now) command cwd]
-           cb))
+  (get-db
+    (fn [db]
+      (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
+               #js[nil session-id (Date.now) command cwd]
+               cb))))
+
+(defn- init-database-file []
+  (js/Promise.
+    (fn [resolve reject]
+     (fs.mkdir (path.dirname db-file)
+       (fn [err]
+         (if (and err (not= (.-code err) "EEXIST"))
+           (reject err)
+           (resolve (sqlite.Database. db-file))))))))
+
+(defn- init-database-tables-session
+  [db]
+  (js/Promise.
+    (fn [resolve reject]
+      (.serialize db
+        (fn []
+          (.run db table-session)
+          (.run db table-history)
+          (.run db "INSERT INTO session VALUES (?, ?)"
+                   #js[nil (Date.now)]
+            (fn [err]
+              (if err
+                (reject err)
+                (this-as t
+                  (resolve (.-lastID t)))))))))))
 
 (defn init-database
   "Creates the db connection and gets a new session id (creates the tables if they not exist)."
-  [cb]
-  (fs.mkdir (path.dirname db-file)
-    (fn [err]
-      (if (and err (not= (.-code err) "EEXIST"))
-        (cb err)
-        (do
-          (set! db (sqlite.Database. db-file))
-          (.serialize db
-            (fn []
-              (.run db table-session)
-              (.run db table-history)
-              (.run db "INSERT INTO session VALUES (?, ?)"
-                       #js[nil (Date.now)]
-                (fn [err]
-                  (if err
-                    (cb err)
-                    (this-as t
-                      (do
-                        (set! session-id (.-lastID t))
-                        (cb nil db session-id)))))))))))))
+  []
+  (let [p (-> (init-database-file)
+              (.then #(do (set! db %)
+                          (init-database-tables-session %)))
+              (.then #(do (set! session-id %))))]
+    (set! db-promise (.then p (fn [] db)))
+    (.then p (fn [] {:db db :session-id session-id}))))
 
-;; TODO: Potential trouble if search gets triggered before init-database completes, maybe we want to wrap it a promise
+(defn get-db [cb]
+  (.then db-promise cb))
+
 (defn search-history
   "Searches the history DB."
   [query history-state search-mode operator direction cb]
@@ -80,11 +97,13 @@
         params #js{:$expr expr
                    :$sid session-id}]
     (when index (gobj/set params "$index" index))
-    (.get db sql params
-      (fn [err data]
-        (cb err
-            (when data
-              [(.-command data) (assoc history-state :index (.-id data))]))))))
+    (get-db
+      (fn [db]
+        (.get db sql params
+          (fn [err data]
+            (cb err
+                (when data
+                  [(.-command data) (assoc history-state :index (.-id data))]))))))))
 
 (defn search-history-prev
   "Searches for the previous item in history DB."
