@@ -31,15 +31,6 @@
  time INTEGER NOT NULL
 );")
 
-(defn add-history
-  "Adds a new item to history."
-  [command cwd cb]
-  (get-db
-    (fn [db]
-      (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
-               #js[nil session-id (Date.now) command cwd]
-               cb))))
-
 (defn- init-database-file []
   (js/Promise.
     (fn [resolve reject]
@@ -77,6 +68,15 @@
 
 (defn get-db [cb]
   (.then db-promise cb))
+
+(defn add-history
+  "Adds a new item to history."
+  [command cwd cb]
+  (get-db
+    (fn [db]
+      (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
+               #js[nil session-id (Date.now) command cwd]
+               cb))))
 
 (defn search-history
   "Searches the history DB."
