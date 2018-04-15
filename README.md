@@ -77,6 +77,12 @@ $ ls *.json |> (reverse)
 $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (reverse)
 ```
 
+If you like closh you can set it as your default shell (afterwards you need to log out and log back in):
+```
+which closh | sudo tee -a /etc/shells
+chsh -s $(which closh)
+```
+
 ## Documentation
 
 - [Guide and Reference](./doc/guide.md)
