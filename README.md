@@ -85,8 +85,8 @@ chsh -s $(which closh)
 
 ## Documentation
 
-- [Guide and Reference](./doc/guide.md)
-- [Cookbook](./doc/cookbook.md)
+- [Guide and Reference](./doc/guide.md) - Introduction to closh and basic configuration
+- [Cookbook](./doc/cookbook.md) - Recipes for integration of other tools like NVM, Autojump, etc.
 - [Design Principles](./doc/principles.md)
 - [Notes on Existing Shells](./doc/notes.md)
 
@@ -118,11 +118,11 @@ Initial proof-of-concept, try out if the combination of shell and Clojure could 
 
 #### Stage 2
 
-Implement essential functionality needed for daily use by early adopters. [IN PROGRESS]
+Implement essential functionality needed for daily use by early adopters. [COMPLETED]
 
 #### Stage 3
 
-Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use.
+Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use. [IN PROGRESS]
 
 - [ ] [REPL server](https://github.com/dundalek/closh/issues/55)
 - [ ] Readline improvements

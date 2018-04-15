@@ -122,6 +122,31 @@ closh: (sh ls) (sh echo hi)
 
 ## Reference
 
+### History
+
+History gets saved to the file `~/.closh/closh.sqlite` which is a SQLite database.
+
+Use <kbd>up</kbd> and <kbd>down</kbd> arrows to cycle through history. First history from a current session is used, then history from all other sessions is used.
+
+If you type some text and press <kbd>up</kbd> then the text will be used to match beginning of the command (prefix mode). Pressing <kbd>ctrl-r</kbd> will switch to matching anywhere in the command (substring mode). The search is case insensitive.
+
+While in the history search mode you can use following controls:
+- <kbd>enter</kbd> to accept the command and execute it
+- <kbd>tab</kbd> to accept the command but have ability to edit it
+- <kbd>esc</kbd> cancel search keeping the initial text
+- <kbd>ctrl-c</kbd> cancel search and resetting the initial text
+
+To show history you can run:
+```sh
+sqlite3 ~/.closh/closh.sqlite "SELECT command FROM history ORDER BY id ASC"
+```
+
+For convenience you can add the following to your `~/.closhrc` file:
+```clj
+(defcmd history []
+  (sh sqlite3 (str (getenv "HOME") "/.closh/closh.sqlite") "SELECT command FROM history ORDER BY id ASC" | cat))
+```
+
 ### Environment variables
 
 There are some helper functions for doing common things with environment variables
