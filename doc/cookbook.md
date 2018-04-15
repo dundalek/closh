@@ -1,4 +1,8 @@
 
+## Autojump
+
+To enable [Autojump](https://github.com/wting/autojump) refer to following [.closhrc](https://github.com/dundalek/dotfiles/blob/master/closh/.closh.cljs#L56) configuration.
+
 ## NVM integration
 
 To use [nvm](https://github.com/creationix/nvm) put the following into your `~/.closhrc`:
