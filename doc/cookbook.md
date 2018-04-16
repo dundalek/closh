@@ -13,3 +13,11 @@ To use [nvm](https://github.com/creationix/nvm) put the following into your `~/.
 (defcmd nvm [& args]
   (print (source-shell (str ". \"$NVM_DIR/nvm.sh\"; nvm " (args->str args)))))
 ```
+
+## Conda integration
+
+To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
+
+```clj
+(source-shell ". ~/anaconda/etc/profile.d/conda.sh; conda activate")
+```
