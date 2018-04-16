@@ -1,6 +1,6 @@
 {
   "name": "closh",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Bash-like shell based on Clojure",
   "bin": {
     "closh": "./bin/closh.sh"
