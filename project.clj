@@ -1,4 +1,4 @@
-(defproject closh "0.1.3"
+(defproject closh "0.2.0"
   :description "Bash-like shell based on Clojure"
   :url "https://github.com/dundalek/closh"
 
