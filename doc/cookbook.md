@@ -25,3 +25,13 @@ To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
 ```clj
 (source-shell ". ~/anaconda/etc/profile.d/conda.sh; conda activate")
 ```
+
+## Using Google Closure Library
+
+Closure library is built in, so you can use it like so:
+
+```clj
+(require 'goog.string.format)
+(goog.string.format "%03d" 7)
+; => "007"
+```
