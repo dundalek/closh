@@ -1,4 +1,5 @@
-<p align="left"><img src="logo/verticalversion.png" alt="closh" height="150px"></p>
+
+<img src="doc/img/logo/verticalversion.png" align="right" alt="closh" height="150px" style="border: none; float: right;">
 
 # closh - Bash-like shell based on Clojure
 
