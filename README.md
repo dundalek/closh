@@ -167,3 +167,5 @@ lein doc
 Copyright (c) Jakub Dundalek and contributors
 
 Distributed under the Eclipse Public License 1.0.
+
+Logo created by [@batarian71](https://github.com/batarian71) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
