@@ -60,5 +60,6 @@
     '(-> (shx "wc" [(expand "-l")] {:redir [[:set 2 1]]}))
     '(wc -l 2 >& 1)
 
-    '(-> (cljs.core/apply cd (cljs.core/concat (expand "dirname"))))
+    #?(:clj '(-> (clojure.core/apply cd (clojure.core/concat (expand "dirname"))))
+       :cljs '(-> (cljs.core/apply cd (cljs.core/concat (expand "dirname")))))
     '(cd dirname)))
