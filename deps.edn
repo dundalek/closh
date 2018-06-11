@@ -1,5 +1,8 @@
 {:deps
- {}
+ {org.clojure/tools.reader
+  {:git/url "https://github.com/dundalek/tools.reader"
+   :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"}}
+ ;org.clojure/tools.reader {:mvn/version "1.2.1"}}
 
  :aliases
  {:test {:extra-paths ["test"]}}}

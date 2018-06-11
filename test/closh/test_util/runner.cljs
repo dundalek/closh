@@ -15,8 +15,8 @@
 (defn -main []
   (time
    (run-tests
+     'closh.reader-test
      'closh.compiler-test
      'closh.completion-test
      'closh.core-test
-     'closh.reader-test
      'closh.util-test)))

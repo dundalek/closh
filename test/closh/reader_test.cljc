@@ -1,11 +1,11 @@
 (ns closh.reader-test
-  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
-            [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
-            [closh.reader :refer [read]]))
+  (:require [clojure.test :refer [deftest testing is are run-tests]]
+            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
+            [closh.reader]))
 
 (deftest test-reader
 
-  (are [x y] (= x (read (string-push-back-reader y)))
+  (are [x y] (= x (closh.reader/read (string-push-back-reader y)))
 
     (list 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
@@ -29,10 +29,13 @@
     "echo hi | cat"
 
     '(echo 2 > tmp)
-    "echo 2 > tmp")
+    "echo 2 > tmp"
+
+    '((+ 1 2))
+    "(+ 1 2)")
 
 
-  (are [x] (thrown? js/Error (read (string-push-back-reader x)))
+  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.reader/read (string-push-back-reader x)))
 
     "echo (str 8.8.8)"
 

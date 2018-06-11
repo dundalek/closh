@@ -19,7 +19,8 @@
 (defn- ^:no-doc ^boolean whitespace?
   "Customizes `cljs.tools.reader.impl.utils/whitespace?` so that read-token splits token only on whitespace and does not split on comma."
   [ch]
-  (.test ws-rx ch))
+  (when-not (nil? ch)
+    (.test ws-rx ch)))
 
 (defn- ^:no-doc read-token
   "Reads a non-whitespace token. If it is a valid number it coerces it to number. Otherwise returns it as a symbol."
