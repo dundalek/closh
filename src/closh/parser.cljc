@@ -226,14 +226,17 @@
   [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
-(defn parse-interactive
-  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
-  [coll]
-  (binding [*process-pipeline* process-pipeline-interactive]
-    (process-command-list (s/conform ::cmd-list coll))))
+(defn parse [coll]
+  (s/conform ::cmd-list coll))
 
-(defn parse-batch
+(defn compile-interactive
+  "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
+  [ast]
+  (binding [*process-pipeline* process-pipeline-interactive]
+    (process-command-list ast)))
+
+(defn compile-batch
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses batch pipeline mode."
-  [coll]
+  [ast]
   (binding [*process-pipeline* process-pipeline-batch]
-    (process-command-list (s/conform ::cmd-list coll))))
+    (process-command-list ast)))

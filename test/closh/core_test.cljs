@@ -6,7 +6,7 @@
             [closh.reader]
             [closh.util :refer [jsx->clj]]
             [closh.builtin :refer [getenv setenv]]
-            [closh.parser :refer [parse-batch]]
+            [closh.parser :refer [compile-batch parse]]
             [closh.eval :refer [execute-command-text]]
             [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias expand-abbreviation]
              :refer-macros [sh sh-str defalias defabbr]]))
@@ -81,7 +81,7 @@
   (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
          (macroexpand '(sh ls -l))))
 
-  (are [x y] (= x (parse-batch y))
+  (are [x y] (= x (compile-batch (parse y)))
     '(-> (shx "ls" [(expand "-l")]))
     '(ls -l)
 

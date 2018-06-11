@@ -5,25 +5,25 @@
 (defmacro sh
   "Expands tokens in command mode to executable code."
   [& tokens]
-  (closh.parser/parse-interactive tokens))
+  (closh.parser/compile-interactive (closh.parser/parse tokens)))
 
 (defmacro sh-value
   "Expands tokens in command mode to executable code."
   [& tokens]
-  `(-> ~(closh.parser/parse-batch tokens)
+  `(-> ~(closh.parser/compile-batch (closh.parser/parse tokens))
        (process-value)))
 
 (defmacro sh-str
   "Expands command mode returning process output as string."
   [& tokens]
-  `(-> ~(closh.parser/parse-batch tokens)
+  `(-> ~(closh.parser/compile-batch (closh.parser/parse tokens))
        (process-output)
        (clojure.string/trim)))
 
 (defmacro sh-seq
   "Expands command mode collecting process output returning it as a sequence of strings split by whitespace."
   [& tokens]
-  `(-> ~(closh.parser/parse-batch tokens)
+  `(-> ~(closh.parser/compile-batch (closh.parser/parse tokens))
        (process-output)
        (clojure.string/trim)
        (clojure.string/split  #"\s+")))
@@ -31,7 +31,7 @@
 (defmacro sh-lines
   "Expands command mode collecting process output returning it as a sequence of lines."
   [& tokens]
-  `(-> ~(closh.parser/parse-batch tokens)
+  `(-> ~(closh.parser/compile-batch (closh.parser/parse tokens))
        (process-output)
        (clojure.string/trim)
        (clojure.string/split  #"\n")))
@@ -39,14 +39,14 @@
 (defmacro sh-code
   "Expands command mode returning process exit code."
   [& tokens]
-  `(-> ~(closh.parser/parse-interactive tokens)
+  `(-> ~(closh.parser/compile-interactive (closh.parser/parse tokens))
        (wait-for-process)
        (.-exitCode)))
 
 (defmacro sh-ok
   "Expands command mode returning true if process completed with non-zero exit code."
   [& tokens]
-  `(-> ~(closh.parser/parse-interactive tokens)
+  `(-> ~(closh.parser/compile-interactive (closh.parser/parse tokens))
        (wait-for-process)
        (.-exitCode)
        (zero?)))
