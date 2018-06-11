@@ -7,3 +7,4 @@ package-lock.json
 .nrepl-port
 /doc/api
 .lumo_cache
+.cpcache

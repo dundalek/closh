@@ -11,9 +11,10 @@
     (gobj/set js/process "exitCode" 0)
     (gobj/set js/process "exitCode" 1)))
 
-(time
- (run-tests
-   'closh.completion-test
-   'closh.core-test
-   'closh.reader-test
-   'closh.util-test))
+(defn -main []
+  (time
+   (run-tests
+     'closh.completion-test
+     'closh.core-test
+     'closh.reader-test
+     'closh.util-test)))
