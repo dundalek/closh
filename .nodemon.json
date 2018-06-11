@@ -1,5 +1,5 @@
 {
-  "ext": "clj,cljs",
+  "ext": "clj,cljs,cljc",
   "exec": "npm start",
   "restartable": false
 }

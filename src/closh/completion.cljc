@@ -1,6 +1,7 @@
 (ns closh.completion
   (:require [clojure.string]
-            [lumo.repl]))
+            [lumo.repl]
+            [closh.builtin :refer [getenv]]))
 
 (def ^:no-doc child-process (js/require "child_process"))
 
@@ -29,18 +30,18 @@
 (defn complete-fish
   "Get completions from a fish shell. Spawns a process."
   [line]
-  (-> (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.fish") #js[line])
+  (-> (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.fish") #js[line])
       (.then (fn [completions] (.map completions #(first (clojure.string/split % #"\t"))))))) ; discard the tab-separated description
 
 (defn complete-bash
   "Get completions from bash. Spawns a process."
   [line]
-  (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.bash") #js[line]))
+  (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.bash") #js[line]))
 
 (defn complete-zsh
   "Get completions from zsh. Spawns a process."
   [line]
-  (get-completions-spawn (str js/process.env.CLOSH_SOURCES_PATH "/scripts/completion/completion.zsh") #js[line]))
+  (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.zsh") #js[line]))
 
 (defn complete-lumo
   "Get completions from Lumo."

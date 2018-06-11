@@ -3,16 +3,6 @@
             [goog.object :as gobj]
             [closh.util :refer [jsx->clj]]))
 
-(defn cd
-  "Changes current working directory to a path of a first given argument."
-  [dir & _]
-  ;; flatten is used because we can get arguments from expand which are collections
-  (let [dir (or dir
-                js/process.env.HOME)]
-    (js/process.chdir dir)
-    (gobj/set js/process.env "PWD" (js/process.cwd))
-    nil))
-
 (defn exit
   "Exits the process using optional first argument as exit code."
   [code & _]
@@ -41,3 +31,13 @@
   (doall (map
           (fn [[k v]] (aset js/process.env k v))
           (partition 2 args))))
+
+(defn cd
+  "Changes current working directory to a path of a first given argument."
+  [dir & _]
+  ;; flatten is used because we can get arguments from expand which are collections
+  (let [dir (or dir
+                (getenv "HOME"))]
+    (js/process.chdir dir)
+    (setenv "PWD" (js/process.cwd))
+    nil))
