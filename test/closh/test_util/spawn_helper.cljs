@@ -1,6 +1,7 @@
 (ns closh.test-util.spawn-helper
   (:require [clojure.string]
             [closh.parser]
+            [closh.compiler]
             [closh.builtin]
             [closh.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]])

@@ -4,6 +4,7 @@
             [goog.object :as gobj]
             [lumo.repl]
             [closh.parser]
+            [closh.compiler]
             [closh.builtin]
             [closh.util]
             [closh.completion]
