@@ -1,11 +1,8 @@
 (ns closh.core
   (:require [clojure.string]
             [goog.object :as gobj]
-            [closh.builtin :refer [getenv]]))
-
-(def *closh-aliases* {})
-(def *closh-abbreviations* {})
-(def *closh-commands* {})
+            [closh.builtin :refer [getenv]]
+            [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc child-process (js/require "child_process"))

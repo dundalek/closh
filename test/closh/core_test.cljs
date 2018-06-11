@@ -6,8 +6,7 @@
             [closh.reader]
             [closh.util :refer [jsx->clj]]
             [closh.builtin :refer [getenv setenv]]
-            [closh.parser]
-            [closh.compiler]
+            [closh.env]
             [closh.eval :refer [execute-command-text]]
             [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias expand-abbreviation]
              :refer-macros [sh sh-str defalias defabbr]]))
@@ -81,64 +80,6 @@
 
   (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
          (macroexpand '(sh ls -l))))
-
-  (are [x y] (= x (closh.compiler/compile-batch (closh.parser/parse y)))
-    '(-> (shx "ls" [(expand "-l")]))
-    '(ls -l)
-
-    '(-> (shx "ls" [(expand-partial "-l")]))
-    '(ls "-l")
-
-    '(-> (shx "ls" [(expand ".")]))
-    '(ls .)
-
-    '(-> (shx "ls" []) (pipe-multi (partial reverse)) (pipe (shx "head" [])))
-    '(ls |> (reverse) | head)
-
-    '(-> (do (list 1 2 3) (reverse)))
-    '((list 1 2 3) (reverse))
-
-    '(-> (shx "ls" []) (pipe-multi (partial reverse)))
-    '(ls |> (reverse))
-
-    '(-> (shx "echo" [(expand "hi")]) (pipe (partial str)))
-    '(echo hi | (str))
-
-    '(-> (shx "ls" [] {:redir [[:out 1 (expand-redirect "dirlist")] [:set 2 1]]}))
-    '(ls > dirlist 2 >& 1)
-
-    '(-> (shx "ls" [] {:redir [[:set 2 1] [:out 1 (expand-redirect "dirlist")]]}))
-    '(ls 2 >& 1 > dirlist)
-
-    '(-> (shx "cat" [] {:redir [[:in 0 (expand-redirect "file.txt")]]}))
-    '(cat < file.txt)
-
-    '(-> (shx "cat" [] {:redir [[:in 3 (expand-redirect "file.txt")]]}))
-    '(cat 3 < file.txt)
-
-    '(-> (shx "ls" [] {:redir [[:out 1 (expand-redirect "file.txt")]]}))
-    '(ls 1 > file.txt)
-
-    '(-> (shx "ls" [] {:redir [[:append 1 (expand-redirect "file.txt")]]}))
-    '(ls >> file.txt)
-    ;
-    '(-> (shx "ls" [] {:redir [[:out 1 (expand-redirect "file.txt")] [:set 2 1]]}))
-    '(ls &> file.txt)
-
-    '(-> (shx "ls" [] {:redir [[:append 1 (expand-redirect "file.txt")] [:set 2 1]]}))
-    '(ls &>> file.txt)
-
-    '(-> (shx "ls" [] {:redir [[:rw 0 (expand-redirect "file.txt")]]}))
-    '(ls <> file.txt)
-
-    '(-> (shx "ls" [] {:redir [[:rw 3 (expand-redirect "file.txt")]]}))
-    '(ls 3 <> file.txt)
-
-    '(-> (shx "wc" [(expand "-l")] {:redir [[:set 2 1]]}))
-    '(wc -l 2 >& 1)
-
-    '(-> (cljs.core/apply cd (cljs.core/concat (expand "dirname"))))
-    '(cd dirname))
 
   (are [x y] (= x (:stdout (closh y)))
     "3"

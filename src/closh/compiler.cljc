@@ -1,5 +1,5 @@
 (ns closh.compiler
-  (:require [closh.core :refer [*closh-aliases* *closh-aliases* *closh-commands*]]))
+  (:require [closh.env :refer [*closh-aliases* *closh-aliases* *closh-commands*]]))
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
@@ -76,7 +76,7 @@
             `(apply ~name (concat ~@parameters))
 
             (*closh-commands* name)
-            `(apply (closh.core/*closh-commands* (quote ~name)) (concat ~@parameters))
+            `(apply (closh.env/*closh-commands* (quote ~name)) (concat ~@parameters))
 
             :else
             (concat

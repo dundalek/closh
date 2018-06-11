@@ -1,6 +1,7 @@
 (ns closh.test-util.runner
   (:require [goog.object :as gobj]
             [clojure.test :refer [report run-tests]]
+            [closh.compiler-test]
             [closh.completion-test]
             [closh.core-test]
             [closh.reader-test]
@@ -14,6 +15,7 @@
 (defn -main []
   (time
    (run-tests
+     'closh.compiler-test
      'closh.completion-test
      'closh.core-test
      'closh.reader-test
