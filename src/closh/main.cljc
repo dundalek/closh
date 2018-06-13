@@ -7,6 +7,7 @@
             [closh.compiler]
             [closh.builtin]
             [closh.util]
+            [closh.process :as process]
             [closh.completion]
             [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line expand-alias expand-abbreviation]]
@@ -250,7 +251,7 @@
     (.catch (init-database)
      (fn [err]
        (js/console.error "Error initializing history database:" err)
-       (js/process.exit 1)))
+       (process/exit 1)))
     (doto rl
       (.on "line"
         (fn [input]

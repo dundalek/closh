@@ -4,7 +4,8 @@
             [closh.compiler]
             [closh.builtin]
             [closh.eval :refer [execute-command-text]]
-            [closh.core :refer [handle-line]])
+            [closh.core :refer [handle-line]]
+            [closh.process :as process])
   (:require-macros [closh.core :refer [sh]]))
 
 (def child-process (js/require "child_process"))
@@ -15,11 +16,11 @@
         result (handle-line cmd execute-command-text)]
     (cond
       (instance? child-process.ChildProcess result)
-      (js/process.exit (.-exitCode result))
+      (process/exit (.-exitCode result))
 
       (and (seq? result)
            (every? #(instance? child-process.ChildProcess %) result))
-      (js/process.exit (.-exitCode (last result)))
+      (process/exit (.-exitCode (last result)))
 
       :else
       (.write js/process.stdout (str result)))))

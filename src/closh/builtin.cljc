@@ -1,12 +1,13 @@
 (ns closh.builtin
   (:require [clojure.string]
             [goog.object :as gobj]
-            [closh.util :refer [jsx->clj]]))
+            [closh.util :refer [jsx->clj]]
+            [closh.process :as process]))
 
 (defn exit
   "Exits the process using optional first argument as exit code."
   [code & _]
-  (js/process.exit code))
+  (process/exit code))
 
 (def quit
   "Alias for `exit`."
