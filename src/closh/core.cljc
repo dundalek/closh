@@ -2,12 +2,12 @@
   (:require [clojure.string]
             [goog.object :as gobj]
             [closh.builtin :refer [getenv]]
+            [closh.zero.platform.io :refer [glob]]
             [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc child-process (js/require "child_process"))
 (def ^:no-doc stream (js/require "stream"))
-(def ^:no-doc glob (.-sync (js/require "glob")))
 (def ^:no-doc deasync (js/require "deasync"))
 
 (def command-not-found-bin "/usr/lib/command-not-found")
@@ -31,7 +31,7 @@
 (defn expand-filename
   "Expands filename based on globbing patterns"
   [s]
-  (seq (glob s #js{:nonull true})))
+  (glob s))
 
 (defn expand-redirect
   "Expand redirect targets. It does tilde and variable expansion."
