@@ -39,6 +39,6 @@
   ;; flatten is used because we can get arguments from expand which are collections
   (let [dir (or dir
                 (getenv "HOME"))]
-    (js/process.chdir dir)
-    (setenv "PWD" (js/process.cwd))
+    (process/chdir dir)
+    (setenv "PWD" (process/cwd))
     nil))

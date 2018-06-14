@@ -259,7 +259,7 @@
           (when-not (clojure.string/blank? input)
             (reset! readline-state initial-readline-state)
             (when-not (re-find #"^\s+" input)
-              (add-history input (js/process.cwd)
+              (add-history input (process/cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]
