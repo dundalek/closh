@@ -157,8 +157,8 @@
                 pred (if neg 'true? 'false?)
                 tmp (gensym)]
             (assoc pipeline :pipeline
-                   `(let [~tmp (closh.core/wait-for-pipeline ~(*process-pipeline* (:pipeline pipeline)))]
-                      (if (~pred (closh.core/pipeline-condition ~tmp))
+                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(*process-pipeline* (:pipeline pipeline)))]
+                      (if (~pred (closh.zero.pipeline/pipeline-condition ~tmp))
                         ~child
                         ~tmp)))))
         (-> items

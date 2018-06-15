@@ -36,9 +36,11 @@
   (pr-str
     '(do
        (require '[lumo.io :refer [slurp spit]]
-                '[closh.core :refer [shx expand expand-partial expand-command expand-redirect pipe pipe-multi pipe-map pipe-filter process-output wait-for-process wait-for-pipeline pipeline-condition process-value]]
+                '[closh.zero.platform.process]
+                '[closh.core :refer [shx expand expand-partial expand-command expand-redirect]]
                 '[closh.builtin :refer [cd exit quit getenv setenv]]
-                '[closh.process]
+                '[closh.zero.platform.process]
+                '[closh.zero.pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-condition]]
                 '[closh.util :refer [source-shell]]
                 '[clojure.string :as st])
        (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]])
@@ -47,7 +49,7 @@
          "$ ")
 
        (defn closh-title []
-         (str "closh " (closh.process/cwd)))
+         (str "closh " (closh.zero.platform.process/cwd)))
 
        ;; Return nil otherwise #'cljs.user/closh-prompt got printed every time exception was thrown
        nil)))

@@ -7,7 +7,7 @@
             [closh.compiler]
             [closh.builtin]
             [closh.util]
-            [closh.process :as process]
+            [closh.zero.platform.process :as process]
             [closh.completion]
             [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line expand-alias expand-abbreviation]]

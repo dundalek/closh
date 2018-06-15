@@ -8,7 +8,10 @@
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
             [closh.eval :refer [execute-command-text]]
-            [closh.core :refer [shx expand expand-partial process-output line-seq pipe pipe-multi pipe-map pipe-filter pipeline-value wait-for-pipeline pipeline-condition expand-alias expand-abbreviation]
+            [closh.zero.platform.io :refer [line-seq]]
+            [closh.zero.pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
+            [closh.core
+             :refer [shx expand expand-partial expand-alias expand-abbreviation]
              :refer-macros [sh sh-str defalias defabbr]]))
 
 (def fs (js/require "fs"))
@@ -169,7 +172,10 @@
 
     ; cmd helper to invoke command name by value
     "x\n"
-    "(cmd \"echo\") x")
+    "(cmd \"echo\") x"
+
+    "abc > /tmp/x\n"
+    "echo abc '> /tmp/x")
 
   (are [x] (= (bash x) (closh x))
     "ls"

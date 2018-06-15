@@ -2,7 +2,7 @@
   (:require [clojure.string]
             [goog.object :as gobj]
             [closh.util :refer [jsx->clj]]
-            [closh.process :as process]))
+            [closh.zero.platform.process :as process]))
 
 (defn exit
   "Exits the process using optional first argument as exit code."
