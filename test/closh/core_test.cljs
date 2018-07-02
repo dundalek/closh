@@ -44,8 +44,6 @@
 
 (deftest run-test
 
-  (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
-
   (is (= (.-USER js/process.env) (first (expand "$USER"))))
 
   (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
@@ -71,9 +69,6 @@
   (is (= (list 3 2 1) (-> (list 1 2 3) (pipe reverse))))
 
   (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?))))
-
-  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 "/dev/null"]]})
-                process-output)))
 
   ; '(echo hi 1 >& 2 | wc -l))
   (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
