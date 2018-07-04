@@ -19,6 +19,9 @@
   "devDependencies": {
     "nodemon": "1.12.1"
   },
+  "engines": {
+    "node": "9.x"
+  },
   "scripts": {
     "start": "./bin/closh.sh",
     "dev": "nodemon --config .nodemon.json",
