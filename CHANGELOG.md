@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1](https://github.com/dundalek/closh/compare/v0.2.0...v0.2.1) (2018-07-04)
+
+- Add node version check to the install script to prevent people from running into issues
+- Add a logo
+- Internal code cleanups
+
 ## [0.2.0](https://github.com/dundalek/closh/compare/v0.1.0...v0.2.0) (2018-04-16)
 
 ### New features
