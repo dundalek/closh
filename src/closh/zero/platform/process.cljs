@@ -5,9 +5,7 @@
 (def ^:dynamic *stdout* js/process.stdout)
 (def ^:dynamic *stderr* js/process.stderr)
 
-#?(:cljs
-   (do
-     (def ^:no-doc child-process (js/require "child_process"))))
+(def ^:no-doc child-process (js/require "child_process"))
 
 (defn process? [proc]
   (instance? child-process.ChildProcess proc))
@@ -21,15 +19,10 @@
   proc)
 
 (defn exit [code]
-  #?(:cljs (js/process.exit code)
-     :clj (System/exit code)))
+  (js/process.exit code))
 
-; Might not be right be should do for now
-; https://stackoverflow.com/questions/1234795/why-is-the-user-dir-system-property-working-in-java
 (defn cwd []
-  #?(:cljs (js/process.cwd)
-     :clj (.getAbsolutePath (File. ""))))
+  (js/process.cwd))
 
 (defn chdir [dir]
-  #?(:cljs (js/process.chdir dir)
-     :clj (System/setProperty "user.dir" (.getAbsolutePath (File. dir)))))
+  (js/process.chdir dir))

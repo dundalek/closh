@@ -1,16 +1,13 @@
 (ns closh.zero.platform.io
   (:require [closh.zero.platform.process :refer [*stdin* *stdout* *stderr*]]))
 
-#?(:cljs
-   (do
-     (def ^:no-doc glob-js (.-sync (js/require "glob")))
-     (def ^:no-doc stream (js/require "stream"))
-     (def ^:no-doc fs (js/require "fs"))
-     (def ^:no-doc deasync (js/require "deasync"))))
+(def ^:no-doc glob-js (.-sync (js/require "glob")))
+(def ^:no-doc stream (js/require "stream"))
+(def ^:no-doc fs (js/require "fs"))
+(def ^:no-doc deasync (js/require "deasync"))
 
-#?(:cljs
-   (defn glob [s]
-     (seq (glob-js s #js{:nonull true}))))
+(defn glob [s]
+  (seq (glob-js s #js{:nonull true})))
 
 (defn line-seq
   "Create a lazy seq of strings from stream"
