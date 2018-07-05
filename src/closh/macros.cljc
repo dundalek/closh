@@ -1,6 +1,5 @@
-(ns closh.core
-  (:require [clojure.string]
-            [closh.parser]
+(ns closh.macros
+  (:require [closh.parser]
             [closh.compiler]))
 
 (defmacro sh

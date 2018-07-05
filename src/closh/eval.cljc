@@ -39,13 +39,14 @@
                 '[closh.zero.platform.process]
                 '[closh.reader]
                 '[closh.compiler]
+                '[closh.parser]
                 '[closh.core :refer [shx expand expand-partial expand-command expand-redirect]]
                 '[closh.builtin :refer [cd exit quit getenv setenv]]
                 '[closh.zero.platform.process]
                 '[closh.zero.pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-condition]]
                 '[closh.util :refer [source-shell]]
-                '[clojure.string :as st])
-       (require-macros '[closh.core :refer [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]])
+                '[clojure.string :as st]
+                '[closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]])
 
        (defn closh-prompt []
          "$ ")

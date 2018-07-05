@@ -5,8 +5,8 @@
             [closh.builtin]
             [closh.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]]
-            [closh.zero.platform.process :as process])
-  (:require-macros [closh.core :refer [sh]]))
+            [closh.zero.platform.process :as process]
+            [closh.macros :refer-macros [sh]]))
 
 (def child-process (js/require "child_process"))
 

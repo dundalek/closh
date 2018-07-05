@@ -1,14 +1,14 @@
 (ns closh.core
   (:require [clojure.string]
-            [goog.object :as gobj]
+            #?(:cljs [goog.object :as gobj])
             [closh.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [glob]]
             [closh.zero.platform.process :as process :refer [process?]]
-            [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]]
+            #?(:cljs [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]])
             [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
-(def ^:no-doc fs (js/require "fs"))
-(def ^:no-doc child-process (js/require "child_process"))
+#?(:cljs (def ^:no-doc fs (js/require "fs")))
+#?(:cljs (def ^:no-doc child-process (js/require "child_process")))
 
 (def command-not-found-bin "/usr/lib/command-not-found")
 
@@ -56,35 +56,38 @@
       expand-filename)
     (list)))
 
-(defn get-command-suggestion
-  "Get suggestion for a missing command using command-not-found utility."
-  [cmdname]
-  (try
-    (fs.accessSync command-not-found-bin fs.constants.X_OK)
-    (-> (child-process.spawnSync command-not-found-bin #js["--no-failure-msg" cmdname] #js{:encoding "utf-8"})
-        (.-stderr)
-        (clojure.string/trim))
-    (catch :default _)))
+#?(:cljs
+    (defn get-command-suggestion
+      "Get suggestion for a missing command using command-not-found utility."
+      [cmdname]
+      (try
+        (fs.accessSync command-not-found-bin fs.constants.X_OK)
+        (-> (child-process.spawnSync command-not-found-bin #js["--no-failure-msg" cmdname] #js{:encoding "utf-8"})
+            (.-stderr)
+            (clojure.string/trim))
+        (catch :default _))))
 
-(defn handle-spawn-error
-  "Formats and prints error from spawn."
-  [err]
-  (case (.-errno err)
-    "ENOENT" (let [cmdname (.-path err)
-                   suggestion (get-command-suggestion cmdname)]
-               (when-not (clojure.string/blank? suggestion)
-                 (js/console.error suggestion))
-               (js/console.error (str cmdname ": command not found")))
-    (js/console.error "Unexpected error:\n" err)))
+#?(:cljs
+    (defn handle-spawn-error
+      "Formats and prints error from spawn."
+      [err]
+      (case (.-errno err)
+        "ENOENT" (let [cmdname (.-path err)
+                       suggestion (get-command-suggestion cmdname)]
+                   (when-not (clojure.string/blank? suggestion)
+                     (js/console.error suggestion))
+                   (js/console.error (str cmdname ": command not found")))
+        (js/console.error "Unexpected error:\n" err))))
 
-(defn shx
-  "Executes a command as child process."
-  ([cmd] (shx cmd []))
-  ([cmd args] (shx cmd args {}))
-  ([cmd args opts]
-   (doto
-     (process/shx cmd args opts)
-     (.on "error" handle-spawn-error))))
+#?(:cljs
+    (defn shx
+      "Executes a command as child process."
+      ([cmd] (shx cmd []))
+      ([cmd args] (shx cmd args {}))
+      ([cmd args opts]
+       (doto
+         (process/shx cmd args opts)
+         (.on "error" handle-spawn-error)))))
 
 (defn expand-alias
   ([input] (expand-alias *closh-aliases* input))
@@ -105,9 +108,10 @@
        (clojure.string/replace-first input #"[^\s]+" alias)
        input))))
 
-(defn handle-line
-  "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
-  [input eval-cljs]
-  (-> input
-    (eval-cljs)
-    (wait-for-pipeline)))
+#?(:cljs
+    (defn handle-line
+          "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
+          [input eval-cljs]
+          (-> input
+            (eval-cljs)
+            (wait-for-pipeline))))

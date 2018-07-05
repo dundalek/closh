@@ -8,14 +8,14 @@
             [closh.zero.pipeline]
             [closh.zero.platform.io]
             [closh.zero.platform.util]
+            [closh.zero.platform.process :as process]
             [closh.builtin]
             [closh.util]
-            [closh.zero.platform.process :as process]
             [closh.completion]
             [closh.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line expand-alias expand-abbreviation]]
-            [closh.history :refer [init-database add-history]])
-  (:require-macros [closh.core :refer [sh]]))
+            [closh.history :refer [init-database add-history]]
+            [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]))
 
 (enable-console-print!)
 

@@ -11,7 +11,8 @@
             [closh.zero.platform.io :refer [line-seq]]
             [closh.zero.pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.core
-             :refer [shx expand expand-partial expand-alias expand-abbreviation]
+             :refer [shx expand expand-partial expand-alias expand-abbreviation]]
+            [closh.macros
              :refer-macros [sh sh-str defalias defabbr]]))
 
 (def fs (js/require "fs"))

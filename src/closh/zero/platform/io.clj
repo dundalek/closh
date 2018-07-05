@@ -1,6 +1,9 @@
 (ns closh.zero.platform.io
   (:require [me.raynes.conch.low-level :as sh]))
 
+(defn glob [s]
+  s)
+
 (defn process-output
   "Returns for a process to finish and returns output to be printed out."
   [proc]
