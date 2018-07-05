@@ -8,3 +8,6 @@ package-lock.json
 /doc/api
 .lumo_cache
 .cpcache
+.idea
+.rebel_readline_history
+closh.iml

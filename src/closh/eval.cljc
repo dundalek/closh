@@ -37,6 +37,8 @@
     '(do
        (require '[lumo.io :refer [slurp spit]]
                 '[closh.zero.platform.process]
+                '[closh.reader]
+                '[closh.compiler]
                 '[closh.core :refer [shx expand expand-partial expand-command expand-redirect]]
                 '[closh.builtin :refer [cd exit quit getenv setenv]]
                 '[closh.zero.platform.process]

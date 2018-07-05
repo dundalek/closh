@@ -27,7 +27,7 @@
   `(-> ~(closh.compiler/compile-batch (closh.parser/parse tokens))
        (closh.zero.pipeline/process-output)
        (clojure.string/trim)
-       (clojure.string/split  #"\s+")))
+       (clojure.string/split #"\s+")))
 
 (defmacro sh-lines
   "Expands command mode collecting process output returning it as a sequence of lines."
@@ -35,7 +35,7 @@
   `(-> ~(closh.compiler/compile-batch (closh.parser/parse tokens))
        (closh.zero.pipeline/process-output)
        (clojure.string/trim)
-       (clojure.string/split  #"\n")))
+       (clojure.string/split #"\n")))
 
 (defmacro sh-code
   "Expands command mode returning process exit code."

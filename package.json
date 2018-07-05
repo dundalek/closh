@@ -37,8 +37,9 @@
     "test-dev": "nodemon -e clj,cljs,cljc -x 'npm run test-dev-once'",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clj -C:test -m closh.test-util.runner",
+    "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "doc-auto": "nodemon -e clj,cljs,cljc -x 'lein doc'",
-    "rebel": "clj -A:rebel -m closh.rebel"
+    "rebel": "clj -A:rebel -m closh.zero.frontend.rebel"
   },
   "repository": {
     "type": "git",

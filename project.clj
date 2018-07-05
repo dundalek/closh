@@ -15,5 +15,8 @@
 
   :aliases {"lint" ["do" ["kibit"] ["eastwood"] ["bikeshed"] ["yagni"]]}
 
+  :source-paths ["src"]
+  :test-paths ["test"]
+
   ; runs with `lein doc`
   :codeina {:reader :clojurescript})
