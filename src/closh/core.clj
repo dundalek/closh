@@ -58,10 +58,9 @@
 (defmacro defabbr [name value]
   `(set! closh.env/*closh-abbreviations* (assoc closh.env/*closh-abbreviations* (str (quote ~name)) ~value)))
 
-(defmacro defcmd
-  ([name fn]
-   `(do (set! closh.env/*closh-commands* (assoc closh.env/*closh-commands* (quote ~name) ~fn))
-        nil))
-  ([name & body]
-   `(do (defn ~name ~@body)
-        (defcmd ~name ~name))))
+(defmacro defcmd [name & body]
+  (if (= 1 (count body))
+    `(do (set! closh.env/*closh-commands* (assoc closh.env/*closh-commands* (quote ~name) ~(first body)))
+         nil)
+    `(do (defn ~name ~@body)
+         (defcmd ~name ~name))))
