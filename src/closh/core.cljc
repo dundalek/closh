@@ -2,7 +2,7 @@
   (:require [clojure.string]
             [goog.object :as gobj]
             [closh.builtin :refer [getenv]]
-            [closh.zero.platform.io :refer [glob open-io-streams]]
+            [closh.zero.platform.io :refer [glob]]
             [closh.zero.platform.process :as process :refer [process?]]
             [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]]
             [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
@@ -83,10 +83,7 @@
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
    (doto
-     (child-process.spawn
-       cmd
-       (apply array (flatten args))
-       #js{:stdio (open-io-streams (:redir opts))})
+     (process/shx cmd args opts)
      (.on "error" handle-spawn-error))))
 
 (defn expand-alias

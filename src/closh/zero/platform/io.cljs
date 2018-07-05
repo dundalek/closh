@@ -1,5 +1,8 @@
-(ns closh.zero.platform.io
-  (:require [closh.zero.platform.process :refer [*stdin* *stdout* *stderr*]]))
+(ns closh.zero.platform.io)
+
+(def ^:dynamic *stdin* js/process.stdin)
+(def ^:dynamic *stdout* js/process.stdout)
+(def ^:dynamic *stderr* js/process.stderr)
 
 (def ^:no-doc glob-js (.-sync (js/require "glob")))
 (def ^:no-doc stream (js/require "stream"))

@@ -1,6 +1,6 @@
 (ns closh.zero.pipeline
-  (:require [closh.zero.platform.process :as process :refer [process? *stdout* *stderr*]]
-            [closh.zero.platform.io :refer [get-out-stream line-seq]]))
+  (:require [closh.zero.platform.process :as process :refer [process?]]
+            [closh.zero.platform.io :refer [get-out-stream line-seq *stdout* *stderr*]]))
 
 (defn wait-for-pipeline
   "Wait for a pipeline to complete. Standard outputs of a process are piped to stdout and stderr."

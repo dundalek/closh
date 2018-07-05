@@ -1,9 +1,6 @@
 (ns closh.zero.platform.process
-  (:require [closh.zero.platform.util :refer [wait-for-event]]))
-
-(def ^:dynamic *stdin* js/process.stdin)
-(def ^:dynamic *stdout* js/process.stdout)
-(def ^:dynamic *stderr* js/process.stderr)
+  (:require [closh.zero.platform.util :refer [wait-for-event]]
+            [closh.zero.platform.io :refer [open-io-streams]]))
 
 (def ^:no-doc child-process (js/require "child_process"))
 
@@ -26,3 +23,13 @@
 
 (defn chdir [dir]
   (js/process.chdir dir))
+
+(defn shx
+  "Executes a command as child process."
+  ([cmd] (shx cmd []))
+  ([cmd args] (shx cmd args {}))
+  ([cmd args opts]
+   (child-process.spawn
+     cmd
+     (apply array (flatten args))
+     #js{:stdio (open-io-streams (:redir opts))})))
