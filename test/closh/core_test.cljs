@@ -45,8 +45,6 @@
 
 (deftest run-test
 
-  (is (= (.-USER js/process.env) (first (expand "$USER"))))
-
   (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
 
   (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")

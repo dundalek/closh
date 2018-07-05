@@ -2,7 +2,8 @@
  {org.clojure/tools.reader
   {:git/url "https://github.com/dundalek/tools.reader"
    :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"}
-  me.raynes/conch {:mvn/version "0.8.0"}}
+  me.raynes/conch {:mvn/version "0.8.0"}
+  clj-glob {:mvn/version "1.0.0"}}
 
  :aliases
  {:rebel

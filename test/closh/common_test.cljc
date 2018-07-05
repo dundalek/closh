@@ -1,6 +1,8 @@
 (ns closh.common-test
   (:require [clojure.test :refer [deftest is are]]
-            [closh.builtin :refer [getenv setenv]]))
+            [closh.builtin :refer [getenv setenv]]
+            [closh.core :refer [expand]]
+            [closh.zero.platform.process :refer [shx]]))
 
 (deftest test-getenv-setenv
 
@@ -18,3 +20,11 @@
   (is (= '("1" "2") (setenv "ONE" "1" "TWO" "2")))
   (is (= {"ONE" "1", "TWO" "2"}
          (getenv "ONE" "TWO"))))
+
+(deftest test-expansions
+
+  (is (= (getenv "USER") (first (expand "$USER"))))
+
+  (is (= "package.json" (first (expand "package.js*"))))
+
+  (is (= "./package.json" (first (expand "./package.js*")))))
