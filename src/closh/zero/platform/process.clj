@@ -1,6 +1,8 @@
 (ns closh.zero.platform.process
   (:import java.io.File))
 
+(def ^:dynamic *env* (atom {}))
+
 (defn process? [proc]
   (throw (Exception. "Not Implemented")))
 
@@ -34,6 +36,7 @@
      2 (.redirectError builder target)
      (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)"))))))
 
+; TODO pass environment variables from *env*
 (defn shx
      "Executes a command as child process."
      ([cmd] (shx cmd []))
@@ -55,3 +58,15 @@
            :in  (.getOutputStream process)
            :err (.getErrorStream process)
            :process process}))))
+
+(defn setenv [k v]
+  (swap! *env* assoc k v)
+  v)
+
+(defn getenv
+  ([] (merge
+       (into {} (System/getenv))
+       @*env*))
+  ([k] (if (contains? @*env* k)
+         (get @*env* k)
+         (System/getenv k))))

@@ -17,7 +17,11 @@
   1  - Returns the value of the specified environment variable as a string
   >1 - Returns a map of the specified variables and their values"
   [& args]
-  (apply process/getenv args))
+  (if (< (count args) 2)
+    (apply process/getenv args)
+    (into {} (map
+               #(vector % (process/getenv %))
+               args))))
 
 (defn setenv
   "Sets environment variables. Takes args as key value pairs and returns a list of values"

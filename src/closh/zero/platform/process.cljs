@@ -41,8 +41,4 @@
 
 (defn getenv
   ([] (jsx->clj js/process.env))
-  ([k] (gobj/get js/process.env k))
-  ([& args]
-   (into {} (map
-              #(vector % (getenv %))
-              args))))
+  ([k] (gobj/get js/process.env k)))
