@@ -407,18 +407,6 @@
 
 (deftest test-builtin-getenv-setenv
 
-  (is (= (jsx->clj js/process.env) (getenv)))
-
-  (is (= '("forty two") (setenv "A" "forty two")))
-  (is (= (gobj/get js/process.env "A") (getenv "A")))
-
-  (is (= "forty\ntwo" (do (setenv "A" "forty\ntwo")
-                          (getenv "A"))))
-
-  (is (= '("1" "2") (setenv "ONE" "1" "TWO" "2")))
-  (is (= {"ONE" "1", "TWO" "2"}
-         (getenv "ONE" "TWO")))
-
   (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
   (is (= "42") (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)")))
   (is (= "42") (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")")))

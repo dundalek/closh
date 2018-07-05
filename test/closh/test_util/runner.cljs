@@ -2,9 +2,10 @@
   (:require [goog.object :as gobj]
             [clojure.test :refer [report run-tests]]
             [closh.compiler-test]
+            [closh.process-test]
+            [closh.common-test]
             [closh.completion-test]
             [closh.core-test]
-            [closh.process-test]
             [closh.reader-test]
             [closh.util-test]))
 
@@ -18,7 +19,8 @@
    (run-tests
      'closh.reader-test
      'closh.compiler-test
+     'closh.process-test
+     'closh.common-test
      'closh.completion-test
      'closh.core-test
-     'closh.process-test
      'closh.util-test)))
