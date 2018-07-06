@@ -59,7 +59,7 @@
 
 (defmacro defcmd [name & body]
   (if (= 1 (count body))
-    `(do (set! closh.env/*closh-commands* (assoc closh.env/*closh-commands* (quote ~name) ~(first body)))
+    `(do (swap! closh.env/*closh-commands* assoc (quote ~name) ~(first body))
          nil)
     `(do (defn ~name ~@body)
          (defcmd ~name ~name))))

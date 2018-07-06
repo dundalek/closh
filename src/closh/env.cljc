@@ -2,7 +2,7 @@
 
 (def ^:dynamic *closh-aliases* (atom {}))
 (def ^:dynamic *closh-abbreviations* (atom {}))
-(def ^:dynamic *closh-commands* {})
+(def ^:dynamic *closh-commands* (atom {}))
 
 (def ^:dynamic *closh-environment-init*
   '(do

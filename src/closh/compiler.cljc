@@ -75,8 +75,8 @@
             (builtins name)
             `(apply ~name (concat ~@parameters))
 
-            (*closh-commands* name)
-            `(apply (closh.env/*closh-commands* (quote ~name)) (concat ~@parameters))
+            (@*closh-commands* name)
+            `(apply (@closh.env/*closh-commands* (quote ~name)) (concat ~@parameters))
 
             :else
             (concat
