@@ -4,6 +4,7 @@
             [closh.compiler-test]
             [closh.process-test]
             [closh.common-test]
+            [closh.pipeline-test]
             [closh.completion-test]
             [closh.core-test]
             [closh.reader-test]
@@ -21,6 +22,7 @@
      'closh.compiler-test
      'closh.process-test
      'closh.common-test
+     'closh.pipeline-test
      'closh.completion-test
      'closh.core-test
      'closh.util-test)))

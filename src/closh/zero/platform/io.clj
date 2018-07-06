@@ -1,7 +1,12 @@
 (ns closh.zero.platform.io
   (:require [clojure.string]
             [clojure.java.io :as io]
-            [org.satta.glob :as clj-glob]))
+            [org.satta.glob :as clj-glob])
+  (:refer-clojure :exclude [line-seq]))
+
+(def ^:dynamic *stdin* System/in)
+(def ^:dynamic *stdout* System/out)
+(def ^:dynamic *stderr* System/err)
 
 (def ^:private relpath-regex #"^\./")
 
@@ -25,9 +30,23 @@
 (defn err-stream [proc]
   (.getErrorStream proc))
 
-(defn process-output
+(defn pipe-stream [from to]
+  (io/copy from to)
+  (.close to))
+
+(defn stream-output
   "Returns for a process to finish and returns output to be printed out."
-  [proc]
+  [stream]
   (with-open [writer (java.io.StringWriter.)]
-    (io/copy (out-stream proc) writer)
-    (str writer)))
+    (pipe-stream stream writer)
+    (delay (str writer))))
+
+(defn stream-write [stream val]
+  (with-open [writer (java.io.OutputStreamWriter. stream)]
+    (.write writer val)))
+
+(defn line-seq [stream]
+  (-> stream
+    (java.io.InputStreamReader.)
+    (java.io.BufferedReader.)
+    (clojure.core/line-seq)))

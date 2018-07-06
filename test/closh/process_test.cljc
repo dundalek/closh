@@ -1,8 +1,7 @@
 (ns closh.process-test
   (:require [clojure.test :refer [deftest is are]]
             [closh.zero.platform.process :as process :refer [shx process?]]
-            #?(:cljs [closh.zero.pipeline :refer [process-output]])
-            #?(:clj [closh.zero.platform.io :refer [process-output]])))
+            [closh.zero.pipeline :refer [process-output]]))
 
 (deftest run-test
 

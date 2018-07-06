@@ -55,6 +55,14 @@
       (delay (.join out "")))
     (delay "")))
 
+(defn stream-write [stream val]
+  (doto stream
+    (.write val)
+    (.end)))
+
+(defn pipe-stream [from to]
+  (.pipe from to))
+
 (defn open-io-stream
   "Opens a stream based on operation and target, returns a promise."
   [op target]

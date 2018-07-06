@@ -1,6 +1,7 @@
 (ns closh.zero.pipeline
   (:require [closh.zero.platform.process :as process :refer [process?]]
-            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output line-seq *stdout* *stderr*]]))
+            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output pipe-stream line-seq stream-write *stdout* *stderr*]])
+  (:refer-clojure :exclude [line-seq]))
 
 (defn wait-for-pipeline
   "Wait for a pipeline to complete. Standard outputs of a process are piped to stdout and stderr."
@@ -8,9 +9,9 @@
   (if (process? proc)
     (do
       (when-let [stdout (out-stream proc)]
-        (.pipe stdout *stdout*))
+        (pipe-stream stdout *stdout*))
       (when-let [stderr (err-stream proc)]
-        (.pipe stderr *stderr*))
+        (pipe-stream stderr *stderr*))
       (process/wait proc))
     proc))
 
@@ -52,7 +53,7 @@
      :code 0}))
 
 ; TODO: refactor dispatch
-(defn pipe
+(defn- pipe-internal
   "Pipes process or value to another process or function."
   ([from to]
    (cond
@@ -62,9 +63,9 @@
        (do
          (when-let [in (in-stream to)]
            (let [out (or (out-stream from)
-                         (doto (stream.PassThrough.)
-                           (.end)))]
-             (.pipe out in)))
+                         #?(:cljs (doto (stream.PassThrough.)
+                                    (.end))))]
+             (pipe-stream out in)))
          to)
 
        :else (to (process-output from)))
@@ -73,8 +74,7 @@
      (cond
        (process? to)
        (let [val (str (clojure.string/join "\n" from) "\n")]
-         (.write (in-stream to) val)
-         (.end (in-stream to))
+         (stream-write (in-stream to) val)
          to)
 
        :else (to from))
@@ -84,13 +84,14 @@
        (process? to)
        (do
          (when-let [stdin (in-stream to)]
-           (.write stdin (str from))
-           (.end stdin))
+           (stream-write stdin (str from)))
          to)
 
-       :else (to from))))
-  ([x & xs]
-   (reduce pipe x xs)))
+       :else (to from)))))
+
+(defn pipe
+  [x & xs]
+  (reduce pipe-internal x xs))
 
 (defn pipe-multi
   "Piping in multi mode. It splits streams and strings into seqs of strings by newline. Single value is wrapped in list. Then it is passed to `pipe`."
