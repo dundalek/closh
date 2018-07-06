@@ -8,7 +8,7 @@
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
             [closh.eval :refer [execute-command-text]]
-            [closh.zero.platform.io :refer [line-seq]]
+            [closh.zero.platform.io :refer [line-seq out-stream]]
             [closh.zero.pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.core
              :refer [shx expand expand-partial expand-alias expand-abbreviation]]
@@ -27,7 +27,7 @@
                          "bash"
                          #js["-c" cmd]
                          #js{:encoding "utf-8"})]
-    {:stdout (.-stdout proc)
+    {:stdout (out-stream proc)
      :stderr (.-stderr proc)
      :code (.-status proc)}))
 
@@ -36,7 +36,7 @@
                          "lumo"
                          #js["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
                          #js{:encoding "utf-8"})]
-    {:stdout (.-stdout proc)
+    {:stdout (out-stream proc)
      :stderr (.-stderr proc)
      :code (.-status proc)}))
 

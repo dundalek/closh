@@ -37,14 +37,23 @@
        (list line)
        (list)))))
 
-(defn get-out-stream
-  "Get stdout stream of a given process or empty stream"
+(defn out-stream
+  "Get stdout stream of a given process."
   [proc]
-  (if-let [stdout (.-stdout proc)]
-    stdout
-    (let [s (stream.PassThrough.)]
-      (.end s)
-      s)))
+  (.-stdout proc))
+
+(defn in-stream [proc]
+  (.-stdin proc))
+
+(defn err-stream [proc]
+  (.-stderr proc))
+
+(defn stream-output [stream]
+  (if stream
+    (let [out #js[]]
+      (.on stream "data" #(.push out %))
+      (delay (.join out "")))
+    (delay "")))
 
 (defn open-io-stream
   "Opens a stream based on operation and target, returns a promise."

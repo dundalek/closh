@@ -1,7 +1,8 @@
 (ns closh.completion
   (:require [clojure.string]
             [lumo.repl]
-            [closh.builtin :refer [getenv]]))
+            [closh.builtin :refer [getenv]]
+            [closh.zero.platform.io :refer [out-stream]]))
 
 (def ^:no-doc child-process (js/require "child_process"))
 
@@ -20,7 +21,7 @@
   (js/Promise.
     (fn [resolve reject]
       (let [proc (child-process.spawn cmd args #js{:encoding "utf-8"})]
-        (stream-output (.-stdout proc)
+        (stream-output (out-stream proc)
           (fn [_ stdout]
             (let [completions (if (clojure.string/blank? stdout)
                                 #js[]

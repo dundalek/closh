@@ -14,9 +14,20 @@
         (map #(str %) result))
       [s])))
 
+(defn out-stream
+  "Get stdout stream of a given process."
+  [proc]
+  (.getInputStream proc))
+
+(defn in-stream [proc]
+  (.getOutputStream proc))
+
+(defn err-stream [proc]
+  (.getErrorStream proc))
+
 (defn process-output
   "Returns for a process to finish and returns output to be printed out."
   [proc]
   (with-open [writer (java.io.StringWriter.)]
-    (io/copy (.getInputStream proc) writer)
+    (io/copy (out-stream proc) writer)
     (str writer)))

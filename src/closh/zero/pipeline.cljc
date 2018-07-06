@@ -1,15 +1,16 @@
 (ns closh.zero.pipeline
   (:require [closh.zero.platform.process :as process :refer [process?]]
-            [closh.zero.platform.io :refer [get-out-stream line-seq *stdout* *stderr*]]))
+            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output line-seq *stdout* *stderr*]]))
 
 (defn wait-for-pipeline
   "Wait for a pipeline to complete. Standard outputs of a process are piped to stdout and stderr."
   [proc]
   (if (process? proc)
-    (let [stdout (get-out-stream proc)]
-      (when-let [stderr (.-stderr proc)]
+    (do
+      (when-let [stdout (out-stream proc)]
+        (.pipe stdout *stdout*))
+      (when-let [stderr (err-stream proc)]
         (.pipe stderr *stderr*))
-      (.pipe stdout *stdout*)
       (process/wait proc))
     proc))
 
@@ -24,10 +25,9 @@
   "Waits for a pipeline to finish and returns its output."
   [proc]
   (if (process? proc)
-    (let [out #js[]]
-      (.on (get-out-stream proc) "data" #(.push out %))
+    (let [out (stream-output (out-stream proc))]
       (process/wait proc)
-      (.join out ""))
+      @out)
     proc))
 
 (defn process-output
@@ -41,13 +41,11 @@
   "Returns for a process to finish and returns map of exit code, stdout and stderr."
   [proc]
   (if (process? proc)
-    (let [stdout #js[]
-          stderr #js[]]
-      (when-let [stream (.-stdout proc)] (.on stream "data" #(.push stdout %)))
-      (when-let [stream (.-stderr proc)] (.on stream "data" #(.push stderr %)))
+    (let [stdout (stream-output (out-stream proc))
+          stderr (stream-output (err-stream proc))]
       (process/wait proc)
-      {:stdout (.join stdout "")
-       :stderr (.join stderr "")
+      {:stdout @stdout
+       :stderr @stderr
        :code (process/exit-code proc)})
     {:stdout (str proc)
      :stderr ""
@@ -62,8 +60,11 @@
      (cond
        (process? to)
        (do
-         (when-let [stdin (.-stdin to)]
-           (.pipe (get-out-stream from) stdin))
+         (when-let [in (in-stream to)]
+           (let [out (or (out-stream from)
+                         (doto (stream.PassThrough.)
+                           (.end)))]
+             (.pipe out in)))
          to)
 
        :else (to (process-output from)))
@@ -72,8 +73,8 @@
      (cond
        (process? to)
        (let [val (str (clojure.string/join "\n" from) "\n")]
-         (.write (.-stdin to) val)
-         (.end (.-stdin to))
+         (.write (in-stream to) val)
+         (.end (in-stream to))
          to)
 
        :else (to from))
@@ -82,7 +83,7 @@
      (cond
        (process? to)
        (do
-         (when-let [stdin (.-stdin to)]
+         (when-let [stdin (in-stream to)]
            (.write stdin (str from))
            (.end stdin))
          to)
@@ -95,7 +96,9 @@
   "Piping in multi mode. It splits streams and strings into seqs of strings by newline. Single value is wrapped in list. Then it is passed to `pipe`."
   [x f]
   (let [val (cond
-              (process? x) (line-seq (get-out-stream x))
+              (process? x) (if-let [stream (out-stream x)]
+                             (line-seq stream)
+                             (list))
               (sequential? x) x
               (string? x) (clojure.string/split x #"\n")
               :else (list x))]
