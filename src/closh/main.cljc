@@ -9,10 +9,11 @@
             [closh.zero.platform.io]
             [closh.zero.platform.util]
             [closh.zero.platform.process :as process]
+            [closh.env]
             [closh.builtin]
             [closh.util]
             [closh.completion]
-            [closh.eval :refer [execute-text execute-command-text]]
+            [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [handle-line expand-alias expand-abbreviation]]
             [closh.history :refer [init-database add-history]]
             [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]))
@@ -217,6 +218,8 @@
     (.on "SIGQUIT" (fn []))
     ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
     (.on "SIGINT" (fn [])))
+  (closh.zero.platform.eval/execute-text
+    (str (pr-str closh.env/*closh-environment-init*)))
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin

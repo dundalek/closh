@@ -3,7 +3,7 @@
             [closh.parser]
             [closh.compiler]
             [closh.builtin]
-            [closh.eval :refer [execute-command-text]]
+            [closh.zero.platform.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]]
             [closh.zero.platform.process :as process]
             [closh.macros :refer-macros [sh]]))

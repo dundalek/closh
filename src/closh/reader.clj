@@ -111,11 +111,11 @@
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader #(conj % 'sh))))
+   (read opts reader #(conj % 'closh.macros/sh))))
 
 (defn read-sh-value
   "Read input in command mode, wrap it in `sh-value` symbol."
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader #(conj % 'sh-value))))
+   (read opts reader #(conj % 'closh.macros/sh-value))))

@@ -89,6 +89,9 @@
          (process/shx cmd args opts)
          (.on "error" handle-spawn-error)))))
 
+#?(:clj
+   (def shx process/shx))
+
 (defn expand-alias
   ([input] (expand-alias @*closh-aliases* input))
   ([aliases input]
