@@ -1,47 +1,48 @@
 (ns closh.core-test
-  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
+  (:require [clojure.test :refer [deftest testing is are]]
             [clojure.spec.alpha :as s]
             [clojure.string]
-            [goog.object :as gobj]
+            #?(:cljs [goog.object :as gobj])
             [closh.reader]
-            [closh.util :refer [jsx->clj]]
+            #?(:cljs [closh.util :refer [jsx->clj]])
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
-            [closh.eval :refer [execute-command-text]]
-            [closh.zero.platform.io :refer [line-seq out-stream]]
-            [closh.zero.pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
-            [closh.core
-             :refer [shx expand expand-partial expand-alias expand-abbreviation]]
-            [closh.macros
-             :refer-macros [sh sh-str defalias defabbr]]))
+            #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
+            #?(:clj [clojure.tools.reader.reader-types :refer [string-push-back-reader]])
+            [closh.zero.platform.io]
+            [closh.zero.pipeline :as pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
+            [closh.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
+            [closh.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]))
 
-(def fs (js/require "fs"))
-(def child-process (js/require "child_process"))
-(def tmp (js/require "tmp"))
+#?(:clj
+   (do
+     (def user-namespace (create-ns 'user))
+     (binding [*ns* user-namespace]
+       (eval closh.env/*closh-environment-init*)))
+   :cljs
+   (do
+     (def fs (js/require "fs"))
+     (def child-process (js/require "child_process"))
+     (def tmp (js/require "tmp"))
 
-;; Clean up tmp files on unhandled exception
-(tmp.setGracefulCleanup)
+     ;; Clean up tmp files on unhandled exception
+     (tmp.setGracefulCleanup)
+
+     (closh.zero.platform.eval/execute-text
+       (str (pr-str closh.env/*closh-environment-init*)))))
 
 (defn bash [cmd]
-  (let [proc (.spawnSync child-process
-                         "bash"
-                         #js["-c" cmd]
-                         #js{:encoding "utf-8"})]
-    {:stdout (out-stream proc)
-     :stderr (.-stderr proc)
-     :code (.-status proc)}))
+  (pipeline/process-value (shx "bash" ["-c" cmd])))
 
 (defn closh-spawn [cmd]
-  (let [proc (.spawnSync child-process
-                         "lumo"
-                         #js["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd]
-                         #js{:encoding "utf-8"})]
-    {:stdout (out-stream proc)
-     :stderr (.-stderr proc)
-     :code (.-status proc)}))
+  (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd])))
 
 (defn closh [cmd]
-  (execute-command-text cmd closh.reader/read-sh-value))
+  #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)
+     :clj (let [code (closh.compiler/compile-batch
+                       (closh.parser/parse (closh.reader/read (string-push-back-reader cmd))))]
+            (binding [*ns* user-namespace]
+              (closh.zero.pipeline/process-value (eval code))))))
 
 (deftest run-test
 
@@ -51,7 +52,7 @@
              (.trimRight)
              (.split "\n")
              (seq))
-         (-> (line-seq (.createReadStream (js/require "fs") "package.json")))))
+         (-> (closh.zero.platform.io/line-seq (.createReadStream (js/require "fs") "package.json")))))
 
   (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
          (macroexpand '(sh ls -l))))

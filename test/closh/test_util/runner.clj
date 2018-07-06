@@ -4,7 +4,8 @@
             [closh.compiler-test]
             [closh.process-test]
             [closh.pipeline-test]
-            [closh.common-test]))
+            [closh.common-test]
+            [closh.core-test]))
 
 (defn -main[]
   (time
@@ -13,4 +14,5 @@
      'closh.compiler-test
      'closh.common-test
      'closh.pipeline-test
-     'closh.process-test)))
+     'closh.process-test
+     'closh.core-test)))

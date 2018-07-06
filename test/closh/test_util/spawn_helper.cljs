@@ -3,6 +3,7 @@
             [closh.parser]
             [closh.compiler]
             [closh.builtin]
+            [closh.env]
             [closh.zero.platform.eval :refer [execute-command-text]]
             [closh.core :refer [handle-line]]
             [closh.zero.platform.process :as process]
@@ -11,6 +12,8 @@
 (def child-process (js/require "child_process"))
 
 (defn -main []
+  (closh.zero.platform.eval/execute-text
+    (str (pr-str closh.env/*closh-environment-init*)))
   (let [cmd (-> (seq js/process.argv)
                 (nth 6))
         result (handle-line cmd execute-command-text)]
