@@ -1,6 +1,6 @@
 (ns closh.zero.platform.io
   (:require [clojure.string]
-            [me.raynes.conch.low-level :as sh]
+            [clojure.java.io :as io]
             [org.satta.glob :as clj-glob]))
 
 (def ^:private relpath-regex #"^\./")
@@ -17,4 +17,6 @@
 (defn process-output
   "Returns for a process to finish and returns output to be printed out."
   [proc]
-  (sh/stream-to-string proc :out))
+  (with-open [writer (java.io.StringWriter.)]
+    (io/copy (.getInputStream proc) writer)
+    (str writer)))

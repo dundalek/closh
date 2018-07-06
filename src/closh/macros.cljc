@@ -41,14 +41,14 @@
   [& tokens]
   `(-> ~(closh.compiler/compile-interactive (closh.parser/parse tokens))
        (closh.zero.platform.process/wait)
-       (.-exitCode)))
+       (closh.zero.platform.process/exit-code)))
 
 (defmacro sh-ok
   "Expands command mode returning true if process completed with non-zero exit code."
   [& tokens]
   `(-> ~(closh.compiler/compile-interactive (closh.parser/parse tokens))
        (closh.zero.platform.process/wait)
-       (.-exitCode)
+       (closh.zero.platform.process/exit-code)
        (zero?)))
 
 (defmacro defalias [name value]

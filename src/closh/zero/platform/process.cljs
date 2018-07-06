@@ -9,11 +9,14 @@
 (defn process? [proc]
   (instance? child-process.ChildProcess proc))
 
+(defn exit-code [proc]
+  (.-exitCode proc))
+
 (defn wait
   "Wait untils process exits and all of its stdio streams are closed."
   [proc]
   (when (and (process? proc)
-             (nil? (.-exitCode proc)))
+             (nil? (exit-code proc)))
     (wait-for-event proc "close"))
   proc)
 

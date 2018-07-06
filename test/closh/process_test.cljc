@@ -1,6 +1,6 @@
 (ns closh.process-test
   (:require [clojure.test :refer [deftest is are]]
-            [closh.zero.platform.process :refer [shx]]
+            [closh.zero.platform.process :as process :refer [shx process?]]
             #?(:cljs [closh.zero.pipeline :refer [process-output]])
             #?(:clj [closh.zero.platform.io :refer [process-output]])))
 
@@ -20,4 +20,14 @@
 
   (is (= "x\n" (do
                  (process-output (shx "echo" ["x"] {:redir [[:out 1 "file.txt"]]}))
-                 (process-output (shx "cat" ["file.txt"]))))))
+                 (process-output (shx "cat" ["file.txt"])))))
+
+  (is (= true (process? (shx "ls"))))
+
+  (is (= 0 (-> (shx "echo")
+               (process/wait)
+               (process/exit-code))))
+
+  (is (= 1 (-> (shx "bash" ["-c" "exit 1"])
+               (process/wait)
+               (process/exit-code)))))

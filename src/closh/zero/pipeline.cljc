@@ -7,7 +7,7 @@
   [proc]
   (if (process? proc)
     (let [stdout (get-out-stream proc)]
-      (when-let [stderr (and proc (.-stderr proc))]
+      (when-let [stderr (.-stderr proc)]
         (.pipe stderr *stderr*))
       (.pipe stdout *stdout*)
       (process/wait proc))
@@ -17,7 +17,7 @@
   "Get status of a finished pipeline. Returns true if a process exited with non-zero code or a value is truthy."
   [proc]
   (if (process? proc)
-    (zero? (.-exitCode proc))
+    (zero? (process/exit-code proc))
     (boolean proc)))
 
 (defn pipeline-value
@@ -48,7 +48,7 @@
       (process/wait proc)
       {:stdout (.join stdout "")
        :stderr (.join stderr "")
-       :code (.-exitCode proc)})
+       :code (process/exit-code proc)})
     {:stdout (str proc)
      :stderr ""
      :code 0}))

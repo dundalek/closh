@@ -16,11 +16,11 @@
         result (handle-line cmd execute-command-text)]
     (cond
       (instance? child-process.ChildProcess result)
-      (process/exit (.-exitCode result))
+      (process/exit (process/exit-code result))
 
       (and (seq? result)
            (every? #(instance? child-process.ChildProcess %) result))
-      (process/exit (.-exitCode (last result)))
+      (process/exit (process/exit-code (last result)))
 
       :else
       (.write js/process.stdout (str result)))))

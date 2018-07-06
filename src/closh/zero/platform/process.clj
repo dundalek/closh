@@ -4,12 +4,16 @@
 (def ^:dynamic *env* (atom {}))
 
 (defn process? [proc]
-  (throw (Exception. "Not Implemented")))
+  (instance? Process proc))
+
+(defn exit-code [proc]
+  (.exitValue proc))
 
 (defn wait
   "Wait untils process exits and all of its stdio streams are closed."
   [proc]
-  (throw (Exception. "Not Implemented")))
+  (.waitFor proc)
+  proc)
 
 (defn exit [code]
   (System/exit code))
@@ -54,10 +58,10 @@
                                :set (builder-redirect builder target))]
                 (builder-redirect builder fd redirect)))))
         (let [process (.start builder)]
-          {:out (.getInputStream process)
-           :in  (.getOutputStream process)
-           :err (.getErrorStream process)
-           :process process}))))
+          (.getInputStream process)
+          (.getOutputStream process)
+          (.getErrorStream process)
+          process))))
 
 (defn setenv [k v]
   (swap! *env* assoc k v)
