@@ -1,5 +1,5 @@
 (ns closh.compiler
-  (:require [closh.env :refer [*closh-aliases* *closh-aliases* *closh-commands*]]))
+  (:require [closh.env :refer [*closh-commands*]]))
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"

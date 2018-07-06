@@ -411,28 +411,6 @@
   (is (= "42") (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")")))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
 
-(deftest aliases
-  (is (= "ls --color=auto" (expand-alias {"ls" "ls --color=auto"} "ls")))
-  (is (= " ls --color=auto" (expand-alias {"ls" "ls --color=auto"} " ls")))
-  (is (= "ls --color=auto -l" (expand-alias {"ls" "ls --color=auto"} "ls -l")))
-  (is (= "lshw" (expand-alias {"ls" "ls --color=auto"} "lshw")))
-
-  (is (= "my alias expansion" (do (defalias myalias "my alias expansion")
-                                  (expand-alias "myalias"))))
-  (is (= "my str alias" (do (defalias "myalias2" "my str alias")
-                            (expand-alias "myalias2")))))
-
-(deftest abbreviations
-  (is (= "ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} "ls")))
-  (is (= " ls --color=auto" (expand-abbreviation {"ls" "ls --color=auto"} " ls")))
-  (is (= "ls -l" (expand-abbreviation {"ls" "ls --color=auto"} "ls -l")))
-  (is (= "lshw" (expand-abbreviation {"ls" "ls --color=auto"} "lshw")))
-
-  (is (= "my abbr expansion" (do (defabbr myabbr "my abbr expansion")
-                                 (expand-abbreviation "myabbr"))))
-  (is (= "my str abbr" (do (defabbr "myabbr2" "my str abbr")
-                           (expand-abbreviation "myabbr2")))))
-
 (deftest commands
   (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
                     (:stdout (closh "cmd-x abc")))))

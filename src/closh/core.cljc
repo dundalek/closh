@@ -90,7 +90,7 @@
          (.on "error" handle-spawn-error)))))
 
 (defn expand-alias
-  ([input] (expand-alias *closh-aliases* input))
+  ([input] (expand-alias @*closh-aliases* input))
   ([aliases input]
    (let [token (re-find #"[^\s]+" input)
          alias (get aliases token)]
@@ -99,7 +99,7 @@
        input))))
 
 (defn expand-abbreviation
-  ([input] (expand-alias *closh-abbreviations* input))
+  ([input] (expand-alias @*closh-abbreviations* input))
   ([aliases input]
    (let [token (re-find #"[^\s]+" input)
          alias (get aliases token)]

@@ -52,10 +52,10 @@
        (zero?)))
 
 (defmacro defalias [name value]
-  `(set! closh.env/*closh-aliases* (assoc closh.env/*closh-aliases* (str (quote ~name)) ~value)))
+  `(swap! closh.env/*closh-aliases* assoc (str (quote ~name)) ~value))
 
 (defmacro defabbr [name value]
-  `(set! closh.env/*closh-abbreviations* (assoc closh.env/*closh-abbreviations* (str (quote ~name)) ~value)))
+  `(swap! closh.env/*closh-abbreviations* assoc (str (quote ~name)) ~value))
 
 (defmacro defcmd [name & body]
   (if (= 1 (count body))
