@@ -48,7 +48,10 @@
       {:stdout @stdout
        :stderr @stderr
        :code (process/exit-code proc)})
-    {:stdout (str proc)
+    {:stdout #?(:cljs (str proc)
+                :clj (if (instance? clojure.lang.LazySeq proc)
+                       (pr-str proc)
+                       (str proc)))
      :stderr ""
      :code 0}))
 
