@@ -46,7 +46,7 @@
      ([cmd] (shx cmd []))
      ([cmd args] (shx cmd args {}))
      ([cmd args opts]
-      (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] args))))]
+      (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] (flatten args)))))]
         (when (:redir opts)
           (doseq [[op fd target] (:redir opts)]
             (case op
