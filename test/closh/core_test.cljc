@@ -216,7 +216,7 @@
     "echo (sh-str date \"+%Y-%m-%d\")"
 
     "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo -n ${result:0:10}"
-    "(-> (/ (+ 1 (Math.sqrt 5)) 2) str (subs 0 10))"
+    "(-> (/ (+ 1 (Math/sqrt 5)) 2) str (subs 0 10))"
 
     "cat < package.json 2>/dev/null | cat"
     "cat < package.json 2 > /dev/null | cat"
