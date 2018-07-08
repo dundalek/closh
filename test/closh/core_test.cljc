@@ -31,6 +31,22 @@
      (closh.zero.platform.eval/execute-text
        (str (pr-str closh.env/*closh-environment-init*)))))
 
+
+(defn with-tempfile [cb]
+ #?(:cljs
+    (let [file (tmp.fileSync)
+             f (.-name file)
+             _ (cb f)
+             out (fs.readFileSync f "utf-8")]
+         (.removeCallback file)
+         out)
+    :clj
+    (let [file (java.io.File/createTempFile "closh-test-" ".txt")
+          f (.getAbsolutePath file)
+          _ (.deleteOnExit file)
+          _ (cb f)]
+      (slurp f))))
+
 (defn bash [cmd]
   (pipeline/process-value (shx "bash" ["-c" cmd])))
 
@@ -236,13 +252,7 @@
     "bash -c \"echo err 1>&2; echo out\""
     "bash -c \"echo err 1>&2; echo out\"")
 
-  (are [x y] (= x
-                (let [file (tmp.fileSync)
-                      f (.-name file)
-                      result (closh y)
-                      out (fs.readFileSync f "utf-8")]
-                  (.removeCallback file)
-                  out))
+  (are [x y] (= x (with-tempfile (fn [f] (closh y))))
 
     "x1\n"
     (str "echo x1 > " f)
