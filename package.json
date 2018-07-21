@@ -39,7 +39,8 @@
     "test-clj": "clj -C:test -m closh.test-util.runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "doc-auto": "nodemon -e clj,cljs,cljc -x 'lein doc'",
-    "rebel": "clj -A:rebel -m closh.zero.frontend.rebel"
+    "rebel": "clj -A:rebel -m closh.zero.frontend.rebel",
+    "clj": "clj -m closh.zero.frontend.clojure"
   },
   "repository": {
     "type": "git",
