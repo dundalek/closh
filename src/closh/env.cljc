@@ -14,7 +14,7 @@
               '[closh.builtin :refer [cd exit quit getenv setenv]]
               '[closh.zero.platform.process]
               '[closh.zero.pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-condition]]
-              '[clojure.string :as st]
+              '[clojure.string :as str]
               '[closh.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
               #?(:cljs '[lumo.io :refer [slurp spit]])
               #?(:cljs '[closh.util :refer [source-shell]]))

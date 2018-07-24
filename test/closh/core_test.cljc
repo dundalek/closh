@@ -87,7 +87,7 @@
     "echo hi | (clojure.string/upper-case)"
 
     "HI\n"
-    "echo hi | (st/upper-case)"
+    "echo hi | (str/upper-case)"
 
     "3\n"
     "echo (+ 1 2)"
