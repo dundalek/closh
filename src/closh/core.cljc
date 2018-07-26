@@ -79,18 +79,23 @@
                    (js/console.error (str cmdname ": command not found")))
         (js/console.error "Unexpected error:\n" err))))
 
-#?(:cljs
-    (defn shx
-      "Executes a command as child process."
-      ([cmd] (shx cmd []))
-      ([cmd args] (shx cmd args {}))
-      ([cmd args opts]
-       (doto
-         (process/shx cmd args opts)
-         (.on "error" handle-spawn-error)))))
-
-#?(:clj
-   (def shx process/shx))
+(defn shx
+  "Executes a command as child process."
+  ([cmd] (shx cmd []))
+  ([cmd args] (shx cmd args {}))
+  ([cmd args opts]
+   #?(:cljs (doto
+              (process/shx cmd args opts)
+              (.on "error" handle-spawn-error))
+      :clj (try
+             (process/shx cmd args opts)
+             (catch java.io.IOException _
+               ; TODO: Port get-command-suggestion
+               (binding [*out* *err*]
+                 (println (str cmd ": command not found"))))
+             (catch Exception ex
+               (binding [*out* *err*]
+                 (println "Unexpected error:\n" ex)))))))
 
 (defn expand-alias
   ([input] (expand-alias @*closh-aliases* input))
