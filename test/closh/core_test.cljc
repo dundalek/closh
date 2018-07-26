@@ -63,11 +63,11 @@
 
   (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
 
-  (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
-             (.trimRight)
-             (.split "\n")
-             (seq))
-         (-> (closh.zero.platform.io/line-seq (.createReadStream (js/require "fs") "package.json")))))
+  #?(:cljs (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
+                      (.trimRight)
+                      (.split "\n")
+                      (seq))
+                  (-> (closh.zero.platform.io/line-seq (.createReadStream (js/require "fs") "package.json"))))))
 
   (are [x y] (= x (:stdout (closh y)))
     "3"
