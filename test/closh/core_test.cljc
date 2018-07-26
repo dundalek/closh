@@ -51,7 +51,7 @@
   (pipeline/process-value (shx "bash" ["-c" cmd])))
 
 (defn closh-spawn [cmd]
-  (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src" "test/closh/test_util/spawn_helper.cljs" cmd])))
+  (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd])))
 
 (defn closh [cmd]
   #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)
