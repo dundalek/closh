@@ -6,7 +6,7 @@ RUN pacman -Syy --noconfirm git wget npm python2 make gcc bc && \
     pacman -Scc --noconfirm && \
     ln -s /usr/sbin/python2 /usr/sbin/python && \
     ln -s /usr/sbin/python2-config /usr/sbin/python-config && \
-    npm install -g lumo-cljs --unsafe-perm && \
+    npm install -g lumo-cljs@1.8.0 --unsafe-perm && \
     wget -qO- "https://raw.githubusercontent.com/creationix/nvm/${NVM_VERSION}/install.sh" | bash && \
     mkdir /root/closh
 
