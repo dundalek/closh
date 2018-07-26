@@ -1,8 +1,7 @@
 (ns closh.zero.platform.process
-  (:require [closh.zero.platform.util :refer [wait-for-event]]
+  (:require [closh.zero.platform.util :refer [wait-for-event jsx->clj]]
             [closh.zero.platform.io :refer [open-io-streams]]
-            [goog.object :as gobj]
-            [closh.util :refer [jsx->clj]]))
+            [goog.object :as gobj]))
 
 (def ^:no-doc child-process (js/require "child_process"))
 
@@ -39,8 +38,10 @@
      (apply array (flatten args))
      #js{:stdio (open-io-streams (:redir opts))})))
 
-(defn setenv [k v]
-  (aset js/process.env k v))
+(defn setenv
+  ([k] (js-delete js/process.env k))
+  ([k v] (do (gobj/set js/process.env k v)
+             v)))
 
 (defn getenv
   ([] (jsx->clj js/process.env))

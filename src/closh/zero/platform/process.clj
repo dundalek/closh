@@ -63,9 +63,11 @@
           (.getErrorStream process)
           process))))
 
-(defn setenv [k v]
-  (swap! *env* assoc k v)
-  v)
+(defn setenv
+  ([k] (swap! *env* dissoc k))
+  ([k v] (do
+           (swap! *env* assoc k v)
+           v)))
 
 (defn getenv
   ([] (merge
