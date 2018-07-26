@@ -4,17 +4,20 @@
             [closh.compiler]
             [closh.builtin]
             [closh.env]
-            [closh.zero.platform.eval :refer [execute-command-text]]
-            [closh.core :refer [handle-line]]
+            #?(:clj [clojure.tools.reader.reader-types :refer [string-push-back-reader]])
+            #?(:clj [closh.reader :refer [read-sh]])
+            #?(:clj [closh.zero.pipeline :refer [wait-for-pipeline]])
+            #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
+            #?(:cljs [closh.core :refer [handle-line]])
             [closh.zero.platform.process :as process]
-            [closh.macros :refer-macros [sh]]))
+            [closh.macros #?(:cljs :refer-macros :clj :refer) [sh]]))
 
-(defn -main []
-  (closh.zero.platform.eval/execute-text
-    (str (pr-str closh.env/*closh-environment-init*)))
-  (let [cmd (-> (seq js/process.argv)
-                (nth 7))
-        result (handle-line cmd execute-command-text)]
+(defn -main [cmd]
+  #?(:cljs (closh.zero.platform.eval/execute-text
+             (str (pr-str closh.env/*closh-environment-init*)))
+     :clj (eval closh.env/*closh-environment-init*))
+  (let [result #?(:cljs (handle-line cmd execute-command-text)
+                  :clj (wait-for-pipeline (eval (read-sh (string-push-back-reader cmd)))))]
     (cond
       (process/process? result)
       (process/exit (process/exit-code result))

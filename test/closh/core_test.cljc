@@ -51,7 +51,8 @@
   (pipeline/process-value (shx "bash" ["-c" cmd])))
 
 (defn closh-spawn [cmd]
-  (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd])))
+  #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd]))
+     :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
 
 (defn closh [cmd]
   #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)
@@ -267,7 +268,8 @@
     ""
     (str "echo x4 2 > " f)))
 
-(when (not= js/process.env.NODE_ENV "development")
+(when #?(:cljs (not= js/process.env.NODE_ENV "development")
+         :clj true)
   (deftest run-special-cases
     (are [x y] (= (bash x) (closh-spawn y))
       "echo hi && echo OK"
