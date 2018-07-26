@@ -233,8 +233,8 @@
     "cat < package.json 2>/dev/null | cat"
     "cat < package.json 2 > /dev/null | cat"
 
-    "for f in test/closh/*.cljs; do echo $f; cat $f; done"
-    "ls test/closh/*.cljs |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
+    "for f in test/closh/*.cljc; do echo $f; cat $f; done"
+    "ls test/closh/*.cljc |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"
 
     "if test -f package.json; then echo file exists; else echo no file; fi"
     "echo (if (sh-ok test -f package.json) \"file exists\" \"no file\")"
@@ -282,8 +282,8 @@
       "mkdir x/y/z || echo FAILED"
       "mkdir x/y/z || echo FAILED"
 
-      "for f in test/closh/*.cljs; do echo $f; cat $f; done"
-      "ls test/closh/*.cljs |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+      "for f in test/closh/*.cljc; do echo $f; cat $f; done"
+      "ls test/closh/*.cljc |> (map #(do (sh echo (str %)) (sh cat (str %))))"
 
       "if test -f package.json; then echo file exists; else echo no file; fi"
       "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"

@@ -1,5 +1,5 @@
 (ns closh.completion-test
-  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
+  (:require [clojure.test :refer [deftest testing is are run-tests]]
             [closh.completion :refer [append-completion]]))
 
 (deftest test-append-commpletion
