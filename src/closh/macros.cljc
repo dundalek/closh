@@ -1,11 +1,13 @@
 (ns closh.macros
   (:require [closh.parser]
-            [closh.compiler]))
+            [closh.compiler]
+            [closh.zero.pipeline]))
 
 (defmacro sh
   "Expands tokens in command mode to executable code."
   [& tokens]
-  (closh.compiler/compile-interactive (closh.parser/parse tokens)))
+  `(-> ~(closh.compiler/compile-interactive (closh.parser/parse tokens))
+       (closh.zero.pipeline/wait-for-pipeline)))
 
 (defmacro sh-value
   "Expands tokens in command mode to executable code."

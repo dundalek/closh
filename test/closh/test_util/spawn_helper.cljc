@@ -8,7 +8,7 @@
             #?(:clj [closh.reader :refer [read-sh]])
             #?(:clj [closh.zero.pipeline :refer [wait-for-pipeline]])
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            #?(:cljs [closh.core :refer [handle-line]])
+            #?(:cljs [closh.core])
             [closh.zero.platform.process :as process]
             [closh.macros #?(:cljs :refer-macros :clj :refer) [sh]]))
 
@@ -16,8 +16,8 @@
   #?(:cljs (closh.zero.platform.eval/execute-text
              (str (pr-str closh.env/*closh-environment-init*)))
      :clj (eval closh.env/*closh-environment-init*))
-  (let [result #?(:cljs (handle-line cmd execute-command-text)
-                  :clj (wait-for-pipeline (eval (read-sh (string-push-back-reader cmd)))))]
+  (let [result #?(:cljs (execute-command-text cmd)
+                  :clj (eval (read-sh (string-push-back-reader cmd))))]
     (cond
       (process/process? result)
       (process/exit (process/exit-code result))

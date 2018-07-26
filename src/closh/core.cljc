@@ -110,11 +110,3 @@
               (= (clojure.string/trim input) token))
        (clojure.string/replace-first input #"[^\s]+" alias)
        input))))
-
-#?(:cljs
-    (defn handle-line
-          "Parses given string, evals and waits for execution to finish. Pass in the `eval-cljs` function that evals forms in desired context."
-          [input eval-cljs]
-          (-> input
-            (eval-cljs)
-            (wait-for-pipeline))))

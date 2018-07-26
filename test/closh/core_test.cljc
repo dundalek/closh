@@ -2,7 +2,6 @@
   (:require [clojure.test :refer [deftest testing is are]]
             [clojure.spec.alpha :as s]
             [clojure.string]
-            #?(:cljs [goog.object :as gobj])
             [closh.reader]
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
@@ -69,9 +68,6 @@
              (.split "\n")
              (seq))
          (-> (closh.zero.platform.io/line-seq (.createReadStream (js/require "fs") "package.json")))))
-
-  (is (= '(shx "ls" [(expand "-l")] {:redir [[:set 0 :stdin] [:set 1 :stdout] [:set 2 :stderr]]})
-         (macroexpand '(sh ls -l))))
 
   (are [x y] (= x (:stdout (closh y)))
     "3"

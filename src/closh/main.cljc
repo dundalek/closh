@@ -14,7 +14,7 @@
             [closh.util]
             [closh.completion]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
-            [closh.core :refer [handle-line expand-alias expand-abbreviation]]
+            [closh.core :refer [expand-alias expand-abbreviation]]
             [closh.history :refer [init-database add-history]]
             [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]))
 
@@ -270,7 +270,7 @@
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]
               (try
-                (let [result (handle-line (expand-alias input) execute-command-text)]
+                (let [result (execute-command-text (expand-alias input))]
                   (when-not (or (nil? result)
                                 (instance? child-process.ChildProcess result)
                                 (and (seq? result)
