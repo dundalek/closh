@@ -1,22 +1,21 @@
 (ns closh.util-test
-  (:require [cljs.test :refer-macros [deftest testing is are run-tests]]
-            [goog.object :as gobj]
+  (:require [clojure.test :refer [deftest testing is are run-tests]]
+            [closh.zero.platform.process :refer [getenv]]
             [closh.util :refer [source-shell]]))
 
 (deftest test-source-shell
 
   (is (= nil (source-shell "export A=42")))
-  (is (= "42" (gobj/get js/process.env "A")))
+  (is (= "42" (getenv "A")))
 
   (source-shell "A=84")
-  (is (= "84" (gobj/get js/process.env "A")))
+  (is (= "84" (getenv "A")))
 
   (source-shell "unset A")
-  (is (= nil (gobj/get js/process.env "A")))
+  (is (= nil (getenv "A")))
 
   (source-shell "export A='forty two'")
-  (is (= "forty two" (gobj/get js/process.env "A")))
+  (is (= "forty two" (getenv "A")))
 
-  (source-shell "export A='forty
-two'")
-  (is (= "forty\ntwo" (gobj/get js/process.env "A"))))
+  (source-shell "export A='forty\ntwo'")
+  (is (= "forty\ntwo" (getenv "A"))))
