@@ -1,8 +1,10 @@
 {:deps
- {org.clojure/tools.reader
+ {org.clojure/clojure {:mvn/version "1.9.0"}
+  org.clojure/tools.reader
   {:git/url "https://github.com/dundalek/tools.reader"
    :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"}
-  clj-glob {:mvn/version "1.0.0"}}
+  clj-glob {:mvn/version "1.0.0"}
+  org.clojure/data.json {:mvn/version "0.2.6"}}
 
  :aliases
  {:rebel

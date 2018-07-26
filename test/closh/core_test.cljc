@@ -4,7 +4,6 @@
             [clojure.string]
             #?(:cljs [goog.object :as gobj])
             [closh.reader]
-            #?(:cljs [closh.util :refer [jsx->clj]])
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])

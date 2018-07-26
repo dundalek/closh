@@ -1,11 +1,13 @@
 (ns closh.test-util.runner
   (:require [clojure.test :refer [run-tests]]
-            [closh.reader-test]
             [closh.compiler-test]
             [closh.process-test]
-            [closh.pipeline-test]
             [closh.common-test]
-            [closh.core-test]))
+            [closh.pipeline-test]
+            ; [closh.completion-test]
+            [closh.core-test]
+            [closh.reader-test]
+            [closh.util-test]))
 
 (def report-orig clojure.test/report)
 
@@ -19,7 +21,9 @@
       (run-tests
        'closh.reader-test
        'closh.compiler-test
+       'closh.process-test
        'closh.common-test
        'closh.pipeline-test
-       'closh.process-test
-       'closh.core-test))))
+       ; 'closh.completion-test
+       'closh.core-test
+       'closh.util-test))))

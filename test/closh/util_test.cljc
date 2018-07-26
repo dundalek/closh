@@ -8,14 +8,14 @@
   (is (= nil (source-shell "export A=42")))
   (is (= "42" (getenv "A")))
 
-  (source-shell "A=84")
-  (is (= "84" (getenv "A")))
+  (is (= "84" (do (source-shell "A=84")
+                  (getenv "A"))))
 
-  (source-shell "unset A")
-  (is (= nil (getenv "A")))
+  (is (= nil (do (source-shell "unset A")
+                 (getenv "A"))))
 
-  (source-shell "export A='forty two'")
-  (is (= "forty two" (getenv "A")))
+  (is (= "forty two" (do (source-shell "export A='forty two'")
+                         (getenv "A"))))
 
-  (source-shell "export A='forty\ntwo'")
-  (is (= "forty\ntwo" (getenv "A"))))
+  (is (= "forty\ntwo" (do (source-shell "export A='forty\ntwo'")
+                          (getenv "A")))))
