@@ -5,10 +5,12 @@
             [closh.reader]
             [closh.builtin :refer [getenv setenv]]
             [closh.env]
+            [closh.zero.platform.io]
+            [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
             #?(:clj [clojure.tools.reader.reader-types :refer [string-push-back-reader]])
             [closh.zero.platform.io]
-            [closh.zero.pipeline :as pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
+            [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
             [closh.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]))
 
@@ -50,7 +52,22 @@
 
 (defn closh-spawn [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd]))
-     :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
+     :clj ;(pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
+        (let [out (java.io.StringWriter.)
+              err (java.io.StringWriter.)]
+          (binding [closh.zero.platform.io/*stdout* out
+                    closh.zero.platform.io/*stderr* err]
+            (let [proc (eval (closh.reader/read-sh (string-push-back-reader cmd)))]
+              (if (process/process? proc)
+                (do
+                  (process/wait proc)
+                  {:stdout (str out)
+                   :stderr (str err)
+                   :code (process/exit-code proc)})
+                (let [{:keys [stdout stderr code]} (process-value proc)]
+                  {:stdout (str out stdout)
+                   :stderr (str err stderr)
+                   :code code})))))))
 
 (defn closh [cmd]
   #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)

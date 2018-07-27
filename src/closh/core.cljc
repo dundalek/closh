@@ -2,7 +2,7 @@
   (:require [clojure.string]
             #?(:cljs [goog.object :as gobj])
             [closh.builtin :refer [getenv]]
-            [closh.zero.platform.io :refer [glob]]
+            [closh.zero.platform.io :refer [glob *stderr*]]
             [closh.zero.platform.process :as process :refer [process?]]
             #?(:cljs [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]])
             [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
@@ -91,11 +91,9 @@
              (process/shx cmd args opts)
              (catch java.io.IOException _
                ; TODO: Port get-command-suggestion
-               (binding [*out* *err*]
-                 (println (str cmd ": command not found"))))
+               (.write *stderr* (str cmd ": command not found\n")))
              (catch Exception ex
-               (binding [*out* *err*]
-                 (println "Unexpected error:\n" ex)))))))
+               (.write *stderr* (str "Unexpected error:\n" ex "\n")))))))
 
 (defn expand-alias
   ([input] (expand-alias @*closh-aliases* input))
