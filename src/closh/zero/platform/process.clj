@@ -57,11 +57,7 @@
                                :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
                                :set (builder-redirect builder target))]
                 (builder-redirect builder fd redirect)))))
-        (let [process (.start builder)]
-          (.getInputStream process)
-          (.getOutputStream process)
-          (.getErrorStream process)
-          process))))
+        (.start builder))))
 
 (defn setenv
   ([k] (swap! *env* dissoc k))

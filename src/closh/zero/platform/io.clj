@@ -31,8 +31,11 @@
   (.getErrorStream proc))
 
 (defn pipe-stream [from to]
+  ; (.start (Thread. (fn [] (io/copy from to))))
   (io/copy from to)
-  (.close to))
+  (when (and (not= to *stderr*)
+             (not= to *stdout*))
+    (.close to)))
 
 (defn stream-output
   "Returns for a process to finish and returns output to be printed out."
