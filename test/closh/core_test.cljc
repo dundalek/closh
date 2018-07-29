@@ -8,7 +8,8 @@
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            #?(:clj [clojure.tools.reader.reader-types :refer [string-push-back-reader]])
+            #?(:cljs [closh.zero.platform.util :refer [wait-for-event]])
+            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [closh.zero.platform.io]
             [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
@@ -50,24 +51,49 @@
 (defn bash [cmd]
   (pipeline/process-value (shx "bash" ["-c" cmd])))
 
-(defn closh-spawn [cmd]
+(defn create-fake-writer []
+  #?(:clj (java.io.StringWriter.)
+     :cljs
+      (let [file (tmp.fileSync)
+            name (.-name file)
+            stream (.createWriteStream fs name)]
+        (wait-for-event stream "open")
+        {:file file
+         :name name
+         :stream stream})))
+
+(defn get-fake-writer [writer]
+  #?(:clj writer
+     :cljs (:stream writer)))
+
+(defn str-fake-writer [writer]
+  #?(:clj (str writer)
+     :cljs (let [content (.readFileSync fs (:name writer) "utf-8")]
+             (.removeCallback (:file writer))
+             content)))
+
+(defn closh-spawn-helper [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd]))
-     :clj ;(pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
-        (let [out (java.io.StringWriter.)
-              err (java.io.StringWriter.)]
-          (binding [closh.zero.platform.io/*stdout* out
-                    closh.zero.platform.io/*stderr* err]
-            (let [proc (eval (closh.reader/read-sh (string-push-back-reader cmd)))]
-              (if (process/process? proc)
-                (do
-                  (process/wait proc)
-                  {:stdout (str out)
-                   :stderr (str err)
-                   :code (process/exit-code proc)})
-                (let [{:keys [stdout stderr code]} (process-value proc)]
-                  {:stdout (str out stdout)
-                   :stderr (str err stderr)
-                   :code code})))))))
+     :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
+
+(defn closh-spawn [cmd]
+  (let [out (create-fake-writer)
+        err (create-fake-writer)]
+    (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
+              closh.zero.platform.io/*stderr* (get-fake-writer err)]
+      (let [code (closh.reader/read-sh (string-push-back-reader cmd))
+            proc #?(:clj (eval code)
+                    :cljs (execute-command-text (pr-str code)))]
+        (if (process/process? proc)
+          (do
+            (process/wait proc)
+            {:stdout (str-fake-writer out)
+             :stderr (str-fake-writer err)
+             :code (process/exit-code proc)})
+          (let [{:keys [stdout stderr code]} (process-value proc)]
+            {:stdout (str (str-fake-writer out) stdout)
+             :stderr (str (str-fake-writer err) stderr)
+             :code code}))))))
 
 (defn closh [cmd]
   #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)
@@ -280,59 +306,60 @@
     ""
     (str "echo x4 2 > " f)))
 
-(when #?(:cljs (not= js/process.env.NODE_ENV "development")
-         :clj true)
-  (deftest run-special-cases
-    (are [x y] (= (bash x) (closh-spawn y))
-      "echo hi && echo OK"
-      "echo hi && echo OK"
+(deftest run-special-cases
+  (are [x y] (= (bash x) (closh-spawn y))
+    "echo hi && echo OK"
+    "echo hi && echo OK"
 
-      "echo hi || echo NO"
-      "echo hi || echo NO"
+    "echo hi || echo NO"
+    "echo hi || echo NO"
 
-      "! echo hi || echo OK"
-      "! echo hi || echo OK"
+    "! echo hi || echo OK"
+    "! echo hi || echo OK"
 
-      "echo a && echo b && echo c"
-      "echo a && echo b && echo c"
+    "echo a && echo b && echo c"
+    "echo a && echo b && echo c"
 
-      "mkdir x/y/z || echo FAILED"
-      "mkdir x/y/z || echo FAILED"
+    "if test -f package.json; then echo file exists; else echo no file; fi"
+    "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
 
-      "for f in test/closh/*.cljc; do echo $f; cat $f; done"
-      "ls test/closh/*.cljc |> (map #(do (sh echo (str %)) (sh cat (str %))))"
+    "ls; echo hi"
+    "(sh ls) (sh echo hi)"
 
-      "if test -f package.json; then echo file exists; else echo no file; fi"
-      "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
+    "echo x 1>&2"
+    "echo x 1 >& 2"
 
-      "ls; echo hi"
-      "(sh ls) (sh echo hi)"
+    "bash -c \"echo err 1>&2; echo out\" 2>&1"
+    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
 
-      "echo x 1>&2"
-      "echo x 1 >& 2"
+    ; TODO: fix stderr redirects
+    ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
+    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
 
-      "bash -c \"echo err 1>&2; echo out\" 2>&1"
-      "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
+  (is (= {:stdout "x\n" :stderr "" :code 0}
+         (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
 
-      ; TODO: fix stderr redirects
-      ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
-      ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
+  (is (= "_asdfghj_: command not found\n"
+         (:stderr (closh-spawn "_asdfghj_"))))
 
-    (is (= {:stdout "x\n" :stderr "" :code 0}
-           (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout ""}
+         (-> (closh-spawn "_asdfghj_ && echo NO")
+             (select-keys [:stdout :stderr]))))
 
-    (is (= "_asdfghj_: command not found\n"
-           (:stderr (closh-spawn "_asdfghj_"))))
+  (is (= {:stderr "_asdfghj_: command not found\n"
+          :stdout "YES\n"}
+         (-> (closh-spawn "_asdfghj_ || echo YES")
+             (select-keys [:stdout :stderr])))))
 
-    (is (= {:stderr "_asdfghj_: command not found\n"
-            :stdout ""}
-           (-> (closh-spawn "_asdfghj_ && echo NO")
-               (select-keys [:stdout :stderr]))))
+(deftest run-extra-special-cases
+  (are [x y] (= (bash x) (closh-spawn-helper y))
 
-    (is (= {:stderr "_asdfghj_: command not found\n"
-            :stdout "YES\n"}
-           (-> (closh-spawn "_asdfghj_ || echo YES")
-               (select-keys [:stdout :stderr]))))))
+    "mkdir x/y/z || echo FAILED"
+    "mkdir x/y/z || echo FAILED"
+
+    "for f in test/closh/*.cljc; do echo $f; cat $f; done"
+    "ls test/closh/*.cljc |> (map #(do (sh echo (str %)) (sh cat (str %))))"))
 
 (deftest test-builtin-getenv-setenv
 

@@ -75,9 +75,9 @@
         "ENOENT" (let [cmdname (.-path err)
                        suggestion (get-command-suggestion cmdname)]
                    (when-not (clojure.string/blank? suggestion)
-                     (js/console.error suggestion))
-                   (js/console.error (str cmdname ": command not found")))
-        (js/console.error "Unexpected error:\n" err))))
+                     (.write *stderr* (str suggestion "\n")))
+                   (.write *stderr* (str cmdname ": command not found\n")))
+        (.write *stderr* (str "Unexpected error:\n" err "\n")))))
 
 (defn shx
   "Executes a command as child process."
