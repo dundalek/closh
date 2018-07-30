@@ -1,6 +1,7 @@
 (ns closh.util-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
-            [closh.zero.platform.process :refer [getenv]]
+            [closh.zero.platform.process :refer [getenv setenv shx]]
+            [closh.zero.pipeline :refer [pipeline-value]]
             [closh.util :refer [source-shell]]))
 
 (deftest test-source-shell
@@ -18,4 +19,10 @@
                          (getenv "A"))))
 
   (is (= "forty\ntwo" (do (source-shell "export A='forty\ntwo'")
-                          (getenv "A")))))
+                          (getenv "A"))))
+
+  (is (= "hi" (do (setenv "B" "hi")
+                  (getenv "B"))))
+
+  (is (= "hello\n" (do (setenv "B" "hello")
+                       (pipeline-value (shx "bash" ["-c" "echo $B"]))))))

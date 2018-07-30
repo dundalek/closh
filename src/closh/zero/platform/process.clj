@@ -40,7 +40,20 @@
      #{2 :stderr} (.redirectError builder target)
      (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)"))))))
 
-; TODO pass environment variables from *env*
+(defn setenv
+  ([k] (swap! *env* dissoc k))
+  ([k v] (do
+           (swap! *env* assoc k v)
+           v)))
+
+(defn getenv
+  ([] (merge
+       (into {} (System/getenv))
+       @*env*))
+  ([k] (if (contains? @*env* k)
+         (get @*env* k)
+         (System/getenv k))))
+
 (defn shx
      "Executes a command as child process."
      ([cmd] (shx cmd []))
@@ -57,18 +70,8 @@
                                :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
                                :set (builder-redirect builder target))]
                 (builder-redirect builder fd redirect)))))
+        (let [env (.environment builder)]
+          (.clear env)
+          (doseq [[k v] (getenv)]
+            (.put env k v)))
         (.start builder))))
-
-(defn setenv
-  ([k] (swap! *env* dissoc k))
-  ([k v] (do
-           (swap! *env* assoc k v)
-           v)))
-
-(defn getenv
-  ([] (merge
-       (into {} (System/getenv))
-       @*env*))
-  ([k] (if (contains? @*env* k)
-         (get @*env* k)
-         (System/getenv k))))
