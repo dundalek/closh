@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.2](https://github.com/dundalek/closh/compare/v0.2.1...v0.2.2) (2018-07-30)
+
+- Bump up deasync dependency
+- Upgrade lumo to 1.9.0-alpha which should fix installation issues
+
 ## [0.2.1](https://github.com/dundalek/closh/compare/v0.2.0...v0.2.1) (2018-07-04)
 
 - Add node version check to the install script to prevent people from running into issues
