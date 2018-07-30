@@ -35,27 +35,27 @@
 (defn- ^:no-doc read-internal-custom
   "Customizes `cljs.tools.reader/read*-internal` with our reader enhancements."
   [^not-native reader ^boolean eof-error? sentinel return-on opts pending-forms]
-  (loop []
-    (log-source reader
-      (if-not ^boolean (garray/isEmpty pending-forms)
-        (let [form (aget pending-forms 0)]
-          (garray/removeAt pending-forms 0)
-          form)
-        (let [ch (read-char reader)]
-          (cond
-            (whitespace? ch) (recur)
-            (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
-            (identical? ch return-on) READ_FINISHED
-            ; (number-literal? reader ch) (read-number reader ch)
-            (= \~ ch) (read-token reader ch)
-            :else (let [f (macros ch)]
-                    (if-not (nil? f)
-                      (with-redefs [cljs.tools.reader/read*-internal read-internal-orig]
-                        (let [res (f reader ch opts pending-forms)]
-                          (if (identical? res reader)
-                            (recur)
-                            res)))
-                      (read-token reader ch)))))))))
+  (with-redefs [cljs.tools.reader/read*-internal read-internal-orig]
+   (loop []
+     (log-source reader
+       (if-not ^boolean (garray/isEmpty pending-forms)
+         (let [form (aget pending-forms 0)]
+           (garray/removeAt pending-forms 0)
+           form)
+         (let [ch (read-char reader)]
+           (cond
+             (whitespace? ch) (recur)
+             (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
+             (identical? ch return-on) READ_FINISHED
+             ; (number-literal? reader ch) (read-number reader ch)
+             (= \~ ch) (read-token reader ch)
+             :else (let [f (macros ch)]
+                     (if-not (nil? f)
+                       (let [res (f reader ch opts pending-forms)]
+                         (if (identical? res reader)
+                           (recur)
+                           res))
+                       (read-token reader ch))))))))))
 
 (defn- ^:no-doc read-orig
   "This is a verbatim copy `cljs.tools.reader/read`. We need a copy otherwise re-binding ends up in infinite loop."
