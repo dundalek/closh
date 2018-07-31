@@ -26,20 +26,6 @@
 (defn chdir [dir]
   (System/setProperty "user.dir" (.getAbsolutePath (File. dir))))
 
-(defn builder-redirect
-  ([builder fd]
-   (condp contains? fd
-     #{0 :stdin} (.redirectInput builder)
-     #{1 :stdout} (.redirectOutput builder)
-     #{2 :stderr} (.redirectError builder)
-     (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)")))))
-  ([builder fd target]
-   (condp contains? fd
-     #{0 :stdin} (.redirectInput builder target)
-     #{1 :stdout} (.redirectOutput builder target)
-     #{2 :stderr} (.redirectError builder target)
-     (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)"))))))
-
 (defn setenv
   ([k] (swap! *env* dissoc k))
   ([k v] (do
@@ -59,17 +45,28 @@
      ([cmd] (shx cmd []))
      ([cmd args] (shx cmd args {}))
      ([cmd args opts]
-      (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] (flatten args)))))]
-        (when (:redir opts)
-          (doseq [[op fd target] (:redir opts)]
-            (case op
-              :rw (throw (Exception. "Read/Write redirection is not supported"))
-              (let [redirect (case op
-                               :in (java.lang.ProcessBuilder$Redirect/from (File. target))
-                               :out (java.lang.ProcessBuilder$Redirect/to (File. target))
-                               :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
-                               :set (builder-redirect builder target))]
-                (builder-redirect builder fd redirect)))))
+      (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] (flatten args)))))
+            redirects
+            (reduce
+              (fn [redirects [op fd target]]
+                (case op
+                  :rw (throw (Exception. "Read/Write redirection is not supported"))
+                  (let [redirect (case op
+                                   :in (java.lang.ProcessBuilder$Redirect/from (File. target))
+                                   :out (java.lang.ProcessBuilder$Redirect/to (File. target))
+                                   :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
+                                   :set (get redirects target))]
+                    (if redirect
+                      (assoc redirects fd redirect)
+                      redirects))))
+              {}
+              (:redir opts))]
+           (doseq [[fd target] redirects]
+             (case fd
+               0 (.redirectInput builder target)
+               1 (.redirectOutput builder target)
+               2 (.redirectError builder target)
+               (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)")))))
         (let [env (.environment builder)]
           (.clear env)
           (doseq [[k v] (getenv)]
