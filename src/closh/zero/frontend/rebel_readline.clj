@@ -1,12 +1,22 @@
-(ns closh.zero.frontend.rebel
-  (:require [rebel-readline.clojure.main :refer [syntax-highlight-prn create-repl-read]]
+(ns closh.zero.frontend.rebel-readline
+  (:require [rebel-readline.clojure.main :refer [syntax-highlight-prn]]
             [rebel-readline.core :as core]
             [rebel-readline.clojure.line-reader :as clj-line-reader]
             [rebel-readline.jline-api :as api]
-            [rebel-readline.clojure.service.local :as clj-service]))
+            [rebel-readline.clojure.service.local :as clj-service]
+            [closh.reader]))
 
 (def opts {})
 (def clj-repl clojure.main/repl)
+
+; rebel-readline.clojure.main/create-repl-read
+(def create-repl-read
+  (core/create-buffered-repl-reader-fn
+   (fn [s] (clojure.lang.LineNumberingPushbackReader.
+            (java.io.StringReader. s)))
+   core/has-remaining?
+   closh.reader/read-sh))
+   ; clojure.main/repl-read))
 
 (defn -main []
   (core/ensure-terminal

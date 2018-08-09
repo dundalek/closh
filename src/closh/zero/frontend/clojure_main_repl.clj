@@ -1,4 +1,4 @@
-(ns closh.zero.frontend.clojure
+(ns closh.zero.frontend.clojure-main-repl
   (:require [clojure.main :refer [repl repl-requires]]
             [closh.reader :refer [read-sh]]
             [closh.zero.platform.process :refer [process?]]
@@ -11,7 +11,8 @@
 
 (defn repl-print
   [& args]
-  (when-not (process? (first args))
+  (when-not (or (nil? (first args))
+                (process? (first args)))
     (apply prn args)))
 
 (defn repl-opt
