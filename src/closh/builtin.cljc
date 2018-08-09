@@ -32,9 +32,9 @@
 
 (defn cd
   "Changes current working directory to a path of a first given argument."
-  [dir & _]
+  [& args]
   ;; flatten is used because we can get arguments from expand which are collections
-  (let [dir (or dir
+  (let [dir (or (first args)
                 (getenv "HOME"))]
     (process/chdir dir)
     (setenv "PWD" (process/cwd))

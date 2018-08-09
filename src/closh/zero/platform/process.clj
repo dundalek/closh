@@ -71,4 +71,5 @@
           (.clear env)
           (doseq [[k v] (getenv)]
             (.put env k v)))
+        (.directory builder (File. (cwd)))
         (.start builder))))
