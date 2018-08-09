@@ -99,10 +99,13 @@
      (loop [coll (transient [])]
        (let [ch (read-char reader)]
          (cond
-           (nil? ch) (if-let [result (seq (persistent! coll))]
-                       (transform result)
-                       (read-orig opts reader))
+           (or (nil? ch) (= ch \newline))
+           (if-let [result (seq (persistent! coll))]
+             (transform result)
+             (read-orig opts reader))
+
            (whitespace? ch) (recur coll)
+
            :else (do (unread reader ch)
                      (recur (conj! coll (read-orig opts reader))))))))))
 
