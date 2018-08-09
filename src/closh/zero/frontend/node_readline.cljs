@@ -1,47 +1,21 @@
-(ns closh.main
+(ns closh.zero.frontend.node-readline
   (:require [clojure.pprint :refer [pprint]]
             [clojure.string]
-            [goog.object :as gobj]
             [lumo.repl]
-            [closh.parser]
-            [closh.compiler]
-            [closh.zero.pipeline]
-            [closh.zero.platform.io]
-            [closh.zero.platform.util]
+            [goog.object :as gobj]
             [closh.zero.platform.process :as process]
-            [closh.env]
-            [closh.builtin]
-            [closh.util]
             [closh.completion]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [expand-alias expand-abbreviation]]
-            [closh.history :refer [init-database add-history]]
-            [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]))
-
-(enable-console-print!)
+            [closh.history :refer [add-history]]))
 
 (def ^:no-doc readline (js/require "readline"))
 (def ^:no-doc child-process (js/require "child_process"))
-(def ^:no-doc fs (js/require "fs"))
-(def ^:no-doc os (js/require "os"))
-(def ^:no-doc path (js/require "path"))
-
-; (def util-binding (js/process.binding "util"))
 
 (def ^:no-doc readline-tty-write readline.Interface.prototype._ttyWrite)
 
 (def ^:no-doc initial-readline-state {:mode :input})
 (def ^:no-doc readline-state (atom initial-readline-state))
-
-(defn load-init-file
-  "Loads init file."
-  [init-path]
-  (when (try (-> (fs.statSync init-path)
-                 (.isFile))
-             (catch :default _))
-    (try (lumo.repl/execute-path init-path {})
-         (catch :default e
-           (js/console.error "Error while loading " init-path ":\n" e)))))
 
 (defn restore-previous-state
   "Helper to restore the previously backed up readline state after search is canceled or finished."
@@ -211,16 +185,7 @@
    nil))
 
 (defn -main
-  "Starts closh REPL with prompt and readline."
   []
-  (doto js/process
-    ; ignore SIGQUIT like Bash
-    (.on "SIGQUIT" (fn []))
-    ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
-    (.on "SIGINT" (fn [])))
-  (closh.zero.platform.eval/execute-text
-    (str (pr-str closh.env/*closh-environment-init*)))
-  (load-init-file (path.join (os.homedir) ".closhrc"))
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
                  :output js/process.stdout
@@ -254,10 +219,6 @@
                               (._refreshLine)))
                 (.call readline-tty-write self c key))
               (.call readline-tty-write self c key))))))
-    (.catch (init-database)
-     (fn [err]
-       (js/console.error "Error initializing history database:" err)
-       (process/exit 1)))
     (doto rl
       (.on "line"
         (fn [input]
@@ -291,5 +252,3 @@
                         (aset "cursor" 0)
                         (._refreshLine))))
       (prompt))))
-
-(set! *main-cli-fn* -main)
