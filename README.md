@@ -40,6 +40,11 @@ Install closh (requires [node.js](https://nodejs.org/) version 9.x):
 npm install -g closh
 ```
 
+If you get a [permission error](https://github.com/dundalek/closh/issues/85) then try:
+```
+npm install -g closh --unsafe-perm
+```
+
 To install development version from master branch:
 ```
 npm i -g dundalek/closh
