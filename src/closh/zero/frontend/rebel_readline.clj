@@ -4,6 +4,7 @@
             [rebel-readline.clojure.line-reader :as clj-line-reader]
             [rebel-readline.jline-api :as api]
             [rebel-readline.clojure.service.local :as clj-service]
+            [rebel-readline.tools :as tools]
             [clojure.main :refer [repl-requires]]
             [clojure.java.io :as jio]
             [closh.env :refer [*closh-environment-init*]]
@@ -30,6 +31,14 @@
                 (process? (first args)))
     (apply syntax-highlight-prn args)))
 
+(defn create-rebel-service
+  ([] (create-rebel-service nil))
+  ([options]
+   (merge clj-line-reader/default-config
+          (tools/user-config)
+          options
+          {:rebel-readline.service/type ::clj-service/service})))
+
 (defn load-init-file
   "Loads init file."
   [init-path]
@@ -40,7 +49,7 @@
   (core/ensure-terminal
     (core/with-line-reader
       (clj-line-reader/create
-        (clj-service/create
+        (create-rebel-service
           (when api/*line-reader* @api/*line-reader*)))
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
