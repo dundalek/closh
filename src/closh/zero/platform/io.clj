@@ -16,7 +16,7 @@
     (if (seq result)
       (if (= s pattern)
         (map #(clojure.string/replace (str %) relpath-regex "") result)
-        (map #(str %) result))
+        (map str result))
       [s])))
 
 (defn out-stream
