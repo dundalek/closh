@@ -42,3 +42,24 @@
     "echo \""
 
     "echo (+ 1"))
+
+(deftest test-reader-forms
+  (is (= '[(closh.macros/sh (+ 1 2))
+           (closh.macros/sh (* 3 4))]
+         (let [in (string-push-back-reader "(+ 1 2)\n(* 3 4)")]
+           [(closh.reader/read-sh {:read-cond :allow} in)
+            (closh.reader/read-sh {:read-cond :allow} in)])))
+
+  (is (= '[(closh.macros/sh echo a b)
+           (closh.macros/sh ls)]
+         (let [in (string-push-back-reader "echo a b\nls")]
+           [(closh.reader/read-sh {:read-cond :allow} in)
+            (closh.reader/read-sh {:read-cond :allow} in)])))
+
+  (is (= '[(closh.macros/sh (+ 1 2))]
+         (let [in (string-push-back-reader "(+ 1 2)\n")]
+           [(closh.reader/read-sh {:read-cond :allow} in)])))
+
+  (is (= '[(closh.macros/sh (+ 1 2))]
+         (let [in (string-push-back-reader "(+ 1 2)")]
+           [(closh.reader/read-sh {:read-cond :allow} in)]))))
