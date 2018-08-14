@@ -4,10 +4,13 @@
             [rebel-readline.clojure.line-reader :as clj-line-reader]
             [rebel-readline.jline-api :as api]
             [rebel-readline.clojure.service.local :as clj-service]
-            [closh.reader]))
+            [clojure.main :refer [repl-requires]]
+            [closh.env :refer [*closh-environment-init*]]
+            [closh.reader]
+            [closh.zero.platform.process :refer [process?]]
+            [closh.zero.frontend.clojure-main-repl]))
 
 (def opts {})
-(def clj-repl clojure.main/repl)
 
 ; rebel-readline.clojure.main/create-repl-read
 (def create-repl-read
@@ -15,8 +18,13 @@
    (fn [s] (clojure.lang.LineNumberingPushbackReader.
             (java.io.StringReader. s)))
    core/has-remaining?
-   closh.reader/read-sh))
-   ; clojure.main/repl-read))
+   closh.zero.frontend.clojure-main-repl/repl-read))
+
+(defn repl-print
+  [& args]
+  (when-not (or (nil? (first args))
+                (process? (first args)))
+    (apply syntax-highlight-prn args)))
 
 (defn -main []
   (core/ensure-terminal
@@ -29,8 +37,11 @@
           (swap! api/*line-reader* assoc :prompt prompt-fn))
         (println (core/help-message))
         (apply
-          clj-repl
-          (-> {:print syntax-highlight-prn
+          clojure.main/repl
+          (-> {:init (fn []
+                        (apply require repl-requires)
+                        (eval *closh-environment-init*))
+               :print repl-print
                :read (create-repl-read)}
               (merge opts {:prompt (fn [])})
               seq
