@@ -1,4 +1,4 @@
-(ns closh.history
+(ns closh.zero.service.history
   (:require [clojure.string]
             [goog.object :as gobj]))
 

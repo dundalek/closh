@@ -1,4 +1,4 @@
-(ns closh.completion
+(ns closh.zero.service.completion
   (:require [clojure.string]
             #?(:cljs [lumo.repl])
             [closh.builtin :refer [getenv]]

@@ -4,10 +4,10 @@
             [lumo.repl]
             [goog.object :as gobj]
             [closh.zero.platform.process :as process]
-            [closh.completion]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.core :refer [expand-alias expand-abbreviation]]
-            [closh.history :refer [add-history]]))
+            [closh.zero.service.completion]
+            [closh.zero.service.history :refer [add-history]]))
 
 (def ^:no-doc readline (js/require "readline"))
 (def ^:no-doc child-process (js/require "child_process"))
@@ -84,7 +84,7 @@
 (defn search-history-prev
   "Searches previous item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (closh.history/search-history-prev query history-state search-mode
+  (closh.zero.service.history/search-history-prev query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -101,7 +101,7 @@
 (defn search-history-next
   "Searches next item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (closh.history/search-history-next query history-state search-mode
+  (closh.zero.service.history/search-history-next query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -189,7 +189,7 @@
   (let [rl (.createInterface readline
              #js{:input js/process.stdin
                  :output js/process.stdout
-                 :completer closh.completion/complete
+                 :completer closh.zero.service.completion/complete
                  :prompt "$ "})]
     (aset rl "_ttyWrite"
       (fn [c key]

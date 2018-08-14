@@ -1,6 +1,6 @@
 (ns closh.completion-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
-            [closh.completion :refer [append-completion]]))
+            [closh.zero.service.completion :refer [append-completion]]))
 
 (deftest test-append-commpletion
 

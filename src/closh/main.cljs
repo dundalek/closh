@@ -10,7 +10,7 @@
             [closh.builtin]
             [closh.util]
             [closh.zero.platform.eval :refer [execute-text]]
-            [closh.history :refer [init-database]]
+            [closh.zero.service.history :refer [init-database]]
             [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
             [closh.zero.frontend.node-readline]))
 
