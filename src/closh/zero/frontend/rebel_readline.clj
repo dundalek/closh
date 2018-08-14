@@ -5,6 +5,7 @@
             [rebel-readline.jline-api :as api]
             [rebel-readline.clojure.service.local :as clj-service]
             [clojure.main :refer [repl-requires]]
+            [clojure.java.io :as jio]
             [closh.env :refer [*closh-environment-init*]]
             [closh.reader]
             [closh.zero.platform.process :refer [process?]]
@@ -29,6 +30,12 @@
                 (process? (first args)))
     (apply syntax-highlight-prn args)))
 
+(defn load-init-file
+  "Loads init file."
+  [init-path]
+  (when (.isFile (jio/file init-path))
+    (load-file init-path)))
+
 (defn -main []
   (core/ensure-terminal
     (core/with-line-reader
@@ -43,7 +50,12 @@
           clojure.main/repl
           (-> {:init (fn []
                         (apply require repl-requires)
-                        (eval *closh-environment-init*))
+                        (eval *closh-environment-init*)
+                        (try
+                          (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
+                          (catch Exception e
+                            (binding [*out* *err*]
+                              (println "Error while loading init file ~/.closhrc:\n" e)))))
                :print repl-print
                :read (create-repl-read)}
               (merge opts {:prompt (fn [])})
