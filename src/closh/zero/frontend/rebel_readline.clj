@@ -10,7 +10,10 @@
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.frontend.clojure-main-repl]))
 
-(def opts {})
+(defn repl-prompt []
+  (eval '(print (user/closh-prompt))))
+
+(def opts {:prompt repl-prompt})
 
 ; rebel-readline.clojure.main/create-repl-read
 (def create-repl-read
