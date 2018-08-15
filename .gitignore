@@ -11,3 +11,4 @@ package-lock.json
 .idea
 .rebel_readline_history
 closh.iml
+yarn-error.log
