@@ -5,12 +5,14 @@
             [rebel-readline.jline-api :as api]
             [rebel-readline.clojure.service.local :as clj-service]
             [rebel-readline.tools :as tools]
+            [clojure.string :as string]
             [clojure.main :refer [repl-requires]]
             [clojure.java.io :as jio]
             [closh.env :refer [*closh-environment-init*]]
             [closh.reader]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.frontend.clojure-main-repl]))
+            [closh.zero.frontend.clojure-main-repl])
+  (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
   (eval '(print (user/closh-prompt))))
@@ -31,13 +33,44 @@
                 (process? (first args)))
     (apply syntax-highlight-prn args)))
 
-(defn create-rebel-service
-  ([] (create-rebel-service nil))
-  ([options]
-   (merge clj-line-reader/default-config
-          (tools/user-config)
-          options
-          {:rebel-readline.service/type ::clj-service/service})))
+; (derive ::service ::clj-service/service)
+;
+; (defmethod clj-line-reader/-complete ::service [_ word options]
+;   (let [completions
+;         (clj-line-reader/-complete {:rebel-readline.service/type ::clj-service/service} word options)]
+;     completions))
+;
+; ; rebel-readline.clojure.service.local/create
+; (defn create-rebel-service
+;   ([] (create-rebel-service nil))
+;   ([options]
+;    (merge clj-line-reader/default-config
+;           (tools/user-config)
+;           options
+;           {:rebel-readline.service/type ::service})))
+
+; rebel-readline.clojure.line-reader/clojure-completer
+(defn clojure-completer []
+  (proxy [Completer] []
+    (complete [^LineReader reader ^ParsedLine line ^java.util.List candidates]
+      (let [word (.word line)]
+        (when (and
+               (:completion @api/*line-reader*)
+               (not (string/blank? word))
+               (pos? (count word)))
+          (let [options (let [ns' (clj-line-reader/current-ns)
+                              context (clj-line-reader/complete-context line)]
+                          (cond-> {}
+                            ns'     (assoc :ns ns')
+                            context (assoc :context context)))]
+            (->>
+             (or
+              (clj-line-reader/repl-command-complete (meta line))
+              (clj-line-reader/cljs-quit-complete (meta line))
+              (clj-line-reader/completions (.word line) options))
+             (map #(clj-line-reader/candidate %))
+             (take 10)
+             (.addAll candidates))))))))
 
 (defn load-init-file
   "Loads init file."
@@ -49,8 +82,9 @@
   (core/ensure-terminal
     (core/with-line-reader
       (clj-line-reader/create
-        (create-rebel-service
-          (when api/*line-reader* @api/*line-reader*)))
+        (clj-service/create
+          (when api/*line-reader* @api/*line-reader*))
+        :completer (clojure-completer))
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
