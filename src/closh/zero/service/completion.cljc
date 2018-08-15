@@ -3,39 +3,38 @@
             #?(:cljs [lumo.repl])
             [closh.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [out-stream]]
-            [closh.zero.platform.process :refer [shx]]))
-
-(defn- stream-output
-  "Helper function to get output from a node stream as a string."
-  [stream cb]
-  (let [out (closh.zero.platform.io/stream-output stream)]
-    (doto stream
-      (.on "end" #(cb nil @out))
-      (.on "error" #(cb % "")))))
+            [closh.zero.platform.process :refer [shx]]
+            [closh.macros #?(:clj :refer :cljs :refer-macros) [chain->]]))
 
 #?(:cljs
-   (defn get-completions-spawn
-     "Get completions by spawning a command."
-     [cmd args]
+   (defn- stream-output
+     "Helper function to get output from a node stream as a string."
+     [stream]
      (js/Promise.
        (fn [resolve reject]
-         (let [proc (shx cmd args)]
-           (stream-output (out-stream proc)
-             (fn [_ stdout]
-               (let [completions (if (clojure.string/blank? stdout)
-                                   #js[]
-                                   (apply array (clojure.string/split (clojure.string/trim stdout) #"\n")))]
-                 (resolve completions)))))))))
+        (let [out (closh.zero.platform.io/stream-output stream)]
+          (doto stream
+            (.on "end" #(resolve @out))
+            (.on "error" #(resolve ""))))))))
 
-#?(:clj
-   (defn get-completions-spawn [cmd args]
-     (throw (Exception. "Completion not implemented."))))
+(defn get-completions-spawn
+  "Get completions by spawning a command."
+  [cmd args]
+  (let [proc (shx cmd args)
+        stream (out-stream proc)]
+    (chain->
+      #?(:cljs (stream-output stream)
+         :clj @(closh.zero.platform.io/stream-output stream))
+      (fn [stdout]
+        (if (clojure.string/blank? stdout)
+          []
+          (clojure.string/split (clojure.string/trim stdout) #"\n"))))))
 
 (defn complete-fish
   "Get completions from a fish shell. Spawns a process."
   [line]
-  (-> (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.fish") [line])
-      (.then (fn [completions] (.map completions #(first (clojure.string/split % #"\t"))))))) ; discard the tab-separated description
+  (chain-> (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.fish") [line])
+           (fn [completions] (map #(first (clojure.string/split % #"\t")) completions)))) ; discard the tab-separated description
 
 (defn complete-bash
   "Get completions from bash. Spawns a process."
@@ -82,17 +81,18 @@
    (defn complete
      "Gets completions for a given line. Delegates to existing shells and Lumo. Callback style compatible with node's builtin readline completer function."
      [line cb]
-     (-> (js/Promise.all
-          #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
-                (complete-lumo line))
-              (-> (complete-fish line)
-                  (.then #(if (seq %) % (complete-bash line)))
-                  (.then #(if (seq %) % (complete-zsh line))))])
-       (.then (fn [completions]
-                (->> completions
-                  (map #(process-completions line %))
-                  (interpose [""])
-                  (apply concat)
-                  (apply array))))
-       (.then #(cb nil #js[% line]))
+     (->
+       (chain-> (js/Promise.all
+                 #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
+                       (complete-lumo line))
+                     (chain-> (complete-fish line)
+                       #(if (seq %) % (complete-bash line))
+                       #(if (seq %) % (complete-zsh line)))])
+         (fn [completions]
+           (->> completions
+             (map #(process-completions line %))
+             (interpose [""])
+             (apply concat)
+             (apply array)))
+         #(cb nil #js[% line]))
        (.catch #(cb %)))))

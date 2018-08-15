@@ -65,3 +65,11 @@
          nil)
     `(do (defn ~name ~@body)
          (defcmd ~name ~name))))
+
+(defmacro chain-> [x & forms]
+  `(-> ~x ~@(for [form forms]
+              #?(:clj (list form)
+                 :cljs (list '.then form)))))
+
+(comment
+  (macroexpand-1 '(chain-> x (first) (second))))
