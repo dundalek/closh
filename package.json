@@ -10,15 +10,16 @@
     "test": "test"
   },
   "dependencies": {
-    "deasync": "0.1.13",
+    "deasync": "dundalek/deasync",
     "glob": "7.1.2",
     "lumo-cljs": "1.9.0-alpha",
-    "sqlite3": "3.1.13",
-    "string_decoder": "^1.1.1",
+    "lumo-unpack-binding": "dundalek/lumo-unpack-binding",
+    "sqlite3": "dundalek/node-sqlite3",
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "nodemon": "1.12.1"
+    "nodemon": "1.12.1",
+    "pkg-lumo": "1.0.2"
   },
   "engines": {
     "node": "9.x"
@@ -29,6 +30,7 @@
     "dev": "nodemon --config .nodemon.json",
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
+    "pkg-lumo": "pkg-lumo --classpath src --main closh.main",
     "test": "lumo -K -c src:test test/closh/test_util/runner.cljs",
     "test-auto": "nodemon -e clj,cljs,cljc -x 'npm test'",
     "test-dev-once": "NODE_ENV=development npm test",
