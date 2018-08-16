@@ -100,33 +100,41 @@ chsh -s $(which closh)
 
 ## Roadmap
 
-- **Stage 1:** Initial proof-of-concept, try out if the combination of shell and Clojure could work. [COMPLETED]
-- **Stage 2:** Implement essential functionality needed for daily use by early adopters. [COMPLETED]
 
-#### Stage 3
+#### Upcoming release v0.3
 
-Add additional features users expect from a shell. Then fix bugs and stabilize through continuous daily use. [IN PROGRESS]
+- [ ] [Add JVM support](https://github.com/dundalek/closh/issues/66)
+- [ ] Integrate rebel-readline
+- [ ] [Distribute closh and lumo as a single binary](https://github.com/dundalek/closh/issues/42)
+- [ ] Explore possibility to compile JVM version with Graal and distribute as a single binary
 
-- [ ] Add JVM support
-- [ ] [REPL server](https://github.com/dundalek/closh/issues/55)
+#### Terminal UI improvements and ideas
+
+Explore innovate UI ideas, explore what a shell could become and all possibilities within an ASCII terminal. The goal is to reimagine what people think a command line interface is without having to lose its core power.
+
 - [ ] Readline improvements
-- [ ] Key bindings
-- [ ] Handle common errors
-- [ ] [Load files and libraries](https://github.com/dundalek/closh/issues/15)
-- [ ] Job control
-- [ ] Builtin utility functions
-- [ ] Testing and stability
-
-#### Stage 4
-
-At this point we can start to experiment with innovative ideas and paradigms. For example:
-
-- [ ] [Syntax highlighting](https://github.com/dundalek/closh/issues/21)
-- [ ] Automatic abbreviation suggestion
-- [ ] [Automatically generate autocompletions for unknown / custom programs](https://github.com/dundalek/closh/issues/13)
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
+- [ ] Key bindings
+- [ ] [Syntax highlighting](https://github.com/dundalek/closh/issues/21)
+- [ ] Explore launcher functionality similar to Alfred and others
+- [ ] Automatic abbreviation suggestion
 - [ ] Data helpers that automatically parse command output into data structures
-- [ ] Structured output ala [TermKit](https://github.com/unconed/TermKit) or [lisp machines](https://youtu.be/o4-YnLpLgtk?t=3m12s)
+
+#### More UI exploration
+
+Explore if we could take shell power and functionality and lift it from the boundaries set by ASCII terminals.
+
+- [ ] Structured graphical output ala [TermKit](https://github.com/unconed/TermKit) or [lisp machines](https://youtu.be/o4-YnLpLgtk?t=3m12s)
+- [ ] Explore possibilty of a web interface
+
+#### Stabilization and performance
+
+I hope that new UI ideas above will get people excited and interested. After that we should work on stabilization and adding all the remaining features people are used to from traditional shells.
+
+- [ ] Script mode
+- [ ] Implement a low-level native pipeline library to improve performance
+- [ ] Make it more robust and better error handling
+- [ ] Job control
 
 ## Tech details
 
