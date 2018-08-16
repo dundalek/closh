@@ -15,6 +15,12 @@
   `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse tokens))
        (closh.zero.pipeline/process-value)))
 
+(defmacro sh-val
+  "Expands command mode returning process output as output value."
+  [& tokens]
+  `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse tokens))
+       (closh.zero.pipeline/process-output)))
+
 (defmacro sh-str
   "Expands command mode returning process output as string."
   [& tokens]
