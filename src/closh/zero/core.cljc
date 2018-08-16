@@ -1,11 +1,11 @@
-(ns closh.core
+(ns closh.zero.core
   (:require [clojure.string]
             #?(:cljs [goog.object :as gobj])
-            [closh.builtin :refer [getenv]]
+            [closh.zero.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [glob *stderr*]]
             [closh.zero.platform.process :as process :refer [process?]]
             #?(:cljs [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]])
-            [closh.env :refer [*closh-aliases* *closh-abbreviations*]]))
+            [closh.zero.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
 #?(:cljs (def ^:no-doc fs (js/require "fs")))
 #?(:cljs (def ^:no-doc child-process (js/require "child_process")))

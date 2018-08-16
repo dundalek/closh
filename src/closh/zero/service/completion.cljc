@@ -1,10 +1,10 @@
 (ns closh.zero.service.completion
   (:require [clojure.string]
             #?(:cljs [lumo.repl])
-            [closh.builtin :refer [getenv]]
+            [closh.zero.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [out-stream]]
             [closh.zero.platform.process :refer [shx]]
-            [closh.macros #?(:clj :refer :cljs :refer-macros) [chain->]]))
+            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [chain->]]))
 
 #?(:cljs
    (defn- stream-output

@@ -1,4 +1,4 @@
-(ns closh.builtin
+(ns closh.zero.builtin
   (:require [clojure.string]
             [closh.zero.platform.process :as process]))
 

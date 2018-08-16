@@ -8,8 +8,8 @@
             [clojure.string :as string]
             [clojure.main :refer [repl-requires]]
             [clojure.java.io :as jio]
-            [closh.env :refer [*closh-environment-init*]]
-            [closh.reader]
+            [closh.zero.env :refer [*closh-environment-init*]]
+            [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.frontend.clojure-main-repl])
   (:import [org.jline.reader Completer ParsedLine LineReader]))

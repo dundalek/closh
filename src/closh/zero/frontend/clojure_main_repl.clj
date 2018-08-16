@@ -1,8 +1,8 @@
 (ns closh.zero.frontend.clojure-main-repl
   (:require [clojure.main :refer [repl repl-requires]]
-            [closh.reader :refer [read-sh]]
+            [closh.zero.reader :refer [read-sh]]
             [closh.zero.platform.process :refer [process?]]
-            [closh.env :refer [*closh-environment-init*]]))
+            [closh.zero.env :refer [*closh-environment-init*]]))
 
 (defn repl-read
   [request-prompt request-exit]

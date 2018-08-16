@@ -1,17 +1,17 @@
-(ns closh.main
+(ns closh.zero.main
   (:require [lumo.repl]
-            [closh.parser]
-            [closh.compiler]
+            [closh.zero.parser]
+            [closh.zero.compiler]
             [closh.zero.pipeline]
             [closh.zero.platform.io]
             [closh.zero.platform.util]
             [closh.zero.platform.process :as process]
-            [closh.env]
-            [closh.builtin]
-            [closh.util]
+            [closh.zero.env]
+            [closh.zero.builtin]
+            [closh.zero.util]
             [closh.zero.platform.eval :refer [execute-text]]
             [closh.zero.service.history :refer [init-database]]
-            [closh.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
+            [closh.zero.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
             [closh.zero.frontend.node-readline]))
 
 (enable-console-print!)
@@ -40,7 +40,7 @@
     ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
     (.on "SIGINT" (fn [])))
   (closh.zero.platform.eval/execute-text
-    (str (pr-str closh.env/*closh-environment-init*)))
+    (str (pr-str closh.zero.env/*closh-environment-init*)))
   (load-init-file (path.join (os.homedir) ".closhrc"))
   (.catch (init-database)
    (fn [err]

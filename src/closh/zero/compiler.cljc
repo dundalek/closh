@@ -1,5 +1,5 @@
-(ns closh.compiler
-  (:require [closh.env :refer [*closh-commands*]]))
+(ns closh.zero.compiler
+  (:require [closh.zero.env :refer [*closh-commands*]]))
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
@@ -76,7 +76,7 @@
             `(apply ~name (concat ~@parameters))
 
             (@*closh-commands* name)
-            `(apply (@closh.env/*closh-commands* (quote ~name)) (concat ~@parameters))
+            `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters))
 
             :else
             (concat

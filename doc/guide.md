@@ -204,7 +204,7 @@ The prompt can be customized by defining `closh-prompt` function in `~/.closhrc`
 For example you can use [powerline](https://github.com/banga/powerline-shell) prompt like this:
 
 ```clojure
-(require-macros '[closh.core :refer [sh-str]])
+(require-macros '[closh.zero.core :refer [sh-str]])
 
 (defn closh-prompt []
   (sh-str powerline-shell --shell bare))
@@ -213,7 +213,7 @@ For example you can use [powerline](https://github.com/banga/powerline-shell) pr
 Or you can reuse existing prompt from [fish](http://fishshell.com/) shell:
 
 ```clojure
-(require-macros '[closh.core :refer [sh-str]])
+(require-macros '[closh.zero.core :refer [sh-str]])
 
 (defn closh-prompt []
   (sh-str fish -c fish_prompt))

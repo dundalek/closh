@@ -5,7 +5,7 @@
             [goog.object :as gobj]
             [closh.zero.platform.process :as process]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
-            [closh.core :refer [expand-alias expand-abbreviation]]
+            [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
             [closh.zero.service.history :refer [add-history]]))
 

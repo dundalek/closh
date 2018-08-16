@@ -1,4 +1,4 @@
-(ns closh.reader
+(ns closh.zero.reader
   (:refer-clojure :exclude [read read-line read-string char
                             default-data-readers *default-data-reader-fn*
                             *read-eval* *data-readers* *suppress-read*])
@@ -114,11 +114,11 @@
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader #(conj % 'closh.macros/sh))))
+   (read opts reader #(conj % 'closh.zero.macros/sh))))
 
 (defn read-sh-value
   "Read input in command mode, wrap it in `sh-value` symbol."
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader #(conj % 'closh.macros/sh-value))))
+   (read opts reader #(conj % 'closh.zero.macros/sh-value))))

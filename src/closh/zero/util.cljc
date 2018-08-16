@@ -1,4 +1,4 @@
-(ns closh.util
+(ns closh.zero.util
   (:require [clojure.data :refer [diff]]
             [closh.zero.platform.process :refer [shx setenv getenv]]
             [closh.zero.pipeline :refer [process-value]]

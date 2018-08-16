@@ -2,9 +2,9 @@
   (:require [clojure.test :refer [deftest testing is are]]
             [clojure.spec.alpha :as s]
             [clojure.string]
-            [closh.reader]
-            [closh.builtin :refer [getenv setenv]]
-            [closh.env]
+            [closh.zero.reader]
+            [closh.zero.builtin :refer [getenv setenv]]
+            [closh.zero.env]
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
@@ -12,14 +12,14 @@
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [closh.zero.platform.io]
             [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
-            [closh.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
-            [closh.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]))
+            [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
+            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]))
 
 #?(:clj
    (do
      (def user-namespace (create-ns 'user))
      (binding [*ns* user-namespace]
-       (eval closh.env/*closh-environment-init*)))
+       (eval closh.zero.env/*closh-environment-init*)))
    :cljs
    (do
      (def fs (js/require "fs"))
@@ -30,7 +30,7 @@
      (tmp.setGracefulCleanup)
 
      (closh.zero.platform.eval/execute-text
-       (str (pr-str closh.env/*closh-environment-init*)))))
+       (str (pr-str closh.zero.env/*closh-environment-init*)))))
 
 
 (defn with-tempfile [cb]
@@ -81,7 +81,7 @@
         err (create-fake-writer)]
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
-      (let [code (closh.reader/read-sh (string-push-back-reader cmd))
+      (let [code (closh.zero.reader/read-sh (string-push-back-reader cmd))
             proc #?(:clj (eval code)
                     :cljs (execute-command-text (pr-str code)))]
         (if (process/process? proc)
@@ -96,9 +96,9 @@
              :code code}))))))
 
 (defn closh [cmd]
-  #?(:cljs (execute-command-text cmd closh.reader/read-sh-value)
-     :clj (let [code (closh.compiler/compile-batch
-                       (closh.parser/parse (closh.reader/read (string-push-back-reader cmd))))]
+  #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
+     :clj (let [code (closh.zero.compiler/compile-batch
+                       (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
             (binding [*ns* user-namespace]
               (closh.zero.pipeline/process-value (eval code))))))
 

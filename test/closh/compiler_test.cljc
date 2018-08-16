@@ -1,11 +1,11 @@
 (ns closh.compiler-test
   (:require [clojure.test :refer [deftest are]]
-            [closh.parser]
-            [closh.compiler]))
+            [closh.zero.parser]
+            [closh.zero.compiler]))
 
 (deftest compiler-test
 
-  (are [x y] (= x (closh.compiler/compile-batch (closh.parser/parse y)))
+  (are [x y] (= x (closh.zero.compiler/compile-batch (closh.zero.parser/parse y)))
     '(-> (shx "ls" [(expand "-l")]))
     '(ls -l)
 

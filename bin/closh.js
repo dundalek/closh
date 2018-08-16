@@ -10,7 +10,7 @@ var bin = isWindows ? 'lumo.cmd' : 'lumo';
 var args = [
   '--classpath', path.join(__dirname, '..', 'src'),
   '--cache', path.join(os.homedir(), '.closh', 'cache', 'lumo'),
-  '-m', 'closh.main',
+  '-m', 'closh.zero.main',
 ];
 
 // NODE_PATH seems to be missing when running as global binary

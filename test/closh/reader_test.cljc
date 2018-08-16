@@ -1,11 +1,11 @@
 (ns closh.reader-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
-            [closh.reader]))
+            [closh.zero.reader]))
 
 (deftest test-reader
 
-  (are [x y] (= x (closh.reader/read (string-push-back-reader y)))
+  (are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
 
     (list 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
@@ -35,7 +35,7 @@
     "(+ 1 2)")
 
 
-  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.reader/read (string-push-back-reader x)))
+  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
 
     "echo (str 8.8.8)"
 
@@ -44,22 +44,22 @@
     "echo (+ 1"))
 
 (deftest test-reader-forms
-  (is (= '[(closh.macros/sh (+ 1 2))
-           (closh.macros/sh (* 3 4))]
+  (is (= '[(closh.zero.macros/sh (+ 1 2))
+           (closh.zero.macros/sh (* 3 4))]
          (let [in (string-push-back-reader "(+ 1 2)\n(* 3 4)")]
-           [(closh.reader/read-sh {:read-cond :allow} in)
-            (closh.reader/read-sh {:read-cond :allow} in)])))
+           [(closh.zero.reader/read-sh {:read-cond :allow} in)
+            (closh.zero.reader/read-sh {:read-cond :allow} in)])))
 
-  (is (= '[(closh.macros/sh echo a b)
-           (closh.macros/sh ls)]
+  (is (= '[(closh.zero.macros/sh echo a b)
+           (closh.zero.macros/sh ls)]
          (let [in (string-push-back-reader "echo a b\nls")]
-           [(closh.reader/read-sh {:read-cond :allow} in)
-            (closh.reader/read-sh {:read-cond :allow} in)])))
+           [(closh.zero.reader/read-sh {:read-cond :allow} in)
+            (closh.zero.reader/read-sh {:read-cond :allow} in)])))
 
-  (is (= '[(closh.macros/sh (+ 1 2))]
+  (is (= '[(closh.zero.macros/sh (+ 1 2))]
          (let [in (string-push-back-reader "(+ 1 2)\n")]
-           [(closh.reader/read-sh {:read-cond :allow} in)])))
+           [(closh.zero.reader/read-sh {:read-cond :allow} in)])))
 
-  (is (= '[(closh.macros/sh (+ 1 2))]
+  (is (= '[(closh.zero.macros/sh (+ 1 2))]
          (let [in (string-push-back-reader "(+ 1 2)")]
-           [(closh.reader/read-sh {:read-cond :allow} in)]))))
+           [(closh.zero.reader/read-sh {:read-cond :allow} in)]))))

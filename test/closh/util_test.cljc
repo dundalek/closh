@@ -2,7 +2,7 @@
   (:require [clojure.test :refer [deftest testing is are run-tests]]
             [closh.zero.platform.process :refer [getenv setenv shx]]
             [closh.zero.pipeline :refer [pipeline-value]]
-            [closh.util :refer [source-shell]]))
+            [closh.zero.util :refer [source-shell]]))
 
 (deftest test-source-shell
 

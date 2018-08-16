@@ -1,4 +1,4 @@
-(ns closh.reader
+(ns closh.zero.reader
   (:require-macros [cljs.tools.reader.reader-types :refer [log-source]])
   (:require [cljs.tools.reader.reader-types :refer [string-push-back-reader unread read-char]]
             [cljs.tools.reader :refer [READ_FINISHED macros]]
@@ -91,7 +91,7 @@
   ([reader]
    (read-sh {} reader))
   ([opts reader]
-   (read opts reader #(conj % 'closh.macros/sh))))
+   (read opts reader #(conj % 'closh.zero.macros/sh))))
 
 (defn read-sh-value
   "Read input in command mode, wrap it in `sh-value` symbol."
