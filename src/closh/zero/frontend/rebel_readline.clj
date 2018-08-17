@@ -74,10 +74,12 @@
 (defn -main []
   (core/ensure-terminal
     (core/with-line-reader
-      (clj-line-reader/create
-        (clj-service/create
-          (when api/*line-reader* @api/*line-reader*))
-        {:completer (clojure-completer)})
+      (doto
+        (clj-line-reader/create
+          (clj-service/create
+            (when api/*line-reader* @api/*line-reader*))
+          {:completer (clojure-completer)})
+        (.setVariable LineReader/HISTORY_FILE (str (jio/file (System/getProperty "user.home") ".closh" "history"))))
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
