@@ -3,7 +3,7 @@
 
 # closh - Bash-like shell based on Clojure
 
-[![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status on CircleCI](https://circleci.com/gh/dundalek/closh.svg?style=shield)](https://circleci.com/gh/dundalek/closh)
+[![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status on CircleCI](https://circleci.com/gh/dundalek/closh.svg?style=shield)](https://circleci.com/gh/dundalek/closh) [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/dundalek/closh)
 
 Closh combines the best of traditional unix shells with the power of [Clojure](https://clojure.org/). It aims to be a modern alternative to bash.
 
@@ -15,6 +15,7 @@ Why try to reinvent bash?
 - Bash has obscure syntax for non-trivial operations and lots of WTF moments.
 - It treats everything as text while we mostly need to manipulate structured information.
 - It is a large codebase which makes it difficult to hack on it and try innovative ideas. Which is one of the reasons why the shell did not improve much in recent decades.
+- Traditional shells are limited in terms of presentation and discoverability, what if we could bring back richer environment as imagined by lisp machines?
 
 Why shell based on Clojure(Script)?
 - Clojure's has a simple syntax and well-thought design which makes it pleasurable to work with.
@@ -22,7 +23,7 @@ Why shell based on Clojure(Script)?
 - Write shell scripts in a language you use daily for development so you don't have to google arcane shell constructs every time you need to do anything but simplest tasks.
 - Less amount and more composable code allows to experiment with new features and ideas.
 
-**Warning:** *Closh is still in a early stage and under a heavy development. It is not ready for daily use yet since it is quite easy to get it to crash. At this moment I am most interested in gathering feedback and use cases to help make the best possible design trade-offs. Closh is tested on Linux, should run on macOS too. Windows who knows.*
+**Warning:** *Closh is still in a early stage and under a heavy development, has many rough edges and is subject to change a lot. Closh is tested on Linux, should run on macOS too. Windows who knows.*
 
 ## Community and Contribution
 
@@ -31,7 +32,7 @@ For general discussion you can use [gitter chat](https://gitter.im/closh/Lobby).
 
 If you would like to contribute take look at [open issues](https://github.com/dundalek/closh/issues). Leave a comment if you find anything interesting  and we can improve the project together.
 
-## Quick Start
+## Install
 
 **Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
 
@@ -49,6 +50,8 @@ To install development version from master branch:
 ```
 npm i -g dundalek/closh
 ```
+
+## Quick Start
 
 Start the shell:
 ```
@@ -94,7 +97,8 @@ chsh -s $(which closh)
 
 - [Guide and Reference](./doc/guide.md) - Introduction to closh and basic configuration
 - [Cookbook](./doc/cookbook.md) - Recipes for integration of other tools like NVM, Autojump, etc.
-- [Design Principles](./doc/principles.md)
+- [Design Principles](./doc/principles.md) - Learn about the philosophy and what guides design decisions
+- [Tech notes](./doc/tech.md) - Read about internals and architecture
 - [Notes on Existing Shells](./doc/notes.md)
 - [Changelog](./CHANGELOG.md)
 
@@ -136,12 +140,6 @@ I hope that new UI ideas above will get people excited and interested. After tha
 - [ ] Make it more robust and better error handling
 - [ ] Job control
 
-## Tech details
-
-Closh runs ClojureSript on node.js via [lumo](https://github.com/anmonteiro/lumo/) REPL. In order to be somewhat bashward compatible there is a command mode which transforms top-level forms in a macro-like way.
-
-Thanks to Clojure's syntax for symbols supporting almost all characters we don't need to roll out a custom parser to support convenient unquoted notation for filenames and switches. Only customization done to a built-in reader is the support multiple slashes in a symbol, which is required for nested directories.
-
 ## Development
 
 Clone the repo and install dependencies
@@ -170,15 +168,10 @@ Re-run tests on change
 lein test-auto
 ```
 
-Generate API documentation into `doc/api`
-```
-lein doc
-```
-
 ## Copyright & License
 
 Copyright (c) Jakub Dundalek and contributors
 
-Distributed under the Eclipse Public License 1.0.
+Distributed under the Eclipse Public License 1.0 (same as Clojure).
 
 Logo created by [@batarian71](https://github.com/batarian71) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

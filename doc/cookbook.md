@@ -22,7 +22,7 @@ To use [nvm](https://github.com/creationix/nvm) put the following into your `~/.
 
 To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
 
-```clj
+```clojure
 (source-shell ". ~/anaconda/etc/profile.d/conda.sh; conda activate")
 ```
 
@@ -30,7 +30,7 @@ To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
 
 Closure library is built in, so you can use it like so:
 
-```clj
+```clojure
 (require 'goog.string.format)
 (goog.string.format "%03d" 7)
 ; => "007"
