@@ -11,7 +11,8 @@
             [closh.zero.env :refer [*closh-environment-init*]]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.frontend.clojure-main-repl])
+            [closh.zero.frontend.clojure-main-repl]
+            [closh.zero.service.completion :refer [complete-shell]])
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
@@ -33,22 +34,6 @@
                 (process? (first args)))
     (apply syntax-highlight-prn args)))
 
-; (derive ::service ::clj-service/service)
-;
-; (defmethod clj-line-reader/-complete ::service [_ word options]
-;   (let [completions
-;         (clj-line-reader/-complete {:rebel-readline.service/type ::clj-service/service} word options)]
-;     completions))
-;
-; ; rebel-readline.clojure.service.local/create
-; (defn create-rebel-service
-;   ([] (create-rebel-service nil))
-;   ([options]
-;    (merge clj-line-reader/default-config
-;           (tools/user-config)
-;           options
-;           {:rebel-readline.service/type ::service})))
-
 ; rebel-readline.clojure.line-reader/clojure-completer
 (defn clojure-completer []
   (proxy [Completer] []
@@ -62,12 +47,20 @@
                               context (clj-line-reader/complete-context line)]
                           (cond-> {}
                             ns'     (assoc :ns ns')
-                            context (assoc :context context)))]
+                            context (assoc :context context)))
+                {:keys [cursor word-cursor line]} (meta line)
+                paren-begin (= \( (get line (- cursor word-cursor 1)))
+                shell-completions (->> (complete-shell (subs line 0 cursor))
+                                       (map (fn [candidate] {:candidate candidate})))
+                clj-completions (clj-line-reader/completions word options)]
             (->>
-             (or
-              (clj-line-reader/repl-command-complete (meta line))
-              (clj-line-reader/cljs-quit-complete (meta line))
-              (clj-line-reader/completions (.word line) options))
+             (if paren-begin
+               (concat
+                 clj-completions
+                 shell-completions)
+               (concat
+                 shell-completions
+                 clj-completions))
              (map #(clj-line-reader/candidate %))
              (take 10)
              (.addAll candidates))))))))
@@ -84,7 +77,7 @@
       (clj-line-reader/create
         (clj-service/create
           (when api/*line-reader* @api/*line-reader*))
-        :completer (clojure-completer))
+        {:completer (clojure-completer)})
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))

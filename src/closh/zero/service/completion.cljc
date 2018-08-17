@@ -77,6 +77,11 @@
     (filter #(not= line %))
     (distinct))) ; bash seems to return duplicates sometimes
 
+(defn complete-shell [line]
+  (chain-> (complete-fish line)
+      #(if (seq %) % (complete-bash line))
+      #(if (seq %) % (complete-zsh line))))
+
 #?(:cljs
    (defn complete
      "Gets completions for a given line. Delegates to existing shells and Lumo. Callback style compatible with node's builtin readline completer function."
@@ -85,9 +90,7 @@
        (chain-> (js/Promise.all
                  #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
                        (complete-lumo line))
-                     (chain-> (complete-fish line)
-                       #(if (seq %) % (complete-bash line))
-                       #(if (seq %) % (complete-zsh line)))])
+                     (complete-shell line)])
          (fn [completions]
            (->> completions
              (map #(process-completions line %))
