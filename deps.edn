@@ -4,15 +4,15 @@
   {:git/url "https://github.com/dundalek/tools.reader"
    :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"}
   clj-glob {:mvn/version "1.0.0"}
-  org.clojure/data.json {:mvn/version "0.2.6"}}
+  org.clojure/data.json {:mvn/version "0.2.6"}
+
+  ; rebel-readline and friends dependencies
+  com.bhauman/rebel-readline {:mvn/version "0.1.3"}
+  org.jline/jline-reader {:mvn/version "3.5.1"}
+  org.jline/jline-terminal {:mvn/version "3.5.1"}
+  org.jline/jline-terminal-jansi {:mvn/version "3.5.1"}
+  cljfmt {:mvn/version "0.5.7"}     ;; depends on tools reader
+  compliment {:mvn/version "0.3.6"}}
 
  :aliases
- {:rebel
-  {:extra-deps
-    {com.bhauman/rebel-readline {:mvn/version "0.1.3"}
-     org.jline/jline-reader {:mvn/version "3.5.1"}
-     org.jline/jline-terminal {:mvn/version "3.5.1"}
-     org.jline/jline-terminal-jansi {:mvn/version "3.5.1"}
-     cljfmt {:mvn/version "0.5.7"}     ;; depends on tools reader
-     compliment {:mvn/version "0.3.6"}}}
-  :test {:extra-paths ["test"]}}}
+ {:test {:extra-paths ["test"]}}}
