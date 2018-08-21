@@ -27,8 +27,9 @@ Why shell based on Clojure(Script)?
 
 ## Community and Contribution
 
-If you have feedback about a specific feature feel free to open an [issue](https://github.com/dundalek/closh/issues).  
-For general discussion you can use [gitter chat](https://gitter.im/closh/Lobby).  
+If you have feedback about a specific feature or found a bug please open an [issue](https://github.com/dundalek/closh/issues).  
+Use [reddit](https://reddit.com/r/closh) for general discussion and to share scripts and workflows.
+Chat room is on [gitter](https://gitter.im/closh/Lobby).  
 
 If you would like to contribute take look at [open issues](https://github.com/dundalek/closh/issues). Leave a comment if you find anything interesting  and we can improve the project together.
 
