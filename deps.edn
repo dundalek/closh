@@ -7,7 +7,7 @@
   org.clojure/data.json {:mvn/version "0.2.6"}
 
   ; rebel-readline and friends dependencies
-  com.bhauman/rebel-readline {:mvn/version "0.1.3"}
+  com.bhauman/rebel-readline {:mvn/version "0.1.4"}
   org.jline/jline-reader {:mvn/version "3.5.1"}
   org.jline/jline-terminal {:mvn/version "3.5.1"}
   org.jline/jline-terminal-jansi {:mvn/version "3.5.1"}
