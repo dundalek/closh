@@ -3,7 +3,7 @@
 
 # closh - Bash-like shell based on Clojure
 
-[![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status on CircleCI](https://circleci.com/gh/dundalek/closh.svg?style=shield)](https://circleci.com/gh/dundalek/closh) [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/dundalek/closh)
+[![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status on CircleCI](https://circleci.com/gh/dundalek/closh.svg?style=shield)](https://circleci.com/gh/dundalek/closh) [![Build status for Windows on AppVeyor](https://ci.appveyor.com/api/projects/status/byp1m9i05v0338mq?svg=true)](https://ci.appveyor.com/project/dundalek/closh) [![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/dundalek/closh)
 
 Closh combines the best of traditional unix shells with the power of [Clojure](https://clojure.org/). It aims to be a modern alternative to bash.
 
