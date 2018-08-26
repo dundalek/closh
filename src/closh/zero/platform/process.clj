@@ -55,7 +55,9 @@
                                    :in (java.lang.ProcessBuilder$Redirect/from (File. target))
                                    :out (java.lang.ProcessBuilder$Redirect/to (File. target))
                                    :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
-                                   :set (get redirects target))]
+                                   :set (if (#{:stdin :stdout :stderr} target)
+                                         java.lang.ProcessBuilder$Redirect/INHERIT
+                                         (get redirects target)))]
                     (if redirect
                       (assoc redirects fd redirect)
                       redirects))))

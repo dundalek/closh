@@ -81,9 +81,10 @@
         err (create-fake-writer)]
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
-      (let [code (closh.zero.reader/read-sh (string-push-back-reader cmd))
-            proc #?(:clj (eval code)
-                    :cljs (execute-command-text (pr-str code)))]
+      (let [code (closh.zero.reader/read (string-push-back-reader cmd))
+            proc #?(:clj (eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                  (closh.zero.pipeline/wait-for-pipeline)))
+                    :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
         (if (process/process? proc)
           (do
             (process/wait proc)
