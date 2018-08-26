@@ -29,6 +29,12 @@ jobs:
       # run tests
       - run: npm run test
 
+      - run: npm run pkg-lumo
+
+      - store_artifacts:
+          path: ~/repo/my-lumo
+          destination: closh-linux64
+
   test-macos:
     macos:
       xcode: "9.1.0"
