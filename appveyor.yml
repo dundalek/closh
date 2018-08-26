@@ -5,16 +5,16 @@ platform:
 
 cache:
   - node_modules
-  - %APPDATA%\npm
+  - "%APPDATA%\npm"
 
 init:
 
 install:
-  - choco install nodejs
+  - choco install nodejs --version=9.10.0
   - npm install -g lumo-cljs closh
   - npm install
 
 build_script:
-  - lumo -K -c src;test test/closh/test_util/runner.cljs
+  - npm run test-windows
 
 test: off

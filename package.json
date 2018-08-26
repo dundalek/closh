@@ -33,6 +33,7 @@
     "pkg-lumo": "pkg-lumo --classpath src --main closh.main",
     "test": "lumo -K -c src:test -m closh.test-util.runner",
     "test-auto": "nodemon -e clj,cljs,cljc -x 'npm test'",
+    "test-windows": "lumo -K -c src;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clj -A:test -m closh.test-util.runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
