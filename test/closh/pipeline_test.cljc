@@ -1,5 +1,6 @@
 (ns closh.pipeline-test
   (:require [clojure.test :refer [deftest testing is are]]
+            [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :refer [shx]]
             [closh.zero.pipeline :refer [process-output wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]))
 
@@ -20,8 +21,8 @@
 
   (is (= (list 1 3) (-> (list 1 2 3 4) (pipe-filter odd?))))
 
-  ; '(echo hi 1 >& 2 | wc -l))
-  (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 "/dev/null"]
+  '(echo hi 1 >& 2 | wc -l)
+  (is (= "0\n" (-> (shx "echo" ["hix"] {:redir [[:out 2 null-file]
                                                 [:set 1 2]]})
                    (pipe (shx "awk" ["END {print NR}"]))
                    process-output)))

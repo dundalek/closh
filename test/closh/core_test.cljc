@@ -1,5 +1,6 @@
 (ns closh.core-test
   (:require [clojure.test :refer [deftest testing is are]]
+            [closh.test-util.util :refer [null-file]]
             [clojure.spec.alpha :as s]
             [clojure.string]
             [closh.zero.reader]
@@ -274,8 +275,8 @@
     "result=`echo '(1 + sqrt(5))/2' | bc -l`; echo -n ${result:0:10}"
     "(-> (/ (+ 1 (Math/sqrt 5)) 2) str (subs 0 10))"
 
-    "cat < package.json 2>/dev/null | cat"
-    "cat < package.json 2 > /dev/null | cat"
+    (str "cat < package.json 2>" null-file " | cat")
+    (str "cat < package.json 2 > " null-file " | cat")
 
     "for f in test/closh/*.cljc; do echo $f; cat $f; done"
     "ls test/closh/*.cljc |> (map #(str % \"\\n\" (sh-str cat (str %)))) | cat"

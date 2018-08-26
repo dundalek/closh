@@ -1,5 +1,6 @@
 (ns closh.process-test
   (:require [clojure.test :refer [deftest is are]]
+            [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :as process :refer [shx process?]]
             [closh.zero.pipeline :refer [process-output]]))
 
@@ -20,7 +21,7 @@
 
   (is (= "5\n" (process-output (shx "echo" [(+ 2 3)]))))
 
-  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 "/dev/null"]]})
+  (is (= "" (-> (shx "ls" [] {:redir [[:out 1 null-file]]})
                 process-output)))
 
   (is (= "abc\n" (process-output (shx "echo" ["abc"]))))
