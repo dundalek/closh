@@ -24,7 +24,10 @@
   (.getCanonicalPath (File. "")))
 
 (defn chdir [dir]
-  (System/setProperty "user.dir" (.getAbsolutePath (File. dir))))
+  (let [target (File. dir)]
+    (if (.isDirectory target)
+      (System/setProperty "user.dir" (.getAbsolutePath target))
+      (throw (Exception. (str target ": Is not a directory"))))))
 
 (defn setenv
   ([k] (swap! *env* dissoc k))
