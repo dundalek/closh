@@ -31,9 +31,9 @@
 
 (defn setenv
   ([k] (swap! *env* dissoc k))
-  ([k v] (do
-           (swap! *env* assoc k v)
-           v)))
+  ([k v] (let [val (str v)]
+           (swap! *env* assoc k val)
+           val)))
 
 (defn getenv
   ([] (merge
