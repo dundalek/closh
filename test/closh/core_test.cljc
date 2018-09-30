@@ -53,7 +53,7 @@
   (pipeline/process-value (shx "bash" ["-c" cmd])))
 
 (defn create-fake-writer []
-  #?(:clj (java.io.StringWriter.)
+  #?(:clj (java.io.ByteArrayOutputStream.)
      :cljs
       (let [file (tmp.fileSync)
             name (.-name file)
@@ -64,7 +64,7 @@
          :stream stream})))
 
 (defn get-fake-writer [writer]
-  #?(:clj writer
+  #?(:clj (java.io.PrintStream. writer)
      :cljs (:stream writer)))
 
 (defn str-fake-writer [writer]

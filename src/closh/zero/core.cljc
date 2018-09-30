@@ -91,9 +91,9 @@
              (process/shx cmd args opts)
              (catch java.io.IOException _
                ; TODO: Port get-command-suggestion
-               (.write *stderr* (str cmd ": command not found\n")))
+               (.println *stderr* (str cmd ": command not found")))
              (catch Exception ex
-               (.write *stderr* (str "Unexpected error:\n" ex "\n")))))))
+               (.println *stderr* (str "Unexpected error:\n" ex)))))))
 
 (defn expand-alias
   ([input] (expand-alias @*closh-aliases* input))
