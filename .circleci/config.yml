@@ -77,6 +77,30 @@ jobs:
       # run tests
       - run: . "$HOME/.nvm/nvm.sh" && nvm use $(lumo -e '(println process.version)') && npm run test-cljs
 
+  test-macos-clj:
+    macos:
+      xcode: "9.1.0"
+
+    working_directory: /Users/distiller/project
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - clj-dependencies-macos-{{ checksum "deps.edn" }}
+
+      - run: brew install clojure bc
+
+      # run tests
+      - run: clojure -Atest -m cognitect.test-runner
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: clj-dependencies-macos-{{ checksum "deps.edn" }}
+
 workflows:
   version: 2
   test:
@@ -84,3 +108,4 @@ workflows:
       - test-linux-cljs
       - test-linux-clj
       - test-macos-cljs
+      - test-macos-clj
