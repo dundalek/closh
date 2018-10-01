@@ -49,6 +49,7 @@
      ([cmd args] (shx cmd args {}))
      ([cmd args opts]
       (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] (flatten args)))))
+            std-flip (atom false)
             redirects
             (reduce
               (fn [redirects [op fd target]]
@@ -59,22 +60,49 @@
                                    :out (java.lang.ProcessBuilder$Redirect/to (File. target))
                                    :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
                                    :set (if (#{:stdin :stdout :stderr} target)
-                                         java.lang.ProcessBuilder$Redirect/INHERIT
+                                          target
                                          (get redirects target)))]
                     (if redirect
                       (assoc redirects fd redirect)
                       redirects))))
-              {}
+              {0 :stdin 1 :stdout 2 :stderr}
               (:redir opts))]
            (doseq [[fd target] redirects]
-             (case fd
-               0 (.redirectInput builder target)
-               1 (.redirectOutput builder target)
-               2 (.redirectError builder target)
-               (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)")))))
+             (let [redir (if (#{:stdin :stdout :stderr} target)
+                           java.lang.ProcessBuilder$Redirect/PIPE
+                           target)]
+               (case fd
+                 0 (.redirectInput builder redir)
+                 1 (if (= target :stderr)
+                     (reset! std-flip true)
+                     (.redirectOutput builder redir))
+                 2 (if (= target :stdout)
+                     (.redirectErrorStream builder true)
+                     (.redirectError builder redir))
+                 (throw (Exception. (str "Unsupported file descriptor: " fd " (only file descriptors 0, 1, 2 are supported)"))))))
         (let [env (.environment builder)]
           (.clear env)
           (doseq [[k v] (getenv)]
             (.put env k v)))
         (.directory builder (File. (cwd)))
-        (.start builder))))
+        (let [process (.start builder)]
+          (if @std-flip
+            (proxy [java.lang.Process] []
+              (destroy []
+                (.destroy process))
+              (destroyForcibly []
+                (.destroyForcibly process))
+              (exitValue []
+                (.exitValue process))
+              (getErrorStream []
+                (.getInputStream process))
+              (getInputStream []
+                (.getErrorStream process))
+              (getOutputStream []
+                (.getOutputStream process))
+              (isAlive []
+                (.isAlive process))
+              (waitFor
+                ([] (.waitFor process))
+                ([timeout unit] (.waitFor process timeout unit))))
+            process)))))
