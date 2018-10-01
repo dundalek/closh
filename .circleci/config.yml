@@ -38,8 +38,16 @@ jobs:
     steps:
       - checkout
 
+      - restore_cache: # restores saved cache if checksum hasn't changed since the last run
+          key: clj-dependencies-{{ checksum "deps.edn" }}
+
       # run tests
       - run: clojure -Atest -m cognitect.test-runner
+
+      - save_cache: # generate and store cache in the .m2 directory using a key template
+          paths:
+            - ~/.m2
+          key: clj-dependencies-{{ checksum "deps.edn" }}
 
   test-macos-cljs:
     macos:
