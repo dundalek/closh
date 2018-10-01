@@ -39,7 +39,7 @@ jobs:
       - checkout
 
       # run tests
-      - run: clojure -A:test -m closh.test-util.runner
+      - run: clojure -Atest -m cognitect.test-runner
 
   test-macos-cljs:
     macos:

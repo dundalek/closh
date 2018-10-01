@@ -37,7 +37,8 @@
     "test-cljs-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs\"",
     "test-windows": "lumo -K -c src;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
-    "test-clj": "clj -A:test -m closh.test-util.runner",
+    "test-clj": "clojure -Atest -m closh.test-util.runner",
+    "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "rebel": "clojure -m closh.zero.frontend.rebel-readline",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
