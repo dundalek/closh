@@ -41,6 +41,8 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
+      - run: sudo apt-get -y install bc
+
       # run tests
       - run: clojure -Atest -m cognitect.test-runner
 
