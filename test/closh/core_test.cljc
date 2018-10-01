@@ -14,7 +14,8 @@
             [closh.zero.platform.io]
             [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
-            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]))
+            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
+            #?(:cljs [lumo.io :refer [spit slurp]])))
 
 #?(:clj
    (do
@@ -108,11 +109,13 @@
 
   (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
 
-  #?(:cljs (is (= (-> (.readFileSync (js/require "fs") "package.json" "utf-8")
-                      (.trimRight)
-                      (.split "\n")
-                      (seq))
-                  (-> (closh.zero.platform.io/line-seq (.createReadStream (js/require "fs") "package.json"))))))
+  (is (= (-> (slurp "package.json")
+             (clojure.string/trimr)
+             (clojure.string/split-lines)
+             (seq))
+         (closh.zero.platform.io/line-seq
+          #?(:cljs (.createReadStream (js/require "fs") "package.json")
+             :clj (java.io.FileInputStream. "package.json")))))
 
   (are [x y] (= x (:stdout (closh y)))
     "3"
