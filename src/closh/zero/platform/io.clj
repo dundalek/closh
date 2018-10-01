@@ -32,10 +32,14 @@
 
 (defn pipe-stream [from to]
   ; (.start (Thread. (fn [] (io/copy from to))))
-  (io/copy from to)
-  (when (and (not= to *stderr*)
-             (not= to *stdout*))
-    (.close to)))
+  (try
+    (io/copy from to)
+    (when (and (not= to *stderr*)
+               (not= to *stdout*))
+      (.close to))
+    (catch java.io.IOException e
+      (when-not (= (:cause (Throwable->map e)) "Stream closed")
+        (throw e)))))
 
 (defn stream-output
   "Returns for a process to finish and returns output to be printed out."
