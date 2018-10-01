@@ -3,7 +3,7 @@
 version: 2
 jobs:
 
-  test-linux:
+  test-linux-cljs:
     docker:
       - image: pritunl/archlinux
 
@@ -27,9 +27,21 @@ jobs:
           key: v1-dependencies-linux-{{ checksum "package.json" }}
 
       # run tests
-      - run: npm run test
+      - run: npm run test-cljs
 
-  test-macos:
+  test-linux-clj:
+    docker:
+      - image: circleci/clojure:tools-deps-1.9.0.394
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # run tests
+      - run: clojure -A:test -m closh.test-util.runner
+
+  test-macos-cljs:
     macos:
       xcode: "9.1.0"
 
@@ -53,11 +65,12 @@ jobs:
           key: v1-dependencies-macos-{{ checksum "package.json" }}
 
       # run tests
-      - run: . "$HOME/.nvm/nvm.sh" && nvm use $(lumo -e '(println process.version)') && npm run test
+      - run: . "$HOME/.nvm/nvm.sh" && nvm use $(lumo -e '(println process.version)') && npm run test-cljs
 
 workflows:
   version: 2
   test:
     jobs:
-      - test-linux
-      - test-macos
+      - test-linux-cljs
+      - test-linux-clj
+      - test-macos-cljs
