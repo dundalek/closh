@@ -40,7 +40,7 @@
     "test-clj": "clojure -Atest -m closh.test-util.runner",
     "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
-    "rebel": "clojure -m closh.zero.frontend.rebel-readline",
+    "rebel": "clojure -m closh.zero.frontend.rebel",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
   },
   "repository": {

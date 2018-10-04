@@ -1,4 +1,4 @@
-(ns closh.zero.frontend.rebel-readline
+(ns closh.zero.frontend.rebel
   (:require [rebel-readline.clojure.main :refer [syntax-highlight-prn]]
             [rebel-readline.core :as core]
             [rebel-readline.clojure.line-reader :as clj-line-reader]
