@@ -87,7 +87,7 @@
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
-        (println (core/help-message))
+        ; (println (core/help-message))
         (apply
           clojure.main/repl
           (-> {:init (fn []
