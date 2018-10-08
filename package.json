@@ -31,7 +31,7 @@
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
     "pkg-lumo": "pkg-lumo --classpath src --main closh.main",
-    "pkg-java": "clojure -R:cambada -m cambada.uberjar -m closh.zero.frontend.rebel-readline",
+    "pkg-java": "boot uberjar",
     "test": "npm run test-cljs && npm run test-clj",
     "test-auto": "nodemon -e clj,cljs,cljc -x \"npm test\"",
     "test-cljs": "lumo -K -c src:test -m closh.test-util.runner",
