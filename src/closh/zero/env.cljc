@@ -19,11 +19,9 @@
               '[closh.zero.util :refer [source-shell]]
               #?(:cljs '[lumo.io :refer [slurp spit]]))
 
-     (defn closh-prompt []
-       "$ ")
+     (def ^:dynamic closh-prompt (fn [] "$ "))
 
-     (defn closh-title []
-       (str "closh " (closh.zero.platform.process/cwd)))
+     (def ^:dynamic closh-title (fn [] (str "closh " (closh.zero.platform.process/cwd))))
 
      ;; Return nil otherwise #'cljs.user/closh-prompt got printed every time exception was thrown
      nil))
