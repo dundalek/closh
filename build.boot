@@ -10,12 +10,9 @@
   "Builds an uberjar of this project that can be run with java -jar"
   []
   (comp
-   (deps ;:quick-merge true
-   
-   :overwrite-boot-deps true) 
-   #_(pom)
+   (deps :quick-merge true) 
    (aot :all true )
    (uber)
-   (jar :file "project.jar" :main 'closh.zero.frontend.main)
+   (jar :file "project.jar" :main 'closh.zero.frontend.rebel)
    (sift :include #{#"project.jar"})
    (target)))

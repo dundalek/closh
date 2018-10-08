@@ -1,4 +1,5 @@
 (ns closh.zero.frontend.rebel
+  (:gen-class)
   (:require [rebel-readline.clojure.main :refer [syntax-highlight-prn]]
             [rebel-readline.core :as core]
             [rebel-readline.clojure.line-reader :as clj-line-reader]
@@ -11,7 +12,7 @@
             [closh.zero.env :refer [*closh-environment-init*]]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.frontend.clojure-main-repl]
+            [closh.zero.frontend.main]
             [closh.zero.service.completion :refer [complete-shell]])
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
@@ -26,7 +27,7 @@
    (fn [s] (clojure.lang.LineNumberingPushbackReader.
             (java.io.StringReader. s)))
    core/has-remaining?
-   closh.zero.frontend.clojure-main-repl/repl-read))
+   closh.zero.frontend.main/repl-read))
 
 (defn repl-print
   [& args]
@@ -71,10 +72,6 @@
   (when (.isFile (jio/file init-path))
     (load-file init-path)))
 
-(defn handle-sigint-form []
-  `(let [thread# (Thread/currentThread)]
-     (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
-
 (defn -main []
   (core/ensure-terminal
     (core/with-line-reader
@@ -87,7 +84,7 @@
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
-        ; (println (core/help-message))
+        (println (core/help-message))
         (apply
           clojure.main/repl
           (-> {:init (fn []
@@ -99,8 +96,7 @@
                             (binding [*out* *err*]
                               (println "Error while loading init file ~/.closhrc:\n" e)))))
                :print repl-print
-               :read (create-repl-read)
-               :eval (fn [form] (eval `(do ~(handle-sigint-form) ~form)))}
+               :read (create-repl-read)}
               (merge opts {:prompt (fn [])})
               seq
               flatten))))))
