@@ -1,4 +1,4 @@
-(ns closh.zero.frontend.main  
+(ns closh.zero.frontend.main
   (:require [clojure.main :refer [repl repl-requires]]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.platform.process :refer [process?]]

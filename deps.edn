@@ -1,23 +1,20 @@
 {:deps
  {org.clojure/clojure {:mvn/version "1.9.0"}
   org.clojure/tools.reader
-  {:local/root "/Users/jeroen/tmp/tools.reader"
-  #_"/Users/jeroen/tmp/tools.reader/target/tools.reader-1.0.0-SNAPSHOT.jar"
-   ;:git/url "https://github.com/dundalek/tools.reader"
-   ;:sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"
-   :exclusions [org.clojure/clojurescript]}
+    {:git/url "https://github.com/dundalek/tools.reader"
+     :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"
+     :exclusions [org.clojure/clojurescript]}
   clj-glob {:mvn/version "1.0.0"}
   org.clojure/data.json {:mvn/version "0.2.6"}
 
   ;rebel-readline and friends dependencies
-  com.bhauman/rebel-readline {:mvn/version "0.1.4"
-  :exclusions [cljfmt/cljfmt]}
+  com.bhauman/rebel-readline {:mvn/version "0.1.4" :exclusions [cljfmt/cljfmt]}
   org.jline/jline-reader {:mvn/version "3.5.1"}
   org.jline/jline-terminal {:mvn/version "3.5.1"}
   org.jline/jline-terminal-jansi {:mvn/version "3.5.1"}
   cljfmt {:mvn/version "0.5.7" :exclusions [org.clojure/tools.reader]}     ;; depends on tools reader
   org.clojure/clojurescript {:mvn/version "1.7.228" :exclusions [org.apache.ant/ant org.clojure/tools.reader]}
-  
+
   rewrite-cljs  {:mvn/version "0.4.3"  :exclusions [org.clojure/tools.reader]}
   rewrite-clj {:mvn/version  "0.5.2" :exclusions [org.clojure/tools.reader]}
   compliment {:mvn/version "0.3.6"}}

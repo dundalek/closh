@@ -17,7 +17,7 @@
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
-  (eval '(print (user/closh-prompt))))
+  (eval '(print (closh-prompt))))
 
 (def opts {:prompt repl-prompt})
 
@@ -70,7 +70,7 @@
   "Loads init file."
   [init-path]
   (when (.isFile (jio/file init-path))
-    (load-file init-path)))
+    (eval `(load-file ~init-path))))
 
 (defn -main []
   (core/ensure-terminal
