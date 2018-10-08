@@ -6,7 +6,8 @@
             [clojure.tools.reader :refer [READ_FINISHED macros *read-eval*]]
             [clojure.tools.reader.impl.utils :refer :all]
             [clojure.tools.reader.impl.errors :as err])
-  (:import (java.util List LinkedList)))
+  (:import [java.util List]
+           [java.util LinkedList]))
 
 (def ^:no-doc read*-orig clojure.tools.reader/read*)
 
