@@ -72,6 +72,10 @@
   (when (.isFile (jio/file init-path))
     (eval `(load-file ~init-path))))
 
+(defn handle-sigint-form []
+  `(let [thread# (Thread/currentThread)]
+     (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
+
 (defn -main []
   (core/ensure-terminal
     (core/with-line-reader
@@ -84,7 +88,7 @@
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
-        (println (core/help-message))
+        ; (println (core/help-message))
         (apply
           clojure.main/repl
           (-> {:init (fn []
@@ -96,7 +100,8 @@
                             (binding [*out* *err*]
                               (println "Error while loading init file ~/.closhrc:\n" e)))))
                :print repl-print
-               :read (create-repl-read)}
+               :read (create-repl-read)
+               :eval (fn [form] (eval `(do ~(handle-sigint-form) ~form)))}
               (merge opts {:prompt (fn [])})
               seq
               flatten))))))
