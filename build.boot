@@ -1,6 +1,8 @@
 #!/usr/bin/env boot
 
-(set-env! :dependencies
+(set-env! 
+  :resource-paths #{"resources"}
+  :dependencies
   '[[org.clojure/clojure "1.9.0"]
     [seancorfield/boot-tools-deps "0.4.6" #_:scope #_"provided"]])
 
