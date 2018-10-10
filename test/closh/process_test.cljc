@@ -50,4 +50,10 @@
            (chdir "src")
            (chdir "..")
            (cwd)))
-      "When cd back to parent directory the path should be canonical and not contain .."))
+      "When cd back to parent directory the path should be canonical and not contain ..")
+
+  (is (= (cwd)
+         (do
+           (chdir "..")
+           (chdir "closh")
+           (cwd)))))
