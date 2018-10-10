@@ -2,7 +2,9 @@
   (:require [clojure.test :refer [deftest is are]]
             [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :as process :refer [shx process? cwd chdir]]
-            [closh.zero.pipeline :refer [process-output]]))
+            [closh.zero.pipeline :refer [process-output]]
+            #?(:cljs [path]))
+  #?(:clj (:import [java.io File])))
 
 #?(:cljs
    (do
@@ -53,7 +55,9 @@
       "When cd back to parent directory the path should be canonical and not contain ..")
 
   (is (= (cwd)
-         (do
-           (chdir "..")
-           (chdir "closh")
-           (cwd)))))
+         (let [d #?(:clj (.getName (File. (.getCanonicalPath (File. (cwd)))))
+                    :cljs (path.basename (path.normalize (cwd))))]
+           (do
+             (chdir "..")
+             (chdir d)
+             (cwd))))))
