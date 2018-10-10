@@ -1,7 +1,9 @@
 (ns closh.zero.service.completion
   (:require [clojure.string]
             #?(:cljs [lumo.repl])
+            #?(:clj [clojure.java.io :as io])
             [closh.zero.builtin :refer [getenv]]
+            [closh.zero.pipeline :refer [pipe]]
             [closh.zero.platform.io :refer [out-stream]]
             [closh.zero.platform.process :refer [shx]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [chain->]]))
@@ -17,10 +19,23 @@
             (.on "end" #(resolve @out))
             (.on "error" #(resolve ""))))))))
 
+(defn escape-fish-string [s]
+  (-> s
+    (clojure.string/replace #"\\" "\\\\\\\\")
+    (clojure.string/replace #"'" "\\\\'")
+    (#(str "'" % "'"))))
+
 (defn get-completions-spawn
   "Get completions by spawning a command."
-  [cmd args]
-  (let [proc (shx cmd args)
+  [shell cmd args]
+  (let [proc #?(:cljs (shx (str (getenv "CLOSH_SOURCES_PATH") "/scripts/" cmd) args)
+                :clj (if (= shell "fish")
+                       (shx "fish"["-c"
+                                   (str "complete --do-complete=" (escape-fish-string (first args)))])
+                       (if-let [resource (io/resource cmd)]
+                         (pipe (slurp resource)
+                               (shx shell (cons "-s" args)))
+                         (shx (str (getenv "CLOSH_SOURCES_PATH") "/scripts/" cmd) args))))
         stream (out-stream proc)]
     (chain->
       #?(:cljs (stream-output stream)
@@ -33,18 +48,18 @@
 (defn complete-fish
   "Get completions from a fish shell. Spawns a process."
   [line]
-  (chain-> (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.fish") [line])
+  (chain-> (get-completions-spawn "fish" "completion/completion.fish" [line])
            (fn [completions] (map #(first (clojure.string/split % #"\t")) completions)))) ; discard the tab-separated description
 
 (defn complete-bash
   "Get completions from bash. Spawns a process."
   [line]
-  (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.bash") [line]))
+  (get-completions-spawn "bash" "completion/completion.bash" [line]))
 
 (defn complete-zsh
   "Get completions from zsh. Spawns a process."
   [line]
-  (get-completions-spawn (str (getenv "CLOSH_SOURCES_PATH") "/scripts/completion/completion.zsh") [line]))
+  (get-completions-spawn "zsh" "completion/completion.zsh" [line]))
 
 #?(:cljs
    (defn complete-lumo
