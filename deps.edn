@@ -7,7 +7,9 @@
   org.clojure/clojurescript
     {:mvn/version "1.7.228"
      :exclusions [org.apache.ant/ant org.clojure/tools.reader]}
-  clj-glob {:mvn/version "1.0.0"}
+  clj-glob
+    {:git/url "https://github.com/dundalek/clj-glob"
+     :sha "9eb1672e0b4824f2e2a7750914c4e320b8772bf0"}
   org.clojure/data.json {:mvn/version "0.2.6"}
 
   ; rebel-readline and its dependencies

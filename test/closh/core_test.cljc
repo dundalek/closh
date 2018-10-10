@@ -109,6 +109,15 @@
 
   (is (= "package.json\n" (process-output (shx "ls" [(expand "package.js*")]))))
 
+  (is (= (process-output (shx "ls"))
+         (process-output (shx "ls" ["-d" (expand "*")]))))
+
+  (is (= (process-output (shx "ls" ["scripts"]))
+         (do (process/chdir "scripts")
+           (let [out (process-output (shx "ls" ["-d" (expand "*")]))]
+             (process/chdir "..")
+             out))))
+
   (is (= (-> (slurp "package.json")
              (clojure.string/trimr)
              (clojure.string/split-lines)

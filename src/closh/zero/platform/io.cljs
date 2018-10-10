@@ -9,7 +9,7 @@
 (def ^:no-doc fs (js/require "fs"))
 (def ^:no-doc deasync (js/require "deasync"))
 
-(defn glob [s]
+(defn glob [s _]
   (seq (glob-js s #js{:nonull true})))
 
 (defn line-seq

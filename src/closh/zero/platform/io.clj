@@ -10,14 +10,24 @@
 
 (def ^:private relpath-regex #"^\./")
 
-(defn glob [s]
-  (let [pattern (clojure.string/replace s relpath-regex "")
-        result (clj-glob/glob pattern)]
-    (if (seq result)
-      (if (= s pattern)
-        (map #(clojure.string/replace (str %) relpath-regex "") result)
-        (map str result))
-      [s])))
+(defn glob
+  ([s] (glob s nil))
+  ([s cwd-file]
+   (let [pattern (clojure.string/replace s relpath-regex "")
+         is-relative (not= s pattern)
+         result (clj-glob/glob pattern (java.io.File. cwd-file))]
+      (if (seq result)
+        (let [len (count cwd-file)]
+          (map
+            #(let [s (str %)
+                   path (if (= cwd-file (subs s 0 len))
+                          (subs s (inc len))
+                          s)]
+               (if is-relative
+                 (str "./" path)
+                 path))
+            result))
+        [s]))))
 
 (defn out-stream
   "Get stdout stream of a given process."

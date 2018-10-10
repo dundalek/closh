@@ -27,7 +27,7 @@
 (defn expand-filename
   "Expands filename based on globbing patterns"
   [s]
-  (glob s))
+  (glob s (process/cwd)))
 
 (defn expand-redirect
   "Expand redirect targets. It does tilde and variable expansion."
