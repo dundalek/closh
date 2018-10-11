@@ -4,8 +4,10 @@
 
 (defn exit
   "Exits the process using optional first argument as exit code."
-  [code & _]
-  (process/exit code))
+  ([]
+   (exit 0))
+  ([code & _]
+   (process/exit code)))
 
 (def quit
   "Alias for `exit`."
