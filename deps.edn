@@ -20,6 +20,8 @@
   compliment {:mvn/version "0.3.6"}
   cljfmt {:mvn/version "0.5.7" :exclusions [org.clojure/tools.reader]}
 
+  org.clojure/tools.nrepl {:mvn/version "0.2.13"}
+
   ; rebel-readline -> cljfmt -> rewrite-cljs,rewrite-clj
   rewrite-cljs  {:mvn/version "0.4.3"  :exclusions [org.clojure/tools.reader]}
   rewrite-clj {:mvn/version  "0.5.2" :exclusions [org.clojure/tools.reader]}}
