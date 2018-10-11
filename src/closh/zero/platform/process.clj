@@ -1,4 +1,5 @@
 (ns closh.zero.platform.process
+  (:require [closh.zero.platform.io :refer [*stdout* *stderr*]])
   (:import java.io.File))
 
 (def ^:dynamic *env* (atom {}))
@@ -60,8 +61,11 @@
                                    :out (java.lang.ProcessBuilder$Redirect/to (File. target))
                                    :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
                                    :set (if (#{:stdin :stdout :stderr} target)
-                                          target
-                                         (get redirects target)))]
+                                          (case target
+                                            :stdin java.lang.ProcessBuilder$Redirect/INHERIT
+                                            :stdout (if (= *stdout* System/out) java.lang.ProcessBuilder$Redirect/INHERIT target)
+                                            :stderr (if (= *stderr* System/err) java.lang.ProcessBuilder$Redirect/INHERIT target))
+                                          (get redirects target)))]
                     (if redirect
                       (assoc redirects fd redirect)
                       redirects))))
