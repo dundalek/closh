@@ -48,18 +48,27 @@
 (defn complete-fish
   "Get completions from a fish shell. Spawns a process."
   [line]
-  (chain-> (get-completions-spawn "fish" "completion/completion.fish" [line])
-           (fn [completions] (map #(first (clojure.string/split % #"\t")) completions)))) ; discard the tab-separated description
+  (try
+    (chain-> (get-completions-spawn "fish" "completion/completion.fish" [line])
+             (fn [completions] (map #(first (clojure.string/split % #"\t")) completions))) ; discard the tab-separated description
+    (catch Exception e
+      nil)))
 
 (defn complete-bash
   "Get completions from bash. Spawns a process."
   [line]
-  (get-completions-spawn "bash" "completion/completion.bash" [line]))
+  (try
+    (get-completions-spawn "bash" "completion/completion.bash" [line])
+    (catch Exception e
+      nil)))
 
 (defn complete-zsh
   "Get completions from zsh. Spawns a process."
   [line]
-  (get-completions-spawn "zsh" "completion/completion.zsh" [line]))
+  (try
+    (get-completions-spawn "zsh" "completion/completion.zsh" [line])
+    (catch Exception e
+      nil)))
 
 #?(:cljs
    (defn complete-lumo
