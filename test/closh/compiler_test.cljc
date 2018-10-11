@@ -62,4 +62,22 @@
 
     #?(:clj '(-> (clojure.core/apply cd (clojure.core/concat (expand "dirname"))))
        :cljs '(-> (cljs.core/apply cd (cljs.core/concat (expand "dirname")))))
-    '(cd dirname)))
+    '(cd dirname)
+
+    ;; === Expansion coercion tests ===
+
+    '(-> (shx "echo" [[2]]))
+    '(echo 2)
+
+    '(-> (shx "echo" [[false]]))
+    '(echo false)
+
+    '(-> (shx "echo" [[[1 2 3]]]))
+    '(echo [1 2 3])
+
+    '(-> (shx "echo" [[(+ 1 2)]]))
+    '(echo (+ 1 2))
+
+     #?(:clj '(-> (clojure.core/apply exit (clojure.core/concat [1] (expand-partial "abc"))))
+        :cljs '(-> (cljs.core/apply exit (cljs.core/concat [1] (expand-partial "abc")))))
+    '(exit 1 "abc")))

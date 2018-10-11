@@ -22,10 +22,10 @@
   [arg]
   (cond
     ;; clojure form - use as is
-    (list? arg) [arg]
+    (or (boolean? arg) (number? arg) (seq? arg) (vector? arg)) [arg]
     ;; strings do limited expansion
     (string? arg) (list 'expand-partial arg)
-    ;; otherwise do full expansion
+    ;; otherwise coerce to string and do full expansion
     :else (list 'expand (str arg))))
 
 (defn ^:no-doc process-redirect
