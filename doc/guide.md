@@ -232,6 +232,18 @@ Bash [prompt format](http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-esc
   (decode-prompt PS1 #js{:env js/process.env}))
 ```
 
+### Tab completion
+
+Closh delegates completion to existing shells. When tab completion is triggered it tries to fetch completions first from `fish`, then `zsh` and finally `bash`. One the mentioned shells needs to be installed for completion to work.
+
+If the completion does not work you can find out the reason by cloning the repo and trying out:
+
+```sh
+./scripts/completion/completion.bash "ls "
+./scripts/completion/completion.zsh "ls "
+./scripts/completion/completion.fish "ls "
+```
+
 ### Custom commands
 
 You can define helper aliases, abbreviations, functions and commands in your `~/.closhrc` file.
