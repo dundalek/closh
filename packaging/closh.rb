@@ -17,7 +17,7 @@ class Closh < Formula
     jar_filename = "project.jar"    
 
     prefix.install "target/#{jar_filename}"
-    bin.write_jar_script "#{prefix}/#{jar_filename}", "closh"
+    bin.write_jar_script "#{prefix}/#{jar_filename}", "closh-zero-jvm"
 
   end
   
