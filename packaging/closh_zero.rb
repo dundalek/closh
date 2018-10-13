@@ -2,7 +2,7 @@ class CloshZero < Formula
   desc "Bash-like shell based on Clojure"
   homepage "https://github.com/dundalek/closh"
   # url "https://example.com/foo-0.1.tar.gz"
-  sha256 "53521d16ce3ed2c3ffb445b94856d1429272917b"
+  sha256 "cbae0fa155c88745de2cf8617ea70e2bed9c725a" # FIXME Can we have a reference to latest?
   head "https://github.com/dundalek/closh.git", :branch => "master"
 
   # https://formulae.brew.sh/formula/boot-clj
