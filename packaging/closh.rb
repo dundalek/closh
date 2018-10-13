@@ -9,8 +9,6 @@ class Closh < Formula
   depends_on "boot-clj" #, java too
   depends_on :java => "1.8+"
   
-  depends_on "fish" # because of https://github.com/dundalek/closh/issues/99
-
   bottle :unneeded # no idea, really. See https://docs.brew.sh/Bottles
 
   def install
