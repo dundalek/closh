@@ -103,8 +103,8 @@
 
 (defn complete-shell [line]
   (chain-> (complete-fish line)
-      #(if (seq %) % (complete-bash line))
-      #(if (seq %) % (complete-zsh line))))
+      #(if (seq %) % (complete-zsh line))
+      #(if (seq %) % (complete-bash line))))
 
 #?(:cljs
    (defn complete
