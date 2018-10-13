@@ -1,0 +1,46 @@
+boot build && ../../graalvm-ee-1.0.0-rc7/Contents/Home/bin/native-image -jar target/myapp-0.1.0-SNAPSHOT-standalone.jar && ./myapp-0.1.0-SNAPSHOT-standalone
+Could not transfer metadata adzerk:boot-test/maven-metadata.xml from/to maven-central (https://repo1.maven.org/maven2): repo1.maven.org: nodename nor servname provided, or not known
+Classpath conflict: org.clojure/clojure version 1.9.0 already loaded, NOT loading version 1.10.0-RC1
+Compiling 1/1 myapp.core...
+Writing pom.xml and pom.properties...
+Adding uberjar entries...
+Writing myapp-0.1.0-SNAPSHOT-standalone.jar...
+Writing target dir(s)...
+Build on Server(pid: 2666, port: 54007)
+[myapp-0.1.0-SNAPSHOT-standalone:2666]    classlist:   1,797.52 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]        (cap):     939.22 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]        setup:   1,355.67 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]   (typeflow):   4,738.68 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]    (objects):   2,057.52 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]   (features):      57.37 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]     analysis:   7,160.90 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]     universe:     159.54 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]      (parse):   1,189.50 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]     (inline):   2,085.19 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]    (compile):   9,405.56 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]      compile:  12,946.85 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]        image:     896.91 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]        write:     483.75 ms
+[myapp-0.1.0-SNAPSHOT-standalone:2666]      [total]:  24,858.48 ms
+Opening connection
+                  $ Received input \H
+                                     $ Received input \I
+                                                        $ Received input \T
+                                                                           $ Received input \H
+                                                                                              $ Received input \E
+                                                                                                                 $ Received input \R
+                                                                                                                                    $ Received input \E
+                                                                                                                                                       $ Received input \return
+                                                                                                                                                                               $ Received SIGINT
+                                                                                                                                                                                                Connection closed
+     %                                                                                                                                                                                                      ➜  myapp git:(feature/bare-graal-client) ✗
+
+
+
+
+
+
+
+
+
+
