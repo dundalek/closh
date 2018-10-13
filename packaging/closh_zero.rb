@@ -1,4 +1,4 @@
-class Closh < Formula
+class CloshZero < Formula
   desc "Bash-like shell based on Clojure"
   homepage "https://github.com/dundalek/closh"
   # url "https://example.com/foo-0.1.tar.gz"
