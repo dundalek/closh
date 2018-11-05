@@ -3,7 +3,7 @@
 # Play a demo of shell interaction in terminal
 
 # Install dependency with:
-# sudo apt install randtype
+# sudo apt install randtype expect-dev
 
 # KEY_UP=$'\e'[A
 # echo -n $KEY_UP
@@ -15,7 +15,7 @@
 # (for [[k v] *1] [k (count v)]) | (into {})
 
 echo "> closh"
-(sleep 2; while read line; do echo "$line" | randtype; sleep 0.3; done << END) | bin/closh.sh
+(sleep 6; while read line; do echo "$line" | randtype -t 8,40000; sleep 0.5; done << END) | unbuffer -p clojure -m closh.zero.frontend.rebel
 date
 (def x "Clojure")
 (str "Hello " x)
