@@ -17,7 +17,12 @@
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
-  (eval '(print (closh-prompt))))
+  (try
+    (eval '(print (closh-prompt)))
+    (catch Exception e
+      (println "Error printing prompt:" (:cause (Throwable->map e)))
+      (println "Please check the definition of closh-prompt function in your ~/.closhrc")
+      (print "$ "))))
 
 (def opts {:prompt repl-prompt})
 
@@ -92,6 +97,7 @@
         (apply
           clojure.main/repl
           (-> {:init (fn []
+                        (in-ns 'user)
                         (apply require repl-requires)
                         (eval *closh-environment-init*)
                         (try
