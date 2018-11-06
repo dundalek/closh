@@ -71,7 +71,7 @@
   (let [result (atom nil)
         process-fn (fn [_ value] (reset! result value))]
     (with-redefs [lumo.repl/process-1-2-3 process-fn]
-      (execute-text "(closh-prompt)"))
+      (execute-text "(try (closh-prompt) (catch :default e (str \"Error printing prompt: \" (.-message e) \"\\nPlease check the definition of closh-prompt function in your ~/.closhrc\\n$ \")))"))
     (doto rl
       (.setPrompt @result)
       (.prompt true))
