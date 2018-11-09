@@ -26,6 +26,7 @@
   [& tokens]
   `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse tokens))
        (closh.zero.pipeline/process-output)
+       (str)
        (clojure.string/trim)))
 
 (defmacro sh-seq

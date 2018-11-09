@@ -148,6 +148,9 @@
     "x\n"
     "echo (sh-str echo x)"
 
+    "2"
+    "(sh-str echo \"a\n\b\" |> (count))"
+
     "3"
     "(list :a :b :c) |> (count)"
 
