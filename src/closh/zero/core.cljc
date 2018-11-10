@@ -4,7 +4,7 @@
             [closh.zero.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [glob *stderr*]]
             [closh.zero.platform.process :as process :refer [process?]]
-            #?(:cljs [closh.zero.pipeline :refer [pipeline-value wait-for-pipeline]])
+            [closh.zero.pipeline :refer [process-value]]
             [closh.zero.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
 #?(:cljs (def ^:no-doc fs (js/require "fs")))
@@ -56,28 +56,16 @@
       expand-filename)
     (list)))
 
-#?(:cljs
-    (defn get-command-suggestion
-      "Get suggestion for a missing command using command-not-found utility."
-      [cmdname]
-      (try
-        (fs.accessSync command-not-found-bin fs.constants.X_OK)
-        (-> (child-process.spawnSync command-not-found-bin #js["--no-failure-msg" cmdname] #js{:encoding "utf-8"})
-            (.-stderr)
-            (clojure.string/trim))
-        (catch :default _))))
-
-#?(:cljs
-    (defn handle-spawn-error
-      "Formats and prints error from spawn."
-      [err]
-      (case (.-errno err)
-        "ENOENT" (let [cmdname (.-path err)
-                       suggestion (get-command-suggestion cmdname)]
-                   (when-not (clojure.string/blank? suggestion)
-                     (.write *stderr* (str suggestion "\n")))
-                   (.write *stderr* (str cmdname ": command not found\n")))
-        (.write *stderr* (str "Unexpected error:\n" err "\n")))))
+(defn get-command-suggestion
+  "Get suggestion for a missing command using command-not-found utility."
+  [cmdname]
+  (try
+    (->
+      (process/shx command-not-found-bin ["--no-failure-msg" cmdname])
+      #?(:cljs (.on "error" (fn [])))
+      (process-value)
+      (:stderr))
+    (catch #?(:cljs :default :clj Exception) _)))
 
 (defn shx
   "Executes a command as child process."
@@ -86,12 +74,21 @@
   ([cmd args opts]
    #?(:cljs (doto
               (process/shx cmd args opts)
-              (.on "error" handle-spawn-error))
+              (.on "error"
+                (fn [err]
+                  (case (.-errno err)
+                    "ENOENT" (let [suggestion (get-command-suggestion cmd)]
+                               (when-not (clojure.string/blank? suggestion)
+                                 (.write *stderr* suggestion))
+                               (.write *stderr* (str cmd ": command not found\n")))
+                    (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
       :clj (try
              (process/shx cmd args opts)
-             (catch java.io.IOException _
-               ; TODO: Port get-command-suggestion
-               (.println *stderr* (str cmd ": command not found")))
+             (catch java.io.IOException ex
+               (let [suggestion (get-command-suggestion cmd)]
+                 (when-not (clojure.string/blank? suggestion)
+                   (.print *stderr* suggestion))
+                 (.println *stderr* (str cmd ": command not found"))))
              (catch Exception ex
                (.println *stderr* (str "Unexpected error:\n" ex)))))))
 
