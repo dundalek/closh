@@ -76,8 +76,8 @@
       (.setPrompt @result)
       (.prompt true))
     (with-redefs [lumo.repl/process-1-2-3 process-fn]
-      (execute-text "(closh-title)"))
-    (.write js/process.stdout (str "\033]0;" @result "\007"))))
+      (execute-text "(try (closh-title) (catch :default e (str \"closh: Error in (closh-title): \" (.-message e))))"))
+    (.write js/process.stdout (str "\u001b]0;" @result "\u0007"))))
 
 ;; TODO: Potencial race condition if latter history call returns before the previous one
 ;; Maybe some loading indicator?

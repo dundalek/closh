@@ -22,7 +22,14 @@
     (catch Exception e
       (println "Error printing prompt:" (:cause (Throwable->map e)))
       (println "Please check the definition of closh-prompt function in your ~/.closhrc")
-      (print "$ "))))
+      (print "$ ")))
+  (let [title
+        (try
+          (eval '(closh-title))
+          (catch Exception e
+            (str "closh: Error in (closh-title): " (:cause (Throwable->map e)))))]
+    (.print System/out (str "\u001b]0;" title "\u0007"))))
+
 
 (def opts {:prompt repl-prompt})
 
