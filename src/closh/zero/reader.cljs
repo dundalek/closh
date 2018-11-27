@@ -1,6 +1,5 @@
 (ns closh.zero.reader
-  (:require-macros [cljs.tools.reader.reader-types :refer [log-source]])
-  (:require [cljs.tools.reader.reader-types :refer [string-push-back-reader unread read-char]]
+  (:require [cljs.tools.reader.reader-types :refer [string-push-back-reader unread read-char log-source]]
             [cljs.tools.reader :refer [READ_FINISHED macros]]
             [cljs.tools.reader.impl.errors :as err]
             [cljs.tools.reader.impl.utils :refer [ws-rx]]
