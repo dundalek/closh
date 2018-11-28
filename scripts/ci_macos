@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 NVM_VERSION="v0.33.6"
-LUMO_VERSION="1.9.0-alpha"
+LUMO_VERSION="1.9.0"
 
 brew upgrade node
 HOMEBREW_NO_AUTO_UPDATE=1 brew install wget bc

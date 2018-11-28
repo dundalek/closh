@@ -1,7 +1,7 @@
 FROM pritunl/archlinux
 
 ENV NVM_VERSION "v0.33.6"
-ENV LUMO_VERSION "1.9.0-alpha"
+ENV LUMO_VERSION "1.9.0"
 
 RUN pacman -Syy --noconfirm git wget npm python2 make gcc bc && \
     pacman -Scc --noconfirm && \

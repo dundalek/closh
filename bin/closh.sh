@@ -75,7 +75,7 @@ _canonicalize_file_path() {
 
 export CLOSH_SOURCES_PATH=$(dirname $(dirname $(realpath "$0")))
 
-LUMO_BIN="$CLOSH_SOURCES_PATH/node_modules/lumo-cljs/bin/lumo"
+LUMO_BIN="$CLOSH_SOURCES_PATH/node_modules/.bin/lumo"
 
 # NODE_PATH seems to be missing when running as global binary
 export NODE_PATH="$CLOSH_SOURCES_PATH/node_modules:$CLOSH_SOURCES_PATH/..:$NODE_PATH"

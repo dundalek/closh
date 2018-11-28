@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 NVM_VERSION="v0.33.6"
-LUMO_VERSION="1.9.0-alpha"
+LUMO_VERSION="1.9.0"
 
 pacman -Syy --noconfirm git wget npm python2 make gcc bc awk
 pacman -Scc --noconfirm
