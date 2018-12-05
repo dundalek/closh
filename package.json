@@ -33,7 +33,7 @@
     "pkg-lumo": "pkg-lumo --classpath src --main closh.main",
     "pkg-java": "boot uberjar",
     "test": "npm run test-cljs && npm run test-clj",
-    "test-auto": "nodemon -e clj,cljs,cljc -x \"npm test\"",
+    "test-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs; npm run test-clj\"",
     "test-cljs": "lumo -K -c src:test -m closh.test-util.runner",
     "test-cljs-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs\"",
     "test-windows": "lumo -K -c src;test -m closh.test-util.runner",
