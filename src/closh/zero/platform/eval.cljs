@@ -11,8 +11,8 @@
 (def handle-error-orig lumo.repl/handle-error)
 
 (defn handle-error [error stacktrace?]
-  (if (= (.-message (ex-cause error)) "Script execution interrupted.")
-    (js/console.log " Interrupted")
+  (if (and (ex-cause error) (= (.-message (ex-cause error)) "Script execution interrupted."))
+    (js/console.error " Interrupted")
     (handle-error-orig error stacktrace?)))
 
 (defn execute-text
