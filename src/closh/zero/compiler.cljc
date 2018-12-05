@@ -34,6 +34,7 @@
   (let [arg (cond
               (list? arg) arg
               (number? arg) arg
+              (keyword? arg) arg
               :else (list 'expand-redirect (str arg)))]
     (case op
       > [[:out (or fd 1) arg]]
@@ -48,43 +49,45 @@
 
 (defn ^:no-doc process-command
   "Transform conformed command specification."
-  [[cmd & rest]]
-  (let [args (if (vector? (ffirst rest))
-               (apply concat rest)
-               rest)]
-    (if (and (= (first cmd) :arg)
-             (list? (second cmd))
-             (not= 'cmd (first (second cmd))))
-      (if (seq args)
-        (concat
-          (list 'do (second cmd))
-          (map second args))
-        (second cmd))
-      (let [name (second cmd)
-            name-val (if (list? name)
-                       (second name) ; when using cmd helper
-                       (str name))
-            redirects (->> args
-                           (filter #(= (first %) :redirect))
-                           (mapcat (comp process-redirect second))
-                           (vec))
-            parameters (->> args
-                            (filter #(= (first %) :arg))
-                            (map (comp process-arg second)))]
-          (cond
-            (builtins name)
-            `(apply ~name (concat ~@parameters))
+  ([cmd] (process-command cmd []))
+  ([[cmd & rest] redir]
+   (let [args (if (vector? (ffirst rest))
+                (apply concat rest)
+                rest)
+         is-function (and (= (first cmd) :arg)
+                       (list? (second cmd))
+                       (not= 'cmd (first (second cmd))))]
+     (if is-function
+       (if (seq args)
+         (concat
+           (list 'do (second cmd))
+           (map second args))
+         (second cmd))
+       (let [name (second cmd)
+             name-val (if (list? name)
+                        (second name) ; when using cmd helper
+                        (str name))
+             redirects (->> (concat redir args)
+                            (filter #(= (first %) :redirect))
+                            (mapcat (comp process-redirect second))
+                            (vec))
+             parameters (->> args
+                             (filter #(= (first %) :arg))
+                             (map (comp process-arg second)))]
+           (cond
+             (builtins name)
+             `(apply ~name (concat ~@parameters))
 
-            (@*closh-commands* name)
-            (if (empty? parameters)
-              `((@closh.zero.env/*closh-commands* (quote ~name)))
-              `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
+             (@*closh-commands* name)
+             (if (empty? parameters)
+               `((@closh.zero.env/*closh-commands* (quote ~name)))
+               `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
 
-            :else
-            (concat
-              (list 'shx name-val)
-              [(vec parameters)]
-              (if (seq redirects) [{:redir redirects}])))))))
+             :else
+             (concat
+               (list 'shx name-val)
+               [(vec parameters)]
+               (if (seq redirects) [{:redir redirects}]))))))))
 
 (defn ^:no-doc special?
   "Predicate to detect special form so we know not to partial apply it when piping.
@@ -96,25 +99,16 @@
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
-(defn ^:no-doc augment-command-redirects
-  "Updates command redirection options which are used to set up pipeline."
-  [cmd redir]
-  (if (and (seq cmd) (= (first cmd) 'shx))
-    (let [opts (nth cmd 3 {})]
-      (-> (take 3 cmd)
-          (concat [(update opts :redir #(vec (concat redir %)))])))
-    cmd))
-
 (defn ^:no-doc process-pipeline-command
   "Processes single command within a pipeline."
   ([cmd] (process-pipeline-command cmd []))
   ([{:keys [op cmd]} redir]
-   (let [cmd (process-command cmd)
+   (let [cmd (process-command cmd redir)
          fn (pipes op)]
      (cond
        (and (= op '|>) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
        (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
-       :else (list fn (augment-command-redirects cmd redir))))))
+       :else (list fn cmd)))))
 
 (defn ^:no-doc process-pipeline-interactive
   "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
@@ -122,15 +116,14 @@
   (let [pipeline (butlast cmds)
         end (last cmds)
         redir-begin
-           [[:set 0 :stdin]
-            [:set 1 (if end "pipe" :stdout)]
-            [:set 2 :stderr]]
+          (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
+                        [:redirect {:op '>& :fd 2 :arg :stderr}]]
+                       (when-not end [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
         redir-end
-           [[:set 0 "pipe"]
-            [:set 1 :stdout]
-            [:set 2 :stderr]]]
+          [[:redirect {:op '>& :fd 1 :arg :stdout}]
+           [:redirect {:op '>& :fd 2 :arg :stderr}]]]
     (concat
-     ['-> (augment-command-redirects (process-command cmd) redir-begin)]
+     ['-> (process-command cmd redir-begin)]
      (map process-pipeline-command pipeline)
      (when end [(process-pipeline-command end redir-end)]))))
 
@@ -139,13 +132,7 @@
   [{:keys [cmd cmds]}]
   (concat
    (list '-> (process-command cmd))
-   (for [{:keys [op cmd]} cmds]
-     (let [cmd (process-command cmd)
-           fn (pipes op)]
-       (cond
-         (and (= op '|>) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
-         (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
-         :else (list fn cmd))))))
+   (map process-pipeline-command cmds)))
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
