@@ -76,7 +76,9 @@
             `(apply ~name (concat ~@parameters))
 
             (@*closh-commands* name)
-            `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters))
+            (if (empty? parameters)
+              `((@closh.zero.env/*closh-commands* (quote ~name)))
+              `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
 
             :else
             (concat

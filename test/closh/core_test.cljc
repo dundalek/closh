@@ -394,4 +394,7 @@
 
   (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [s] (str s "Z"))
                                         (defcmd cmd-z fn-z))))
-                    (:stdout (closh "cmd-z abc"))))))
+                    (:stdout (closh "cmd-z abc")))))
+
+  (is (= "ABC" (do (closh (pr-str '(defcmd upper clojure.string/upper-case)))
+                   (:stdout (closh "echo -n abc | upper"))))))
