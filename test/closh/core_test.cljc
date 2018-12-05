@@ -389,12 +389,31 @@
   (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
                     (:stdout (closh "cmd-x abc")))))
 
+  (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
+                    (:stdout (closh "(cmd-x \"abc\")")))))
+
   (is (= "abcY" (do (closh (pr-str '(defcmd cmd-y (fn [s] (str s "Y")))))
                     (:stdout (closh "cmd-y abc")))))
+
+  (is (= "original fn" (do (closh (pr-str '(do (defn cmd-y [_] "original fn")
+                                               (defcmd cmd-y (fn [s] (str s "Y"))))))
+                           (:stdout (closh "(cmd-y \"abc\")")))))
 
   (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [s] (str s "Z"))
                                         (defcmd cmd-z fn-z))))
                     (:stdout (closh "cmd-z abc")))))
 
-  (is (= "ABC" (do (closh (pr-str '(defcmd upper clojure.string/upper-case)))
-                   (:stdout (closh "echo -n abc | upper"))))))
+  (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
+                   (:stdout (closh "echo -n abc | cmd-upper")))))
+
+  (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
+                   (:stdout (closh "(str \"abc\") | cmd-upper")))))
+
+  (is (= "hi" (do (closh (pr-str '(defcmd cmd-hello [] "hi")))
+                  (:stdout (closh "cmd-hello")))))
+
+  (is (= "HI" (do (closh (pr-str '(defcmd cmd-hello [] "hi")))
+                  (:stdout (closh "cmd-hello | (clojure.string/upper-case)")))))
+
+  (is (= "HI" (do (closh (pr-str '(defcmd cmd-hello [] "hi")))
+                  (:stdout (closh "cmd-hello | tr \"[:lower:]\" \"[:upper:]\""))))))
