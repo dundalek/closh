@@ -39,16 +39,16 @@
  #?(:cljs
     (let [file (tmp.fileSync)
              f (.-name file)
-             _ (cb f)
+             result (cb f)
              out (fs.readFileSync f "utf-8")]
          (.removeCallback file)
-         out)
+         [out result])
     :clj
     (let [file (java.io.File/createTempFile "closh-test-" ".txt")
           f (.getAbsolutePath file)
           _ (.deleteOnExit file)
-          _ (cb f)]
-      (slurp f))))
+          result (cb f)]
+      [(slurp f) result])))
 
 (defn bash [cmd]
   (pipeline/process-value (shx "bash" ["-c" cmd])))
@@ -308,7 +308,7 @@
     "bash -c \"echo err 1>&2; echo out\""
     "bash -c \"echo err 1>&2; echo out\"")
 
-  (are [x y] (= x (with-tempfile (fn [f] (closh y))))
+  (are [x y] (= x (first (with-tempfile (fn [f] (closh y)))))
 
     "x1\n"
     (str "echo x1 > " f)
@@ -321,7 +321,18 @@
     (str "(sh echo x3 > \"" f "\") (sh echo y1 >> \"" f "\")")
 
     ""
-    (str "echo x4 2 > " f)))
+    (str "echo x4 2 > " f)
+
+    "HELLO\n"
+    (str "echo hello | (clojure.string/upper-case) > " f)
+
+    "H\n"
+    (str "echo hello | (first) | (clojure.string/upper-case) > " f))
+
+  (are [x y] (= x (second (with-tempfile (fn [f] (closh y)))))
+
+    ""
+    (str "echo hello | (clojure.string/upper-case) > " f)))
 
 (deftest run-special-cases
   (are [x y] (= (bash x) (closh-spawn y))
