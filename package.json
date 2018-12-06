@@ -31,7 +31,7 @@
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
     "pkg-lumo": "pkg-lumo --classpath src --main closh.main",
-    "pkg-java": "boot uberjar",
+    "pkg-java": "boot uberjar && scripts/wrap-jar.sh target/closh-zero.jar",
     "test": "npm run test-cljs && npm run test-clj",
     "test-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs; npm run test-clj\"",
     "test-cljs": "lumo -K -c src:test -m closh.test-util.runner",

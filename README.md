@@ -66,6 +66,12 @@ Alternatively for a faster startup you can download AOT compiled uberjar file an
 java -jar closh-zero.jar
 ```
 
+The jar file also contains a special header, so once you make it executable you can run it directly:
+```sh
+chmod +x closh-zero.jar
+./closh-zero.jar
+```
+
 ## Quick Start
 
 Start the shell:
