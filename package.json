@@ -10,15 +10,14 @@
     "test": "test"
   },
   "dependencies": {
-    "deasync": "dundalek/deasync",
-    "glob": "7.1.2",
+    "deasync": "0.1.14",
+    "glob": "7.1.3",
     "lumo-cljs": "1.9.0-alpha",
-    "lumo-unpack-binding": "dundalek/lumo-unpack-binding",
-    "sqlite3": "dundalek/node-sqlite3",
+    "sqlite3": "4.0.4",
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "nodemon": "1.12.1",
+    "nodemon": "1.18.7",
     "pkg-lumo": "1.0.2"
   },
   "engines": {
