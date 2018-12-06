@@ -101,6 +101,12 @@ For loops:
 for f in /sys/bus/usb/devices/*/power/wakeup; do echo $f; cat $f; done
 ```
 ```clojure
+; Using doseq
+(doseq [f (expand "/sys/bus/usb/devices/*/power/wakeup")] (println f) (sh cat (str f)))
+```
+
+```clojure
+; Or multi pipes
 ls /sys/bus/usb/devices/*/power/wakeup |> (map #(str % "\n" (sh-str cat (str %)))) | cat
 ```
 

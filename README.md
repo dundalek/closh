@@ -23,7 +23,7 @@ Why shell based on Clojure(Script)?
 - Write shell scripts in a language you use daily for development so you don't have to google arcane shell constructs every time you need to do anything but simplest tasks.
 - Less amount and more composable code allows to experiment with new features and ideas.
 
-**Warning:** *Closh is still in a early stage and under a heavy development, has many rough edges and is subject to change a lot. Closh is tested on Linux, should run on macOS too. Windows who knows.*
+**Warning:** *Closh is still in a early stage and under a heavy development, has many rough edges and is subject to change a lot. Closh is tested on Linux, should run on macOS too.*
 
 ## Community and Contribution
 
@@ -37,7 +37,9 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 **Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
 
-Install closh (requires [node.js](https://nodejs.org/) version 9.x):
+### ClojureScript/Lumo version
+
+Install closh (requires [Node.js](https://nodejs.org/) version 9.x, support for version 10 is in progress, see [#113](https://github.com/dundalek/closh/issues/113)):
 ```
 npm install -g closh
 ```
@@ -50,6 +52,18 @@ npm install -g closh --unsafe-perm
 To install development version from master branch:
 ```
 npm i -g dundalek/closh
+```
+
+### Clojure/JVM version
+
+Run with `clojure` CLI:
+```sh
+clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.3.0" :sha "0f6d0509722fc603315ed146c30cda8bb291f0c6"}}}' -m closh.zero.frontend.rebel
+```
+
+Alternatively for a faster startup you can download AOT compiled uberjar file and run it with:
+```sh
+java -jar closh-zero.jar
 ```
 
 ## Quick Start
@@ -105,23 +119,19 @@ chsh -s $(which closh)
 
 ## Roadmap
 
+#### Next release
 
-#### Upcoming release v0.3
-
-- [ ] [Add JVM support](https://github.com/dundalek/closh/issues/66)
-- [ ] Integrate rebel-readline
-- [ ] [Distribute closh and lumo as a single binary](https://github.com/dundalek/closh/issues/42)
-- [ ] Explore possibility to compile JVM version with Graal and distribute as a single binary
+- [ ] [Script mode](https://github.com/dundalek/closh/labels/scripting)
 
 #### Terminal UI improvements and ideas
 
 Explore innovate UI ideas, explore what a shell could become and all possibilities within an ASCII terminal. The goal is to reimagine what people think a command line interface is without having to lose its core power.
 
+- [ ] Explore launcher functionality similar to Alfred and others
 - [ ] Readline improvements
 - [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
 - [ ] Key bindings
-- [ ] [Syntax highlighting](https://github.com/dundalek/closh/issues/21)
-- [ ] Explore launcher functionality similar to Alfred and others
+- [ ] [Syntax highlighting in CLJS](https://github.com/dundalek/closh/issues/21)
 - [ ] Automatic abbreviation suggestion
 - [ ] Data helpers that automatically parse command output into data structures
 
@@ -136,10 +146,25 @@ Explore if we could take shell power and functionality and lift it from the boun
 
 I hope that new UI ideas above will get people excited and interested. After that we should work on stabilization and adding all the remaining features people are used to from traditional shells.
 
-- [ ] Script mode
+- [ ] [Explore possibility to run via Planck](https://github.com/dundalek/closh/issues/89)
+- [ ] [Distribute closh and lumo as a single binary](https://github.com/dundalek/closh/issues/42)
+- [ ] [Explore possibility to compile JVM version with Graal and distribute as a single binary](https://github.com/dundalek/closh/issues/87)
 - [ ] Implement a low-level native pipeline library to improve performance
 - [ ] Make it more robust and better error handling
 - [ ] Job control
+
+## Limitations
+
+### Lumo version (CLJS)
+
+- No syntax highlighting
+- [Prompt quirks](https://github.com/dundalek/closh/issues/71)
+- Synchronous execution hacks (via deasync library)
+
+### JVM version (CLJ)
+
+- [Aliases and abbreviations do not work](https://github.com/dundalek/closh/issues/106)
+- Cannot redirect STDIO >= 3 (Java ProcessBuilder limitation)
 
 ## Development
 
@@ -151,7 +176,7 @@ cd closh
 npm install
 ```
 
-Run the app
+Run the cljs app
 ```
 npm start
 ```
@@ -160,14 +185,27 @@ Run in dev mode reloading on changes
 ```
 npm run dev
 ```
+
+Run the clj app
+```
+clojure -m closh.zero.frontend.rebel
+```
+
 Run tests once
 ```
-lein test
+npm run test
 ```
+
 Re-run tests on change
 ```
-lein test-auto
+npm run test-auto
 ```
+
+## Sponsors
+
+Thank you for the support:
+
+- [AdGoji](https://www.adgoji.com/)
 
 ## Copyright & License
 

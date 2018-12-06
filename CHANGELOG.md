@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/dundalek/closh/compare/v0.2.2...v0.3.0) (2018-12-06)
+
+### New features
+
+- Add JVM support ([#66](https://github.com/dundalek/closh/issues/66))
+- Integrate rebel-readline
+
+### Other changes
+
+- Renamed `closh` namespace to `closh.zero`
+  *Same reasoning like `clojure.spec.alpha`, but it feels strange to have `alpha` stick for many years hence `zero`.*
+
 ## [0.2.2](https://github.com/dundalek/closh/compare/v0.2.1...v0.2.2) (2018-07-30)
 
 - Bump up deasync dependency

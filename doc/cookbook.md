@@ -1,4 +1,6 @@
 
+Take a look at example [config files](https://github.com/dundalek/dotfiles/tree/master/closh). Also get inspired by [community configs](https://github.com/search?q=in%3Apath+closhrc&type=Code).
+
 ## Running nREPL server
 
 [Pomegranate](https://github.com/cemerick/pomegranate) is included on the classpath so you can dynamically load other libraries. Using pomegranate nREPL server can be included and started. For example you can put following into your `~/.closhrc`:
@@ -10,7 +12,10 @@
    (eval
     `(do
        (require '[cemerick.pomegranate])
-       (cemerick.pomegranate/add-dependencies :coordinates '[[org.clojure/tools.nrepl "0.2.13"]])
+       (cemerick.pomegranate/add-dependencies
+         :coordinates '[[org.clojure/tools.nrepl "0.2.13"]]
+         :repositories (merge cemerick.pomegranate.aether/maven-central
+                              {"clojars" "https://clojars.org/repo"}))
        (require '[clojure.tools.nrepl.server])
        (println "Starting nrepl at" ~port)
        (defonce server (clojure.tools.nrepl.server/start-server :port ~port))))))
@@ -70,11 +75,25 @@ Closure library is built in, so you can use it like so:
 ; => "007"
 ```
 
+## Manipulating multiple files
+
+Often there is a need to do some work with multiple files. An example might be to convert all text files in a directory to PDFs for printing. A single file can be converted with `unoconv abc.txt abc.pdf`.
+
+To convert all txt files in a directory with `bash` you can do:
+```bash
+for f in *.txt; do unoconv "$f" `echo "$f" | sed 's/\.txt$/.pdf/'`; done
+```
+
+Here is an example how you could do that with `closh`:
+```clojure
+(doseq [f (expand "*.txt")] (sh unoconv (str f) (str/replace f #"\.txt$" ".pdf")))
+```
+
 ## Scripting
 
 The development of closh is currently focused on the interactive mode and exploring possible ideas in that area. However, I would like the script mode to be eventually supported as well. In the mean time you can write scripts in plain cljs an clj and use closh as a helper library:
 
-```
+```clojure
 #!/bin/sh
 
 clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :sha "c876716ab2e27514c0b794ef45aeabec7a926493"}}}' -<<END
