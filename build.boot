@@ -1,6 +1,6 @@
 #!/usr/bin/env boot
 
-(set-env! 
+(set-env!
   :resource-paths #{"resources"}
   :dependencies
   '[[org.clojure/clojure "1.9.0"]
@@ -15,6 +15,6 @@
    (deps :quick-merge true)
    (aot :all true)
    (uber)
-   (jar :file "project.jar" :main 'closh.zero.frontend.rebel)
-   (sift :include #{#"project.jar"})
+   (jar :file "closh-zero.jar" :main 'closh.zero.frontend.rebel)
+   (sift :include #{#"closh-zero.jar"})
    (target)))
