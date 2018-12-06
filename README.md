@@ -58,7 +58,7 @@ npm i -g dundalek/closh
 
 Run with `clojure` CLI:
 ```sh
-clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.3.0" :sha "0f6d0509722fc603315ed146c30cda8bb291f0c6"}}}' -m closh.zero.frontend.rebel
+clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.3.0" :sha "4fca339fe278879c4be897b8f6b7a5bfe0a09bc2"}}}' -m closh.zero.frontend.rebel
 ```
 
 Alternatively for a faster startup you can download AOT compiled uberjar file and run it with:
