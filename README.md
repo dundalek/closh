@@ -75,13 +75,13 @@ chmod +x closh-zero.jar
 ## Quick Start
 
 Start the shell:
-```
+```sh
 closh
 ```
 
 Run simple commands like you are used to:
 
-```
+```clojure
 $ echo hi
 
 $ git status
@@ -108,10 +108,20 @@ $ ls *.json |> (reverse)
 $ ls |> (group-by first) | (map #(update % 1 count)) | (sort-by second) | (reverse)
 ```
 
-If you like closh you can set it as your default shell (afterwards you need to log out and log back in):
-```
+If you like closh you can set it as your default shell.
+
+Be careful and first test closh from other shell to make sure it works on your machine so you don't get locked out of shell (after `chsh` you need to log out and log back in for changes to take effect):
+```sh
 which closh | sudo tee -a /etc/shells
 chsh -s $(which closh)
+```
+
+For the JVM version you can make it the default shell similarly like:
+```sh
+closh=/path/to/closh-zero.jar
+chmod +x $closh
+echo $closh | sudo tee -a /etc/shells
+chsh -s $closh
 ```
 
 ## Documentation
