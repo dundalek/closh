@@ -2,18 +2,14 @@
   (:require [clojure.data :refer [diff]]
             [closh.zero.platform.process :refer [shx setenv getenv]]
             [closh.zero.pipeline :refer [process-value]]
-            #?(:clj [clojure.data.json :as json])))
-
-#?(:cljs
-   (do
-     (def ^:no-doc fs (js/require "fs"))
-     (def ^:no-doc tmp (js/require "tmp"))))
+            #?(:clj [clojure.data.json :as json])
+            #?@(:cljs [[fs] [tmp]])))
 
 (def ignore-env-vars #{"_" "OLDPWD" "PWD" "SHELLOPTS" "SHLVL"})
 
 (defn with-tempfile [cb]
  #?(:cljs
-    (let [file (tmp.fileSync)
+    (let [file (tmp/fileSync)
           f (.-name file)
           result (cb f)]
       (.removeCallback file)
@@ -47,7 +43,7 @@
        (let [before (getenv)
              result (spawn-shell shell (str exp "&& (node -p 'JSON.stringify(process.env)') >" temp-file))]
          (if (= (:code result) 0)
-           (let [after #?(:cljs (js->clj (js/JSON.parse (fs.readFileSync temp-file "utf8")))
+           (let [after #?(:cljs (js->clj (js/JSON.parse (fs/readFileSync temp-file "utf8")))
                           :clj (json/read-str (slurp temp-file)))
                  stdout (:stdout result)]
              (setenv-diff before after)

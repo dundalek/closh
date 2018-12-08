@@ -3,17 +3,14 @@
             [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :as process :refer [shx process? cwd chdir]]
             [closh.zero.pipeline :refer [process-output]]
-            #?(:cljs [path]))
+            #?@(:cljs [[path] [tmp]]))
   #?(:clj (:import [java.io File])))
 
-#?(:cljs
-   (do
-     (def tmp (js/require "tmp"))
-     (tmp.setGracefulCleanup)))
+#?(:cljs (tmp/setGracefulCleanup))
 
 (defn get-tmpfile []
   #?(:cljs
-     (.-name (tmp.fileSync))
+     (.-name (tmp/fileSync))
      :clj
      (let [file (java.io.File/createTempFile "closh-test-" ".txt")]
        (.deleteOnExit file)
@@ -56,7 +53,7 @@
 
   (is (= (cwd)
          (let [d #?(:clj (.getName (File. (.getCanonicalPath (File. (cwd)))))
-                    :cljs (path.basename (path.normalize (cwd))))]
+                    :cljs (path/basename (path/normalize (cwd))))]
            (do
              (chdir "..")
              (chdir d)

@@ -12,19 +12,15 @@
             [closh.zero.platform.eval :refer [execute-text]]
             [closh.zero.service.history :refer [init-database]]
             [closh.zero.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
-            [closh.zero.frontend.node-readline]))
+            [closh.zero.frontend.node-readline]
+            #?@(:cljs [[fs] [os] [path]])))
 
 (enable-console-print!)
-
-(def ^:no-doc fs (js/require "fs"))
-(def ^:no-doc os (js/require "os"))
-(def ^:no-doc path (js/require "path"))
-; (def util-binding (js/process.binding "util"))
 
 (defn load-init-file
   "Loads init file."
   [init-path]
-  (when (try (-> (fs.statSync init-path)
+  (when (try (-> (fs/statSync init-path)
                  (.isFile))
              (catch :default _))
     (try (lumo.repl/execute-path init-path {})
@@ -41,7 +37,7 @@
     (.on "SIGINT" (fn [])))
   (closh.zero.platform.eval/execute-text
     (str (pr-str closh.zero.env/*closh-environment-init*)))
-  (load-init-file (path.join (os.homedir) ".closhrc"))
+  (load-init-file (path/join (os/homedir) ".closhrc"))
   (.catch (init-database)
    (fn [err]
      (js/console.error "Error initializing history database:" err)

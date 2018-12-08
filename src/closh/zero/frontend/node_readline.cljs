@@ -7,12 +7,10 @@
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
-            [closh.zero.service.history :refer [add-history]]))
+            [closh.zero.service.history :refer [add-history]]
+            #?@(:cljs [[readline] [child_process]])))
 
-(def ^:no-doc readline (js/require "readline"))
-(def ^:no-doc child-process (js/require "child_process"))
-
-(def ^:no-doc readline-tty-write readline.Interface.prototype._ttyWrite)
+(def ^:no-doc readline-tty-write readline/Interface.prototype._ttyWrite)
 
 (def ^:no-doc initial-readline-state {:mode :input})
 (def ^:no-doc readline-state (atom initial-readline-state))
@@ -186,7 +184,7 @@
 
 (defn -main
   []
-  (let [rl (.createInterface readline
+  (let [rl (readline/createInterface
              #js{:input js/process.stdin
                  :output js/process.stdout
                  :completer closh.zero.service.completion/complete
@@ -233,9 +231,9 @@
               (try
                 (let [result (execute-command-text (expand-alias input))]
                   (when-not (or (nil? result)
-                                (instance? child-process.ChildProcess result)
+                                (instance? child_process/ChildProcess result)
                                 (and (seq? result)
-                                     (every? #(instance? child-process.ChildProcess %) result)))
+                                     (every? #(instance? child_process/ChildProcess %) result)))
                     (.write js/process.stdout (with-out-str (pprint result)))))
                 (catch :default e
                   (js/console.error e)))

@@ -1,16 +1,14 @@
 (ns closh.zero.service.history
   (:require [clojure.string]
-            [goog.object :as gobj]))
-
-(def ^:no-doc os (js/require "os"))
-(def ^:no-doc path (js/require "path"))
-(def ^:no-doc fs (js/require "fs"))
-(def ^:no-doc sqlite (-> (js/require "sqlite3")
-                         (.verbose)))
+            [goog.object :as gobj]
+            [sqlite3 :as sqlite]
+            [os]
+            [path]
+            [fs]))
 
 (def db-file
   "Path to the db file, defaults to ~/.closh/closh.sqlite"
-  (path.join (os.homedir) ".closh" "closh.sqlite"))
+  (path/join (os/homedir) ".closh" "closh.sqlite"))
 
 (declare ^:dynamic db)
 (declare ^:dynamic db-promise)
@@ -34,11 +32,11 @@
 (defn- init-database-file []
   (js/Promise.
     (fn [resolve reject]
-     (fs.mkdir (path.dirname db-file)
+     (fs/mkdir (path/dirname db-file)
        (fn [err]
          (if (and err (not= (.-code err) "EEXIST"))
            (reject err)
-           (resolve (sqlite.Database. db-file))))))))
+           (resolve (sqlite/Database. db-file))))))))
 
 (defn- init-database-tables-session
   [db]

@@ -1,12 +1,11 @@
 (ns closh.zero.platform.process
   (:require [closh.zero.platform.util :refer [wait-for-event jsx->clj]]
             [closh.zero.platform.io :refer [open-io-streams]]
-            [goog.object :as gobj]))
-
-(def ^:no-doc child-process (js/require "child_process"))
+            [goog.object :as gobj]
+            [child_process]))
 
 (defn process? [proc]
-  (instance? child-process.ChildProcess proc))
+  (instance? child_process/ChildProcess proc))
 
 (defn exit-code [proc]
   (.-exitCode proc))
@@ -33,7 +32,7 @@
   ([cmd] (shx cmd []))
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
-   (child-process.spawn
+   (child_process/spawn
      cmd
      (apply array (flatten args))
      #js{:stdio (open-io-streams (:redir opts))})))

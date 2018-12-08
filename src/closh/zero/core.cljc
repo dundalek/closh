@@ -7,9 +7,6 @@
             [closh.zero.pipeline :refer [process-value]]
             [closh.zero.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
-#?(:cljs (def ^:no-doc fs (js/require "fs")))
-#?(:cljs (def ^:no-doc child-process (js/require "child_process")))
-
 (def command-not-found-bin "/usr/lib/command-not-found")
 
 (defn expand-variable

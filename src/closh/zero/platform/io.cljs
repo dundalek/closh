@@ -1,16 +1,14 @@
-(ns closh.zero.platform.io)
+(ns closh.zero.platform.io
+  (:require [glob :as glob-js]
+            [fs]
+            [deasync]))
 
 (def ^:dynamic *stdin* js/process.stdin)
 (def ^:dynamic *stdout* js/process.stdout)
 (def ^:dynamic *stderr* js/process.stderr)
 
-(def ^:no-doc glob-js (.-sync (js/require "glob")))
-(def ^:no-doc stream (js/require "stream"))
-(def ^:no-doc fs (js/require "fs"))
-(def ^:no-doc deasync (js/require "deasync"))
-
 (defn glob [s _]
-  (seq (glob-js s #js{:nonull true})))
+  (seq (glob-js/sync s #js{:nonull true})))
 
 (defn line-seq
   "Create a lazy seq of strings from stream"
@@ -22,7 +20,7 @@
         (.on "data" #(.push buf %)))
       (line-seq (fn []
                   (when-not @done
-                    (.loopWhile deasync #(and (not @done) (empty? buf)))
+                    (deasync/loopWhile #(and (not @done) (empty? buf)))
                     (.shift buf)))
         nil)))
   ([read-chunk line]
@@ -72,11 +70,11 @@
         (resolve target)
         (let [[create-stream flags]
               (case op
-                :in [#(.createReadStream fs %1 %2) "r"]
-                :out [#(.createWriteStream fs %1 %2) "w"]
-                :append [#(.createWriteStream fs %1 %2) "a"]
-                :rw [#(.createWriteStream fs %1 %2) "w+"])]
-           (.open fs target flags
+                :in [#(fs/createReadStream %1 %2) "r"]
+                :out [#(fs/createWriteStream %1 %2) "w"]
+                :append [#(fs/createWriteStream %1 %2) "a"]
+                :rw [#(fs/createWriteStream %1 %2) "w+"])]
+           (fs/open target flags
              (fn [err f]
                (if err
                  (reject err)
@@ -94,7 +92,7 @@
                    (apply array)
                    (js/Promise.all))]
            (.then p #(reset! result %))
-           (.loopWhile deasync #(not @result))
+           (deasync/loopWhile #(not @result))
            (doseq [[fd target] @result]
              (aset arr fd (if (number? target)
                             (aget arr target)
