@@ -88,7 +88,7 @@
   `(let [thread# (Thread/currentThread)]
      (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
 
-(defn -main []
+(defn -main [& args]
   (core/ensure-terminal
     (core/with-line-reader
       (doto

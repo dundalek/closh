@@ -183,7 +183,7 @@
    nil))
 
 (defn -main
-  []
+  [& args]
   (let [rl (readline/createInterface
              #js{:input js/process.stdin
                  :output js/process.stdout
