@@ -80,6 +80,11 @@
            (lumo.repl/get-completions line resolve)
            (catch :default e (reject e)))))))
 
+(defn sanitize-completion [s]
+  (-> s
+    (clojure.string/trim)
+    (clojure.string/replace #"\\ " " ")))
+
 (defn append-completion
   "Appends completion to a line, discards the common part from in between."
   [line completion]
@@ -104,7 +109,8 @@
 (defn complete-shell [line]
   (chain-> (complete-fish line)
       #(if (seq %) % (complete-zsh line))
-      #(if (seq %) % (complete-bash line))))
+      #(if (seq %) % (complete-bash line))
+      #(map sanitize-completion %)))
 
 #?(:cljs
    (defn complete
