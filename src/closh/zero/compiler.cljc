@@ -100,25 +100,23 @@
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
-(defn ^:no-doc process-pipeline-command
-  "Processes single command within a pipeline."
-  ([cmd] (process-pipeline-command cmd []))
-  ([{:keys [op cmd]} redir]
-   (let [cmd (process-command cmd redir)
-         fn (pipes op)]
-     (cond
-       (and (= op '|>) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
-       (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
-       :else (list fn cmd)))))
-
 (defn ^:no-doc process-pipeline
   [{:keys [cmd cmds]} redir-begin redir-end]
   (let [pipeline (butlast cmds)
         end (last cmds)]
-    (concat
-     ['-> (process-command cmd redir-begin)]
-     (map process-pipeline-command pipeline)
-     (when end [(process-pipeline-command end redir-end)]))))
+    (reduce
+     (fn [result [{:keys [op cmd]} redir]]
+       (let [cmd (process-command cmd redir)
+             fn (pipes op)
+             cmd (cond
+                   (and (= op '|>) (not (special? (first cmd)))) (conj cmd 'partial)
+                   (and (= op '|) (not (special? (first cmd)))) (conj cmd 'partial)
+                   :else cmd)]
+         (list fn result cmd)))
+     (process-command cmd redir-begin)
+     (concat
+      (map (fn [cmd] [cmd []]) pipeline)
+      (when end [[end redir-end]])))))
 
 (defn ^:no-doc process-pipeline-interactive
   "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."

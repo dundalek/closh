@@ -5,7 +5,7 @@
 
 (deftest compiler-test
 
-  (are [x y] (= x (closh.zero.compiler/compile-batch (closh.zero.parser/parse y)))
+  (are [x y] (= (macroexpand-1 x) (closh.zero.compiler/compile-batch (closh.zero.parser/parse y)))
     '(-> (shx "ls" [(expand "-l")]))
     '(ls -l)
 
