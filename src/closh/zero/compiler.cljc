@@ -56,24 +56,25 @@
                 rest)
          is-function (and (= (first cmd) :arg)
                        (list? (second cmd))
-                       (not= 'cmd (first (second cmd))))]
+                       (not= 'cmd (first (second cmd))))
+         redirects (->> (concat redir args)
+                        (filter #(= (first %) :redirect))
+                        (mapcat (comp process-redirect second))
+                        (vec))
+         parameters (->> args
+                         (filter #(= (first %) :arg))
+                         (map second))]
      (if is-function
-       (if (seq args)
+       (if (seq parameters)
          (concat
            (list 'do (second cmd))
-           (map second args))
+           parameters)
          (second cmd))
        (let [name (second cmd)
              name-val (if (list? name)
                         (second name) ; when using cmd helper
                         (str name))
-             redirects (->> (concat redir args)
-                            (filter #(= (first %) :redirect))
-                            (mapcat (comp process-redirect second))
-                            (vec))
-             parameters (->> args
-                             (filter #(= (first %) :arg))
-                             (map (comp process-arg second)))]
+             parameters (map process-arg parameters)]
            (cond
              (builtins name)
              `(apply ~name (concat ~@parameters))
@@ -110,29 +111,29 @@
        (and (= op '|) (not (special? (first cmd)))) (list fn (conj cmd 'partial))
        :else (list fn cmd)))))
 
-(defn ^:no-doc process-pipeline-interactive
-  "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
-  [{:keys [cmd cmds]}]
+(defn ^:no-doc process-pipeline
+  [{:keys [cmd cmds]} redir-begin redir-end]
   (let [pipeline (butlast cmds)
-        end (last cmds)
-        redir-begin
-          (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
-                        [:redirect {:op '>& :fd 2 :arg :stderr}]]
-                       (when-not end [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
-        redir-end
-          [[:redirect {:op '>& :fd 1 :arg :stdout}]
-           [:redirect {:op '>& :fd 2 :arg :stderr}]]]
+        end (last cmds)]
     (concat
      ['-> (process-command cmd redir-begin)]
      (map process-pipeline-command pipeline)
      (when end [(process-pipeline-command end redir-end)]))))
 
+(defn ^:no-doc process-pipeline-interactive
+  "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
+  ([pipeline]
+   (process-pipeline
+     pipeline
+     (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
+                   [:redirect {:op '>& :fd 2 :arg :stderr}]]
+                  (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
+     [[:redirect {:op '>& :fd 1 :arg :stdout}]
+      [:redirect {:op '>& :fd 2 :arg :stderr}]])))
+
 (defn ^:no-doc process-pipeline-batch
-  "Transform conformed pipeline specification in batch mode. Pipeline does not write to stdout by default but has a stream that can be redirected."
-  [{:keys [cmd cmds]}]
-  (concat
-   (list '-> (process-command cmd))
-   (map process-pipeline-command cmds)))
+  "Transform conformed pipeline specification in batch mode. "
+  [pipeline] (process-pipeline pipeline [] []))
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
