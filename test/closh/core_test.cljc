@@ -329,8 +329,6 @@
     "H"
     (str "echo hello | (first) | (clojure.string/upper-case) > " f))
 
-    ; TODO defcmd
-
   (are [x y] (= x (second (with-tempfile (fn [f] (closh y)))))
 
     {:stdout "", :stderr "", :code 0}
@@ -427,6 +425,9 @@
                    (:stdout (closh "echo -n abc | cmd-upper")))))
 
   (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
+                   (:stdout (closh "echo -n abc | cmd-upper | cat")))))
+
+  (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
                    (:stdout (closh "(str \"abc\") | cmd-upper")))))
 
   (is (= "hi" (do (closh (pr-str '(defcmd cmd-hello [] "hi")))
@@ -436,4 +437,7 @@
                   (:stdout (closh "cmd-hello | (clojure.string/upper-case)")))))
 
   (is (= "HI" (do (closh (pr-str '(defcmd cmd-hello [] "hi")))
-                  (:stdout (closh "cmd-hello | tr \"[:lower:]\" \"[:upper:]\""))))))
+                  (:stdout (closh "cmd-hello | tr \"[:lower:]\" \"[:upper:]\"")))))
+
+  (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
+                   (first (with-tempfile (fn [f] (closh (str "echo -n abc | cmd-upper > " f)))))))))
