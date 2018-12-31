@@ -339,7 +339,8 @@
   (are [x y] (= (first (with-tempfile (fn [f] (bash x))))
                 (first (with-tempfile (fn [f] (closh y)))))
 
-    (str "ls | tac > " f)
+    ; macOS does not have `tac` command but `tail -r` can be used instead
+    (str "(ls | tac || ls | tail -r) > " f)
     (str "ls |> (reverse) > " f)))
 
 (deftest run-special-cases
