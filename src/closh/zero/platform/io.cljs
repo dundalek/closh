@@ -1,11 +1,15 @@
 (ns closh.zero.platform.io
   (:require [glob :as glob-js]
             [fs]
-            [deasync]))
+            [deasync]
+            [stream]))
 
 (def ^:dynamic *stdin* js/process.stdin)
 (def ^:dynamic *stdout* js/process.stdout)
 (def ^:dynamic *stderr* js/process.stderr)
+
+(defn output-stream? [s]
+  (instance? stream/Writable s))
 
 (defn glob [s _]
   (seq (glob-js/sync s #js{:nonull true})))
@@ -102,3 +106,6 @@
                               :stderr *stderr*
                               target))))))
     arr))
+
+(defn output-stream [filename]
+  (fs/createWriteStream filename))

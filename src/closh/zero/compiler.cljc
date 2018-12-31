@@ -106,12 +106,24 @@
         end (last cmds)]
     (reduce
      (fn [result [{:keys [op cmd]} redir]]
-       (let [cmd (process-command cmd redir)
+       (let [rest (rest cmd)
+             args (if (vector? (ffirst rest))
+                    (apply concat rest)
+                    rest)
+             redirects (->> (concat redir args)
+                            (filter #(= (first %) :redirect))
+                            (mapcat (comp process-redirect second))
+                            (vec))
+             parameters (->> args
+                             (filter #(= (first %) :arg))
+                             (map second))
+             cmd (process-command cmd redir)
              fn (pipes op)
-             cmd (cond
-                   (and (= op '|>) (not (special? (first cmd)))) (conj cmd 'partial)
-                   (and (= op '|) (not (special? (first cmd)))) (conj cmd 'partial)
-                   :else cmd)]
+             cmd (if (not (special? (first cmd)))
+                   (let [x (gensym)]
+                     `(fn [~x]
+                        (closh.zero.pipeline/redir ~(concat cmd [x]) ~redirects)))
+                   cmd)]
          (list fn result cmd)))
      (process-command cmd redir-begin)
      (concat

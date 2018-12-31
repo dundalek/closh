@@ -1,6 +1,7 @@
 (ns closh.zero.pipeline
   (:require [closh.zero.platform.process :as process :refer [process?]]
-            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output pipe-stream line-seq stream-write *stdout* *stderr*]])
+            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output pipe-stream line-seq stream-write output-stream *stdout* *stderr* output-stream?]]
+            #?(:cljs [closh.zero.platform.util :refer [wait-for-event]]))
   (:refer-clojure :exclude [line-seq]))
 
 (defn wait-for-pipeline
@@ -55,7 +56,7 @@
      :stderr ""
      :code 0}))
 
-; TODO: refactor dispatch
+; TODO: refactor dispatch to protocols or multimethods
 (defn- pipe-internal
   "Pipes process or value to another process or function."
   ([from to]
@@ -71,13 +72,21 @@
              (pipe-stream out in)))
          to)
 
+       (output-stream? to)
+       (pipe-stream (out-stream from) to)
+
        :else (to (process-output from)))
 
      (seq? from)
      (cond
        (process? to)
+       (do
+         (pipe-internal from (in-stream to))
+         to)
+
+       (output-stream? to)
        (let [val (str (clojure.string/join "\n" from) "\n")]
-         (stream-write (in-stream to) val)
+         (stream-write to val)
          to)
 
        :else (to from))
@@ -86,8 +95,12 @@
      (cond
        (process? to)
        (do
-         (when-let [stdin (in-stream to)]
-           (stream-write stdin (str from)))
+         (pipe-internal from (in-stream to))
+         to)
+
+       (output-stream? to)
+       (do
+         (stream-write to (str from))
          to)
 
        :else (to from)))))
@@ -117,3 +130,14 @@
   "Pipe by filtering based on a function."
   [proc f]
   (pipe-multi proc (partial filter f)))
+
+(defn redir [val redirects]
+  (if (seq redirects)
+    (let [out (nth (first redirects) 2)]
+      (if (= out :stdout)
+        val
+        (let [stream (output-stream out)]
+          (pipe val stream)
+          #?(:cljs (wait-for-event stream "finish"))
+          "")))
+    val))

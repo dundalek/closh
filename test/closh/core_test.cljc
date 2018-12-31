@@ -326,13 +326,21 @@
     "HELLO\n"
     (str "echo hello | (clojure.string/upper-case) > " f)
 
-    "H\n"
+    "H"
     (str "echo hello | (first) | (clojure.string/upper-case) > " f))
+
+    ; TODO defcmd
 
   (are [x y] (= x (second (with-tempfile (fn [f] (closh y)))))
 
-    ""
-    (str "echo hello | (clojure.string/upper-case) > " f)))
+    {:stdout "", :stderr "", :code 0}
+    (str "echo hello | (clojure.string/upper-case) > " f))
+
+  (are [x y] (= (first (with-tempfile (fn [f] (bash x))))
+                (first (with-tempfile (fn [f] (closh y)))))
+
+    (str "ls | tac > " f)
+    (str "ls |> (reverse) > " f)))
 
 (deftest run-special-cases
   (are [x y] (= (bash x) (closh-spawn y))

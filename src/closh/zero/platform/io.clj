@@ -10,6 +10,9 @@
 
 (def ^:private relpath-regex #"^\./")
 
+(defn output-stream? [stream]
+  (instance? java.io.OutputStream stream))
+
 (defn glob
   ([s] (glob s nil))
   ([s cwd-file]
@@ -67,3 +70,6 @@
     (java.io.InputStreamReader.)
     (java.io.BufferedReader.)
     (clojure.core/line-seq)))
+
+(defn output-stream [filename]
+  (io/output-stream filename))

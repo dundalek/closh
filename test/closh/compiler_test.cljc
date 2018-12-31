@@ -15,17 +15,8 @@
     '(-> (shx "ls" [(expand ".")]))
     '(ls .)
 
-    '(-> (shx "ls" []) (pipe-multi (partial reverse)) (pipe (shx "head" [])))
-    '(ls |> (reverse) | head)
-
     '(-> (do (list 1 2 3) (reverse)))
     '((list 1 2 3) (reverse))
-
-    '(-> (shx "ls" []) (pipe-multi (partial reverse)))
-    '(ls |> (reverse))
-
-    '(-> (shx "echo" [(expand "hi")]) (pipe (partial str)))
-    '(echo hi | (str))
 
     '(-> (shx "ls" [] {:redir [[:out 1 (expand-redirect "dirlist")] [:set 2 1]]}))
     '(ls > dirlist 2 >& 1)
