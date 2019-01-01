@@ -220,7 +220,14 @@
     "(cmd \"echo\") x"
 
     "abc > /tmp/x\n"
-    "echo abc '> /tmp/x")
+    "echo abc '> /tmp/x"
+
+    "{"
+    "cat < package.json | (first)")
+
+    ; TODO: Fix input redirection to a function
+    ; "{"
+    ; "(first) < package.json")
 
   (are [x] (= (bash x) (closh x))
     "ls"
@@ -327,7 +334,11 @@
     (str "echo hello | (clojure.string/upper-case) > " f)
 
     "H"
-    (str "echo hello | (first) | (clojure.string/upper-case) > " f))
+    (str "echo hello | (first) | (clojure.string/upper-case) > " f)
+
+    "X3\nY1\n"
+    (str "(sh echo x3 | (clojure.string/upper-case) > \"" f "\")"
+         "(sh echo y1 | (clojure.string/upper-case) >> \"" f "\")"))
 
   (are [x y] (= x (second (with-tempfile (fn [f] (closh y)))))
 

@@ -1,6 +1,6 @@
 (ns closh.zero.pipeline
   (:require [closh.zero.platform.process :as process :refer [process?]]
-            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output pipe-stream line-seq stream-write output-stream *stdout* *stderr* output-stream?]]
+            [closh.zero.platform.io :refer [out-stream in-stream err-stream stream-output pipe-stream line-seq stream-write output-stream input-stream output-stream? input-stream? *stdout* *stderr*]]
             #?(:cljs [closh.zero.platform.util :refer [wait-for-event]]))
   (:refer-clojure :exclude [line-seq]))
 
@@ -61,6 +61,19 @@
   "Pipes process or value to another process or function."
   ([from to]
    (cond
+     (input-stream? from)
+     (cond
+       (process? to)
+       (do
+         (when-let [in (in-stream to)]
+           (pipe-stream from in))
+         to)
+
+       (output-stream? to)
+       (pipe-stream from to)
+
+       :else (to (stream-output from)))
+
      (process? from)
      (cond
        (process? to)
@@ -132,12 +145,27 @@
   (pipe-multi proc (partial filter f)))
 
 (defn redir [val redirects]
-  (if (seq redirects)
-    (let [out (nth (first redirects) 2)]
-      (if (= out :stdout)
-        val
-        (let [stream (output-stream out)]
-          (pipe val stream)
-          #?(:cljs (wait-for-event stream "finish"))
-          "")))
-    val))
+  (let [redirects
+        (reduce
+          (fn [redirects [op fd target]]
+            (case op
+              :rw (throw (new #?(:clj Exception :cljs js/Error) "Read/Write redirection is not supported"))
+              (let [redirect (case op
+                               :in (input-stream  target)
+                               :out (output-stream target)
+                               :append (output-stream target :append true)
+                               :set (if (#{:stdin :stdout :stderr} target)
+                                      target
+                                      (get redirects target)))]
+                (if redirect
+                  (assoc redirects fd redirect)
+                  redirects))))
+          {0 :stdin 1 :stdout 2 :stderr}
+          redirects)
+        stdout (get redirects 1)]
+    (if (not= stdout :stdout)
+      (do
+        (pipe val stdout)
+        #?(:cljs (wait-for-event stdout "finish"))
+        "")
+      val)))

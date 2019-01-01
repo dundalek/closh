@@ -8,9 +8,6 @@
 (def ^:dynamic *stdout* js/process.stdout)
 (def ^:dynamic *stderr* js/process.stderr)
 
-(defn output-stream? [s]
-  (instance? stream/Writable s))
-
 (defn glob [s _]
   (seq (glob-js/sync s #js{:nonull true})))
 
@@ -107,5 +104,16 @@
                               target))))))
     arr))
 
-(defn output-stream [filename]
-  (fs/createWriteStream filename))
+(defn input-stream? [s]
+  (instance? stream/Readable s))
+
+(defn output-stream? [s]
+  (instance? stream/Writable s))
+
+(defn input-stream [x & opts]
+  (fs/createReadStream x))
+
+(defn output-stream [x & opts]
+  (let [append? (:append (apply hash-map opts))
+        flags (if append? "a" "w")]
+    (fs/createWriteStream x #js{:flags flags})))
