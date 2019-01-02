@@ -96,7 +96,7 @@ The development of closh is currently focused on the interactive mode and explor
 ```clojure
 #!/bin/sh
 
-clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :sha "4fca339fe278879c4be897b8f6b7a5bfe0a09bc2"}}}' -<<END
+clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :sha "093c8a55c9c3d2a326435d6943a92e5b8090cda1"}}}' -<<END
 
 (require '[closh.zero.macros :refer :all]
          '[closh.zero.core :refer :all]

@@ -1,6 +1,8 @@
 # Changelog
 
-## [master](https://github.com/dundalek/closh/compare/v0.3.2...master) (unreleased)
+## [master](https://github.com/dundalek/closh/compare/v0.3.3...master) (unreleased)
+
+## [0.3.3](https://github.com/dundalek/closh/compare/v0.3.2...v0.3.3) (2019-01-02)
 
 - Fix displaying completions provided by zsh ([#115](https://github.com/dundalek/closh/issues/115))
 - Fix redirection issues from functions in pipeline ([#62](https://github.com/dundalek/closh/issues/62))
