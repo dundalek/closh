@@ -167,5 +167,5 @@
       (do
         (pipe val stdout)
         #?(:cljs (wait-for-event stdout "finish"))
-        "")
+        nil)
       val)))

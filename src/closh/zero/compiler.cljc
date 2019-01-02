@@ -172,7 +172,6 @@
   [{:keys [cmd cmds]}]
   (process-command-clause cmd))
 
-
 (defn compile-interactive
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
   [ast]
