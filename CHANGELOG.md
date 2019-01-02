@@ -1,5 +1,19 @@
 # Changelog
 
+## [master](https://github.com/dundalek/closh/compare/v0.3.2...master) (unreleased)
+
+- Fix displaying completions provided by zsh ([#115](https://github.com/dundalek/closh/issues/115))
+- Fix redirection issues from functions in pipeline ([#62](https://github.com/dundalek/closh/issues/62))
+
+## [0.3.2](https://github.com/dundalek/closh/compare/v0.3.1...v0.3.2) (2018-12-11)
+
+- Fix crash when command line args are passed
+
+## [0.3.1](https://github.com/dundalek/closh/compare/v0.3.0...v0.3.1) (2018-12-06)
+
+- Make jar executable
+- Update npm dependencies to prevent installation issues
+
 ## [0.3.0](https://github.com/dundalek/closh/compare/v0.2.2...v0.3.0) (2018-12-06)
 
 ### New features
