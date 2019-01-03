@@ -122,3 +122,16 @@
    (read-sh {} reader))
   ([opts reader]
    (read opts reader #(conj % 'closh.zero.macros/sh-value))))
+
+(defn read-all [rdr]
+  (let [eof (Object.)]
+    (loop [forms []]
+      (let [form (read {:eof eof} rdr)]
+        (if (= form eof)
+          (seq forms)
+          (recur (conj forms form)))))))
+
+(defn read-transform [rdr]
+  (->> (read-all rdr)
+    (map #(pr-str (conj % 'closh.zero.macros/sh)))
+    (clojure.string/join "\n")))
