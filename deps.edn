@@ -1,5 +1,5 @@
 {:deps
- {org.clojure/clojure {:mvn/version "1.9.0"}
+ {org.clojure/clojure {:mvn/version "1.10.0"}
   org.clojure/tools.reader
     {:git/url "https://github.com/dundalek/tools.reader"
      :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"

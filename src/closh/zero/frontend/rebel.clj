@@ -7,13 +7,13 @@
             [rebel-readline.clojure.service.local :as clj-service]
             [rebel-readline.tools :as tools]
             [clojure.string :as string]
-            [clojure.main :refer [repl-requires]]
             [clojure.java.io :as jio]
             [closh.zero.env :refer [*closh-environment-init*]]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.frontend.main]
-            [closh.zero.service.completion :refer [complete-shell]])
+            [closh.zero.service.completion :refer [complete-shell]]
+            [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main])
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
@@ -88,7 +88,7 @@
   `(let [thread# (Thread/currentThread)]
      (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
 
-(defn -main [& args]
+(defn repl []
   (core/ensure-terminal
     (core/with-line-reader
       (doto
@@ -118,3 +118,11 @@
               (merge opts {:prompt (fn [])})
               seq
               flatten))))))
+
+(defn -main [& args]
+  (try
+   (if (seq args)
+     (apply clojure-main/main args)
+     (repl))
+   (finally
+     (flush))))
