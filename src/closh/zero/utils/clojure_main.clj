@@ -456,7 +456,7 @@ by default when a new command-line REPL is started."} repl-requires
   [path]
   (load-script path))
 
-(defn- eval-opt
+(defn eval-opt
   "Evals expressions in str, prints each non-nil result using prn"
   [str]
   (let [eof (Object.)
@@ -492,7 +492,7 @@ by default when a new command-line REPL is started."} repl-requires
     (initialize args inits)
     (apply (ns-resolve (doto (symbol main-ns) require) '-main) args)))
 
-(defn- repl-opt
+(defn repl-opt
   "Start a repl with args and inits. Print greeting if no eval options were
   present"
   [[_ & args] inits]
