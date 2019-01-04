@@ -61,6 +61,10 @@
     "echo a ; echo b"
 
     '((echo a)
+      (echo b))
+    "\\;echo a\\;echo b\\;"
+
+    '((echo a)
       (b))
     "echo a \nb"
 
