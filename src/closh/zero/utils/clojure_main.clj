@@ -10,14 +10,14 @@
 
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
        :author "Stephen C. Gilardi and Rich Hickey"}
-  clojure.main
+  closh.zero.utils.clojure-main
   (:refer-clojure :exclude [with-bindings])
   (:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader)
            (clojure.lang Compiler Compiler$CompilerException
-                         LineNumberingPushbackReader RT LispReader$ReaderException))
+                         LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
-  )
+
 
 (declare main)
 
@@ -431,12 +431,12 @@ by default when a new command-line REPL is started."} repl-requires
      (prompt)
      (flush)
      (loop []
-       (when-not 
-       	 (try (identical? (read-eval-print) request-exit)
-	  (catch Throwable e
-	   (caught e)
-	   (set! *e e)
-	   nil))
+       (when-not
+          (try (identical? (read-eval-print) request-exit)
+           (catch Throwable e
+             (caught e)
+             (set! *e e)
+             nil))
          (when (need-prompt)
            (prompt)
            (flush))
@@ -597,6 +597,5 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
          (recur more (conj inits [opt arg]))
          ((main-dispatch opt) args inits)))
      (repl-opt nil nil))
-   (finally 
+   (finally
      (flush))))
-
