@@ -42,6 +42,17 @@ $ (sh-value ls *.txt)
 
 To enable [Autojump](https://github.com/wting/autojump) refer to a following [configuration](https://github.com/dundalek/dotfiles/blob/master/closh/.closh_autojump.cljc).
 
+## Direnv
+
+If you are using [direnv](https://github.com/direnv/direnv) to switch an environment based on a working directory you can augment the `closh-prompt` definition in the `~/.closhrc` like this:
+
+```clojure
+(defn closh-prompt []
+  (source-shell "bash" "eval \"$(direnv export bash)\"")
+  ; your prompt logic here
+  )
+```
+
 ## NVM integration
 
 To use [nvm](https://github.com/creationix/nvm) put the following into your `~/.closhrc`:
