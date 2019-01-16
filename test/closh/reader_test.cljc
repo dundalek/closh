@@ -76,10 +76,10 @@
 
     '((echo a)
       (echo b))
-    "\n\necho a\n\n\necho b\n\n"
+    "\n\necho a\n\n\necho b\n\n")
 
-    (list (list 'ls (symbol "A Filename With Spaces")))
-    "ls A\\ Filename\\ With\\ Spaces")
+    ; (list (list 'ls (symbol "A Filename With Spaces")))
+    ; "ls A\\ Filename\\ With\\ Spaces")
 
     ; Maybe allow trailing pipe without backslash escape?
     ; '((echo a | (clojure.string/upper-case)))
