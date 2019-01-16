@@ -8,6 +8,10 @@
   (:import [clojure.lang Compiler RT]
            [java.io File FileInputStream InputStreamReader StringReader]))
 
+(def custom-environment
+  (str "(alter-var-root #'load-file (constantly closh.zero.frontend.main/compiler-load-file))"
+       "(def ^{:dynamic true} *args* *command-line-args*)"))
+
 (defn repl-read
   [request-prompt request-exit]
   (read-sh {:read-cond :allow} *in*))
@@ -28,13 +32,13 @@
   (prn)
   (System/exit 0))
 
-; Reimplementation of Compiler.loadFile
+;; Reimplementation of Compiler.loadFile
 (defn compiler-load-file [file]
-  (println "custom loadFile")
   (let [f (FileInputStream. file)
-        ; rdr (InputStreamReader. f RT/UTF8)
+        ;; rdr (InputStreamReader. f RT/UTF8)
         rdr (StringReader.
              (str
+               custom-environment
                (pr-str *closh-environment-init*)
                (closh.zero.reader/read-transform (push-back-reader (InputStreamReader. f RT/UTF8)))))]
     (try
@@ -45,32 +49,31 @@
       (finally
         (.close f)))))
 
-; clojure.main/load-script
+;; clojure.main/load-script
 (defn load-script
   "Loads Clojure source from a file or resource given its path. Paths
   beginning with @ or @/ are considered relative to classpath."
   [^String path]
-  (println "custom load-script")
   (if (.startsWith path "@")
     (RT/loadResourceScript
      (.substring path (if (.startsWith path "@/") 2 1)))
+    ;; (Compiler/loadFile path)))
     (compiler-load-file path)))
-    ; (Compiler/loadFile path)))
 
-; clojure.core/load-reader
+;; clojure.core/load-reader
 (defn load-reader
   "Sequentially read and evaluate the set of forms contained in the
   stream/file"
   {:added "1.0"
    :static true}
   [rdr]
-  (println "custom load-reader")
   (let [closh-reader
         (StringReader.
              (str
+               custom-environment
                (pr-str *closh-environment-init*)
                (closh.zero.reader/read-transform rdr)))]
-; (. clojure.lang.Compiler (load rdr)))
+    ;; (. clojure.lang.Compiler (load rdr)))
     (Compiler/load closh-reader)))
 
 (def eval-opt-orig clojure-main/eval-opt)
@@ -86,4 +89,6 @@
                 clojure-main/eval-opt eval-opt
                 clojure-main/repl-opt repl-opt
                 clojure.core/load-reader load-reader]
+                ;; redef does not seem to work, must use alter var root
+                ;; clojure.core/load-file compiler-load-file]
     (apply clojure-main/main args)))

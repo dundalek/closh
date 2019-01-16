@@ -49,7 +49,7 @@
                      (.remove ^List pending-forms 0)
                      (let [ch (read-char reader)]
                        (if-let [skip (when (= ch \\)
-                                       (let [ch (read-char reader)]
+                                       (when-let [ch (read-char reader)]
                                          (if (= ch \newline)
                                            reader
                                            (do (unread reader ch)
