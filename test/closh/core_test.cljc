@@ -25,7 +25,6 @@
    :cljs
    (do
      (def fs (js/require "fs"))
-     (def child-process (js/require "child_process"))
      (def tmp (js/require "tmp"))
 
      ;; Clean up tmp files on unhandled exception

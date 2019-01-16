@@ -60,6 +60,11 @@
        (closh.zero.platform.process/exit-code)
        (zero?)))
 
+(defmacro sh-wrapper [& tokens]
+  "Like sh macro but if the result is a process then returns nil. This is useful for eval mode so that process objects are not printed out."
+  `(let [result# (sh ~@tokens)]
+     (when-not (closh.zero.platform.process/process? result#) result#)))
+
 (defmacro defalias [name value]
   `(swap! closh.zero.env/*closh-aliases* assoc (str (quote ~name)) ~value))
 

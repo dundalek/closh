@@ -149,5 +149,5 @@
 
 (defn read-transform [rdr]
   (->> (read-all rdr)
-    (map #(pr-str (conj % 'closh.zero.macros/sh)))
+    (map #(pr-str (conj % 'closh.zero.macros/sh-wrapper)))
     (clojure.string/join "\n")))
