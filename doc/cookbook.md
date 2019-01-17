@@ -76,6 +76,10 @@ To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
 (source-shell ". ~/anaconda/etc/profile.d/conda.sh; conda activate")
 ```
 
+## Integration with text editors
+
+[Liquid](https://github.com/mogenslund/liquid) is a text editor written in Clojure inspired by Emacs and Vim. There is a [plugin](https://github.com/mogenslund/closhapp) that integrates Closh with Liquid. One cool feature is that command output is written into a text buffer and can be later edited and manipulated within the text editor.
+
 ## Using Google Closure Library
 
 Closure library is built in, so you can use it like so:
