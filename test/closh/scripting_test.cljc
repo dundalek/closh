@@ -17,4 +17,8 @@
 
   (is (= "foo\nbar\n" (process-output (closh "resources/fixtures/script-mode-tests/foo.cljc"))))
 
-  (is (= "Hi World\n" (process-output (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World")))))
+  (is (= "Hi World\n" (process-output (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World"))))
+
+  (is (= "(\"a\" \"b\")\n" (process-output (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b"))))
+
+  (is (= "a b\n" (process-output (closh "resources/fixtures/script-mode-tests/cond.cljc")))))

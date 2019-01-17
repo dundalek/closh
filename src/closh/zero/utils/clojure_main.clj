@@ -476,7 +476,7 @@ by default when a new command-line REPL is started."} repl-requires
     "-e"     eval-opt
     "--eval" eval-opt} opt))
 
-(defn- initialize
+(defn initialize
   "Common initialize routine for repl, script, and null opts"
   [args inits]
   (in-ns 'user)

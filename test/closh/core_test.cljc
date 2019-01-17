@@ -21,7 +21,7 @@
    (do
      (def user-namespace (create-ns 'user))
      (binding [*ns* user-namespace]
-       (eval closh.zero.env/*closh-environment-init*)))
+       (eval closh.zero.env/*closh-environment-requires*)))
    :cljs
    (do
      (def fs (js/require "fs"))
@@ -31,7 +31,7 @@
      (tmp.setGracefulCleanup)
 
      (closh.zero.platform.eval/execute-text
-       (str (pr-str closh.zero.env/*closh-environment-init*)))))
+       (str (pr-str closh.zero.env/*closh-environment-requires*)))))
 
 
 (defn with-tempfile [cb]

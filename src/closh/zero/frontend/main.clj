@@ -2,7 +2,7 @@
   (:require [clojure.tools.reader.reader-types :refer [string-push-back-reader push-back-reader]]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.env :refer [*closh-environment-init*]]
+            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*]]
             [closh.zero.utils.clojure-main :refer [repl repl-requires] :as clojure-main])
   (:refer-clojure :exclude [load-reader])
   (:import [clojure.lang Compiler RT]
@@ -25,7 +25,9 @@
 (defn repl-opt
   [[_ & args] inits]
   (repl :init (fn []
+                (clojure-main/initialize args inits)
                 (apply require repl-requires)
+                (eval *closh-environment-requires*)
                 (eval *closh-environment-init*))
         :read repl-read
         :print repl-print)
@@ -39,7 +41,7 @@
         rdr (StringReader.
              (str
                custom-environment
-               (pr-str *closh-environment-init*)
+               (pr-str *closh-environment-requires*)
                (closh.zero.reader/read-transform (push-back-reader (InputStreamReader. f RT/UTF8)))))]
     (try
       (Compiler/load
@@ -71,7 +73,7 @@
         (StringReader.
              (str
                custom-environment
-               (pr-str *closh-environment-init*)
+               (pr-str *closh-environment-requires*)
                (closh.zero.reader/read-transform rdr)))]
     ;; (. clojure.lang.Compiler (load rdr)))
     (Compiler/load closh-reader)))
@@ -81,7 +83,7 @@
 (defn eval-opt [s]
   (eval-opt-orig
     (str
-      (pr-str *closh-environment-init*)
+      (pr-str *closh-environment-requires*)
       (closh.zero.reader/read-transform (string-push-back-reader s)))))
 
 (defn -main [& args]
