@@ -1,4 +1,4 @@
-FROM pritunl/archlinux
+FROM base/archlinux
 
 ENV NVM_VERSION "v0.33.6"
 ENV LUMO_VERSION "1.9.0-alpha"
