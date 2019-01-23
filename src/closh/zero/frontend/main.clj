@@ -12,6 +12,13 @@
   (str "(alter-var-root #'load-file (constantly closh.zero.frontend.main/compiler-load-file))"
        "(def ^{:dynamic true} *args* *command-line-args*)"))
 
+(defn make-custom-reader [rdr]
+  (StringReader.
+    (str
+      custom-environment
+      (pr-str *closh-environment-requires*)
+      (closh.zero.reader/read-transform rdr))))
+
 (defn repl-read
   [request-prompt request-exit]
   (read-sh {:read-cond :allow} *in*))
@@ -38,11 +45,7 @@
 (defn compiler-load-file [file]
   (let [f (FileInputStream. file)
         ;; rdr (InputStreamReader. f RT/UTF8)
-        rdr (StringReader.
-             (str
-               custom-environment
-               (pr-str *closh-environment-requires*)
-               (closh.zero.reader/read-transform (push-back-reader (InputStreamReader. f RT/UTF8)))))]
+        rdr (make-custom-reader (push-back-reader (InputStreamReader. f RT/UTF8)))]
     (try
       (Compiler/load
         rdr
@@ -69,12 +72,7 @@
   {:added "1.0"
    :static true}
   [rdr]
-  (let [closh-reader
-        (StringReader.
-             (str
-               custom-environment
-               (pr-str *closh-environment-requires*)
-               (closh.zero.reader/read-transform rdr)))]
+  (let [closh-reader (make-custom-reader rdr)]
     ;; (. clojure.lang.Compiler (load rdr)))
     (Compiler/load closh-reader)))
 
