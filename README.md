@@ -61,7 +61,7 @@ Run with `clojure` CLI:
 clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.3.3" :sha "093c8a55c9c3d2a326435d6943a92e5b8090cda1"}}}' -m closh.zero.frontend.rebel
 ```
 
-Alternatively for a faster startup you can download AOT compiled uberjar file and run it with:
+Alternatively for a faster startup you can download AOT compiled uberjar file from the [releases page](https://github.com/dundalek/closh/releases) and run it with:
 ```sh
 java -jar closh-zero.jar
 ```
@@ -222,6 +222,11 @@ npm run test-auto
 Thank you for the support:
 
 - [AdGoji](https://www.adgoji.com/)
+
+## Mentions
+
+- [Hacker News](https://news.ycombinator.com/item?id=15600928)
+- [root.cz](https://www.root.cz/clanky/softwarova-sklizen-19-12-2018/)
 
 ## Copyright & License
 
