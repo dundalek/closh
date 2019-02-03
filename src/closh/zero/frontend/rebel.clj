@@ -125,5 +125,6 @@
   (with-redefs [clojure-main/load-script main/load-script
                 clojure-main/eval-opt main/eval-opt
                 clojure-main/repl-opt repl
+                clojure-main/help-opt main/help-opt
                 clojure.core/load-reader main/load-reader]
     (apply clojure-main/main args)))

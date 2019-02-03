@@ -84,10 +84,17 @@
       (pr-str *closh-environment-requires*)
       (closh.zero.reader/read-transform (string-push-back-reader s)))))
 
+(defn help-opt
+  "Print help text for main"
+  [_ _]
+  (println (-> (:doc (meta (var clojure-main/main)))
+               (clojure.string/replace #"java -cp clojure\.jar clojure\.main" "closh-zero.jar"))))
+
 (defn -main [& args]
   (with-redefs [clojure-main/load-script load-script
                 clojure-main/eval-opt eval-opt
                 clojure-main/repl-opt repl-opt
+                clojure-main/help-opt help-opt
                 clojure.core/load-reader load-reader]
                 ;; redef does not seem to work, must use alter var root
                 ;; clojure.core/load-file compiler-load-file]
