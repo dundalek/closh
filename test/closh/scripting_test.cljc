@@ -38,6 +38,10 @@
     #"Syntax error compiling at \((\d+:\d+)\)"
     (pipe "\n\n\n (throw (Exception. \"my exception message\"))" (closh "-"))
 
+    "5:1"
+    #"/throw2\.cljc:(\d+:\d+)"
+    (closh "resources/fixtures/script-mode-tests/throw2.cljc")
+
     "3"
     #"\(NO_SOURCE_FILE:(\d+)\)"
     (closh "-e" "\n\n(throw (Exception. \"my exception message\"))")))
