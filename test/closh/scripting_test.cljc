@@ -8,20 +8,29 @@
 
 (deftest scripting-test
 
-  (is (= "a b\n" (process-output (closh "-e" "echo a b"))))
+  (are [x y] (= x (process-output y))
 
-  (is (= "a b\n" (process-output (pipe (shx "echo" ["echo a b"])
-                                       (closh "-")))))
+    "a b\n"
+    (closh "-e" "echo a b")
 
-  (is (= "bar\n" (process-output (closh "resources/fixtures/script-mode-tests/bar.cljc"))))
+    "a b\n"
+    (pipe (shx "echo" ["echo a b"])
+          (closh "-"))
 
-  (is (= "foo\nbar\n" (process-output (closh "resources/fixtures/script-mode-tests/foo.cljc"))))
+    "bar\n"
+    (closh "resources/fixtures/script-mode-tests/bar.cljc")
 
-  (is (= "Hi World\n" (process-output (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World"))))
+    "foo\nbar\n"
+    (closh "resources/fixtures/script-mode-tests/foo.cljc")
 
-  (is (= "(\"a\" \"b\")\n" (process-output (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b"))))
+    "Hi World\n"
+    (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World")
 
-  (is (= "a b\n" (process-output (closh "resources/fixtures/script-mode-tests/cond.cljc")))))
+    "(\"a\" \"b\")\n"
+    (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b")
+
+    "a b\n"
+    (closh "resources/fixtures/script-mode-tests/cond.cljc")))
 
 
 (deftest scripting-errors-test
