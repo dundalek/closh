@@ -1,5 +1,5 @@
 (ns closh.compiler-test
-  (:require [clojure.test :refer [deftest are]]
+  (:require [clojure.test :refer [deftest is are]]
             [closh.zero.parser]
             [closh.zero.compiler]))
 
@@ -71,4 +71,8 @@
 
      #?(:clj '(-> (clojure.core/apply exit (clojure.core/concat [1] (expand-partial "abc"))))
         :cljs '(-> (cljs.core/apply exit (cljs.core/concat [1] (expand-partial "abc")))))
-    '(exit 1 "abc")))
+    '(exit 1 "abc"))
+
+  (is (=
+        '(do (shx "echo" [(expand "a")]) (shx "echo" [(expand "b")]))
+        (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(echo a \; echo b))))))

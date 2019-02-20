@@ -15,8 +15,6 @@
    '|& 'pipe-reduce})
    ; '|! 'pipe-foreach
 
-(declare ^:dynamic *process-pipeline*)
-
 (defn ^:no-doc process-arg
   "Transform conformed argument."
   [arg]
@@ -147,7 +145,7 @@
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
-  [{:keys [pipeline pipelines]}]
+  [{:keys [pipeline pipelines]} process-pipeline]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
     (:pipeline
       (reduce
@@ -157,29 +155,30 @@
                 pred (if neg 'true? 'false?)
                 tmp (gensym)]
             (assoc pipeline :pipeline
-                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(*process-pipeline* (:pipeline pipeline)))]
+                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
                       (if (~pred (closh.zero.pipeline/pipeline-condition ~tmp))
                         ~child
                         ~tmp)))))
         (-> items
             (first)
-            (update :pipeline *process-pipeline*))
+            (update :pipeline process-pipeline))
         (rest items)))))
 
 ;; TODO: handle rest of commands when job control is implemented
 (defn ^:no-doc process-command-list
   "Transform conformed command list specification."
-  [{:keys [cmd cmds]}]
-  (process-command-clause cmd))
+  [{:keys [cmd cmds]} process-pipeline]
+  (if (empty? cmds)
+    (process-command-clause cmd process-pipeline)
+    (concat ['do (process-command-clause cmd process-pipeline)]
+            (map #(process-command-clause (:cmd %) process-pipeline) cmds))))
 
 (defn compile-interactive
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
   [ast]
-  (binding [*process-pipeline* process-pipeline-interactive]
-    (process-command-list ast)))
+  (process-command-list ast process-pipeline-interactive))
 
 (defn compile-batch
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses batch pipeline mode."
   [ast]
-  (binding [*process-pipeline* process-pipeline-batch]
-    (process-command-list ast)))
+  (process-command-list ast process-pipeline-batch))
