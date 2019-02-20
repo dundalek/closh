@@ -26,6 +26,9 @@
     "Hi World\n"
     (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World")
 
+    "Hello World\n"
+    (closh "-i" "resources/fixtures/script-mode-tests/cmd2.cljc")
+
     "(\"a\" \"b\")\n"
     (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b")
 
