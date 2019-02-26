@@ -5,7 +5,7 @@ jobs:
 
   test-linux-cljs:
     docker:
-      - image: base/archlinux
+      - image: archlinux/base
 
     working_directory: ~/repo
 

@@ -3,7 +3,8 @@
 NVM_VERSION="v0.33.6"
 LUMO_VERSION="1.9.0-alpha"
 
-pacman -Syy --noconfirm git npm python2 make gcc bc awk
+pacman -Syu --noconfirm
+pacman -S --noconfirm git npm python2 make gcc bc awk
 pacman -Scc --noconfirm
 ln -s /usr/sbin/python2 /usr/sbin/python
 ln -s /usr/sbin/python2-config /usr/sbin/python-config
