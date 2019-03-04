@@ -1,5 +1,7 @@
 (ns closh.zero.compiler
-  (:require [closh.zero.env :refer [*closh-commands*]]))
+  (:require [closh.zero.env :refer [*closh-commands*]]
+            [closh.zero.core :as core]
+            [closh.zero.pipeline :as pipeline]))
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
@@ -7,12 +9,12 @@
 
 (def ^:no-doc pipes
   "Maps shorthand symbols of pipe functions to full name"
-  {'| 'pipe
-   '|> 'pipe-multi
+  {'| `pipeline/pipe
+   '|> `pipeline/pipe-multi
   ;  '|>> ' pipe-thread-last
    ; '|| ' pipe-mapcat
-   '|? 'pipe-filter
-   '|& 'pipe-reduce})
+   '|? `pipeline/pipe-filter
+   '|& `pipeline/pipe-reduce})
    ; '|! 'pipe-foreach
 
 (defn ^:no-doc process-arg
@@ -22,9 +24,9 @@
     ;; clojure form - use as is
     (or (boolean? arg) (number? arg) (seq? arg) (vector? arg)) [arg]
     ;; strings do limited expansion
-    (string? arg) (list 'expand-partial arg)
+    (string? arg) (list `core/expand-partial arg)
     ;; otherwise coerce to string and do full expansion
-    :else (list 'expand (str arg))))
+    :else (list `core/expand (str arg))))
 
 (defn ^:no-doc process-redirect
   "Transform conformed redirection specification."
@@ -33,7 +35,7 @@
               (list? arg) arg
               (number? arg) arg
               (keyword? arg) arg
-              :else (list 'expand-redirect (str arg)))]
+              :else (list `core/expand-redirect (str arg)))]
     (case op
       > [[:out (or fd 1) arg]]
       < [[:in (or fd 0) arg]]
@@ -84,7 +86,7 @@
 
              :else
              (concat
-               (list 'shx name-val)
+               (list `core/shx name-val)
                [(vec parameters)]
                (if (seq redirects) [{:redir redirects}]))))))))
 
@@ -94,7 +96,7 @@
   [symb]
   (or
    (special-symbol? symb)
-   (#{'shx 'fn} symb)))
+   (#{`core/shx 'fn} symb)))
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
