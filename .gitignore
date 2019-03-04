@@ -12,3 +12,4 @@ package-lock.json
 .rebel_readline_history
 closh.iml
 yarn-error.log
+/hs_err_*
