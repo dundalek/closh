@@ -381,6 +381,18 @@
     ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
     ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
 
+  (is (= "2\n1\ngo\n"
+         (-> '(do (sh bash -c "sleep 0.2 && echo 2")
+                  (sh bash -c "sleep 0.1 && echo 1")
+                  (sh echo go))
+             pr-str closh-spawn :stdout)))
+
+  (is (= "2\n1\ngo\n"
+         (-> '(sh bash -c "sleep 0.2 && echo 2" \;
+                  bash -c "sleep 0.1 && echo 1" \;
+                  echo go)
+             pr-str closh-spawn :stdout)))
+
   (is (= {:stdout "x\n" :stderr "" :code 0}
          (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
 
