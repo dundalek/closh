@@ -421,8 +421,8 @@
 (deftest test-builtin-getenv-setenv
 
   (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
-  (is (= "42") (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)")))
-  (is (= "42") (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")")))
+  (is (= "42" (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)"))))
+  (is (= "42" (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")"))))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
 
 (deftest commands

@@ -8,10 +8,10 @@
   (is (= (list "b" "a") (-> (shx "echo" ["a\nb"])
                             (pipe-multi (partial reverse)))))
 
-  (is (= "B\nA\n") (-> (shx "echo" ["a\nb"])
-                       (pipe-map clojure.string/upper-case)
-                       (pipe (shx "sort" ["-r"]))
-                       process-output))
+  (is (= "B\nA\n" (-> (shx "echo" ["a\nb"])
+                      (pipe-map clojure.string/upper-case)
+                      (pipe (shx "sort" ["-r"]))
+                      process-output)))
 
   (is (= "2\n" (-> (shx "echo" ["a\nb"])
                    (pipe (shx "awk" ["END {print NR}"]))
