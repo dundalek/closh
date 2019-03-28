@@ -38,6 +38,8 @@
     "test-windows": "lumo -K -c src;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clojure -Atest -m closh.test-util.runner",
+    "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
+    "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
     "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "rebel": "clojure -m closh.zero.frontend.rebel",
