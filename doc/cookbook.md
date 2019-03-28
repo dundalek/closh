@@ -68,6 +68,10 @@ To use [nvm](https://github.com/creationix/nvm) put the following into your `~/.
   (print (source-shell (str ". \"$NVM_DIR/nvm.sh\"; nvm " (args->str args)))))
 ```
 
+## AWS CLI
+
+[cljaws](https://github.com/timotheosh/cljaws) is a project that integrates with closh and allows you to run AWS API commands with pure Clojure from the command line.
+
 ## Conda integration
 
 To use [conda](https://anaconda.org/) put the following into your `~/.closhrc`:
