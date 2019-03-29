@@ -384,13 +384,13 @@
   (is (= "2\n1\ngo\n"
          (-> '(do (sh bash -c "sleep 0.2 && echo 2")
                   (sh bash -c "sleep 0.1 && echo 1")
-                  (sh echo go))
+                  (sh bash -c "echo go"))
              pr-str closh-spawn :stdout)))
 
   (is (= "2\n1\ngo\n"
          (-> '(sh bash -c "sleep 0.2 && echo 2" \;
                   bash -c "sleep 0.1 && echo 1" \;
-                  echo go)
+                  bash -c "echo go")
              pr-str closh-spawn :stdout)))
 
   (is (= {:stdout "x\n" :stderr "" :code 0}

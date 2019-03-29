@@ -133,17 +133,20 @@
 (defn ^:no-doc process-pipeline-interactive
   "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
   ([pipeline]
-   (process-pipeline
-     pipeline
-     (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
-                   [:redirect {:op '>& :fd 2 :arg :stderr}]]
-                  (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
-     [[:redirect {:op '>& :fd 1 :arg :stdout}]
-      [:redirect {:op '>& :fd 2 :arg :stderr}]])))
+   (list 'closh.zero.pipeline/wait-for-pipeline
+         (process-pipeline
+           pipeline
+           (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
+                         [:redirect {:op '>& :fd 2 :arg :stderr}]]
+                        (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
+           [[:redirect {:op '>& :fd 1 :arg :stdout}]
+            [:redirect {:op '>& :fd 2 :arg :stderr}]]))))
 
 (defn ^:no-doc process-pipeline-batch
   "Transform conformed pipeline specification in batch mode. "
-  [pipeline] (process-pipeline pipeline [] []))
+  [pipeline]
+  (list 'closh.zero.pipeline/wait-when-process
+        (process-pipeline pipeline [] [])))
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
