@@ -37,6 +37,8 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 **Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
 
+**[Try closh online](https://repl.it/@dundalek/closh-playground)** in the browser without installing anything.
+
 ### ClojureScript/Lumo version
 
 Install closh (requires [Node.js](https://nodejs.org/) version 9.x, support for version 10 is in progress, see [#113](https://github.com/dundalek/closh/issues/113)):
