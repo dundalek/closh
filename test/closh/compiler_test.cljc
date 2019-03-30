@@ -6,8 +6,7 @@
 
 (deftest compiler-test
 
-  (are [x y] (= (list 'closh.zero.pipeline/wait-when-process x)
-                (closh.zero.compiler/compile-batch (closh.zero.parser/parse y)))
+  (are [x y] (= x (closh.zero.compiler/compile-batch (closh.zero.parser/parse y)))
     `(shx "ls" [(expand "-l")])
     '(ls -l)
 
@@ -75,5 +74,5 @@
 
   (is (=
         `(do (closh.zero.pipeline/wait-when-process (shx "echo" [(expand "a")]))
-             (closh.zero.pipeline/wait-when-process (shx "echo" [(expand "b")])))
+             (shx "echo" [(expand "b")]))
         (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(echo a \; echo b))))))
