@@ -13,6 +13,7 @@
 # (reduce (fn [m [k v]] (assoc m k (count v))) {} *1)
 # (map (fn [[k v]] [k (count v)]) *1) | (into {})
 # (for [[k v] *1] [k (count v)]) | (into {})
+# ls |> (map extension) | (frequencies)
 
 echo "> closh"
 (sleep 6; while read line; do echo "$line" | randtype -t 8,40000; sleep 0.5; done << END) | unbuffer -p clojure -m closh.zero.frontend.rebel
