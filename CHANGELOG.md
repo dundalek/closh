@@ -1,6 +1,6 @@
 # Changelog
 
-## [master](https://github.com/dundalek/closh/compare/v0.3.3...master) (unreleased)
+## [0.4.0](https://github.com/dundalek/closh/compare/v0.3.3...v0.4.0) (2019-04-07)
 
 ### New features
 
