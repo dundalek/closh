@@ -107,25 +107,3 @@ Here is an example how you could do that with `closh`:
 ```clojure
 (doseq [f (expand "*.txt")] (sh unoconv (str f) (str/replace f #"\.txt$" ".pdf")))
 ```
-
-## Scripting
-
-The development of closh is currently focused on the interactive mode and exploring possible ideas in that area. However, I would like the script mode to be eventually supported as well. In the mean time you can write scripts in plain cljs an clj and use closh as a helper library:
-
-```clojure
-#!/bin/sh
-
-clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :sha "093c8a55c9c3d2a326435d6943a92e5b8090cda1"}}}' -<<END
-
-(require '[closh.zero.macros :refer :all]
-         '[closh.zero.core :refer :all]
-         '[closh.zero.pipeline :refer :all])
-
-(println "hello clojure")
-
-(sh echo hello closh)
-
-(println "Number of files:" (sh-val ls |> (count)))
-
-END
-```
