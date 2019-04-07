@@ -21,18 +21,17 @@
    (do
      (def user-namespace (create-ns 'user))
      (binding [*ns* user-namespace]
-       (eval closh.zero.env/*closh-environment-init*)))
+       (eval closh.zero.env/*closh-environment-requires*)))
    :cljs
    (do
      (def fs (js/require "fs"))
-     (def child-process (js/require "child_process"))
      (def tmp (js/require "tmp"))
 
      ;; Clean up tmp files on unhandled exception
      (tmp.setGracefulCleanup)
 
      (closh.zero.platform.eval/execute-text
-       (str (pr-str closh.zero.env/*closh-environment-init*)))))
+       (str (pr-str closh.zero.env/*closh-environment-requires*)))))
 
 
 (defn with-tempfile [cb]
@@ -382,6 +381,18 @@
     ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
     ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
 
+  (is (= "2\n1\ngo\n"
+         (-> '(do (sh bash -c "sleep 0.2 && echo 2")
+                  (sh bash -c "sleep 0.1 && echo 1")
+                  (sh bash -c "echo go"))
+             pr-str closh-spawn :stdout)))
+
+  (is (= "2\n1\ngo\n"
+         (-> '(sh bash -c "sleep 0.2 && echo 2" \;
+                  bash -c "sleep 0.1 && echo 1" \;
+                  bash -c "echo go")
+             pr-str closh-spawn :stdout)))
+
   (is (= {:stdout "x\n" :stderr "" :code 0}
          (closh-spawn "(sh (cmd (str \"ec\" \"ho\")) x)")))
 
@@ -410,8 +421,8 @@
 (deftest test-builtin-getenv-setenv
 
   (is (= (pr-str (setenv "ONE" "6")) (:stdout (closh "setenv \"ONE\" \"6\""))))
-  (is (= "42") (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)")))
-  (is (= "42") (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")")))
+  (is (= "42" (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)"))))
+  (is (= "42" (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")"))))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
 
 (deftest commands

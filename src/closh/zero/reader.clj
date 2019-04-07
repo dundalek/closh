@@ -48,16 +48,24 @@
                    (if (seq pending-forms)
                      (.remove ^List pending-forms 0)
                      (let [ch (read-char reader)]
-                       (cond
-                         (whitespace?-custom ch) reader
-                         (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
-                         (= ch return-on) READ_FINISHED
-                         ; (number-literal? reader ch) (read-number reader ch)
-                         (= \~ ch) (read-token reader ch)
-                         :else (if-let [f (macros ch)]
-                                 (with-redefs [clojure.tools.reader/read* read*-orig]
-                                   (f reader ch opts pending-forms))
-                                 (read-token reader ch))))))]
+                       (if-let [skip (when (= ch \\)
+                                       (when-let [ch (read-char reader)]
+                                         (if (= ch \newline)
+                                           reader
+                                           (do (unread reader ch)
+                                             nil))))]
+                         skip
+                         (cond
+                           (= ch \newline) \newline
+                           (whitespace?-custom ch) reader
+                           (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
+                           (= ch return-on) READ_FINISHED
+                           ; (number-literal? reader ch) (read-number reader ch)
+                           (= \~ ch) (read-token reader ch)
+                           :else (if-let [f (macros ch)]
+                                   (with-redefs [clojure.tools.reader/read* read*-orig]
+                                     (f reader ch opts pending-forms))
+                                   (read-token reader ch)))))))]
          (if (identical? ret reader)
            (recur)
            ret)))
@@ -89,7 +97,7 @@
   ([reader eof-error? sentinel] (clojure.tools.reader/read* reader eof-error? sentinel nil {} (to-array []))))
 
 (defn read
-  "Replacement for a `clojure.tools.reader/read` which allows reading the command mode. It tries to read all input and returns a list of forms. Optionally takes a `transform` function which is called on the valid result."
+  "Replacement for a `clojure.tools.reader/read` which allows reading the command mode. It tries to read all input on the line and returns a list of forms. Optionally takes a `transform` function which is called on the valid result."
   ([reader]
    (read {} reader))
   ([opts reader]
@@ -99,15 +107,23 @@
      (loop [coll (transient [])]
        (let [ch (read-char reader)]
          (cond
-           (or (nil? ch) (= ch \newline))
+           (nil? ch)
            (if-let [result (seq (persistent! coll))]
              (transform result)
              (read-orig opts reader))
 
-           (whitespace? ch) (recur coll)
+           (and (not= ch \newline) (whitespace? ch)) (recur coll)
 
-           :else (do (unread reader ch)
-                     (recur (conj! coll (read-orig opts reader))))))))))
+           :else (do
+                   (unread reader ch)
+                   (let [token (read-orig opts reader)]
+                     (if (or (= token \;)
+                             (= token \newline)
+                             (and (:eof opts) (= token (:eof opts))))
+                       (if-let [result (seq (persistent! coll))]
+                         (transform result)
+                         (recur (transient [])))
+                       (recur (conj! coll token)))))))))))
 
 (defn read-sh
   "Read input in command mode, wrap it in `sh` symbol."
@@ -122,3 +138,12 @@
    (read-sh {} reader))
   ([opts reader]
    (read opts reader #(conj % 'closh.zero.macros/sh-value))))
+
+(defn read-all [rdr]
+ (let [eof (Object.)
+       opts {:eof eof :read-cond :allow :features #{:clj}}]
+   (loop [forms []]
+      (let [form (read opts rdr)]
+        (if (= form eof)
+          (seq forms)
+          (recur (conj forms form)))))))

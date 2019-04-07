@@ -63,7 +63,7 @@ Run with `clojure` CLI:
 clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.3.3" :sha "093c8a55c9c3d2a326435d6943a92e5b8090cda1"}}}' -m closh.zero.frontend.rebel
 ```
 
-Alternatively for a faster startup you can download AOT compiled uberjar file and run it with:
+Alternatively for a faster startup you can download AOT compiled uberjar file from the [releases page](https://github.com/dundalek/closh/releases) and run it with:
 ```sh
 java -jar closh-zero.jar
 ```
@@ -129,6 +129,7 @@ chsh -s $closh
 ## Documentation
 
 - [Guide and Reference](./doc/guide.md) - Introduction to closh and basic configuration
+- [Shell scripting](./doc/scripting.md) - Guide how to use Closh to write shell scripts
 - [Cookbook](./doc/cookbook.md) - Recipes for integration of other tools like NVM, Autojump, etc.
 - [Design Principles](./doc/principles.md) - Learn about the philosophy and what guides design decisions
 - [Tech notes](./doc/tech.md) - Read about internals and architecture
@@ -137,19 +138,18 @@ chsh -s $closh
 
 ## Roadmap
 
-#### Next release
-
-- [ ] [Script mode](https://github.com/dundalek/closh/labels/scripting)
-
-#### Terminal UI improvements and ideas
+#### Terminal UI improvements and exploration
 
 Explore innovate UI ideas, explore what a shell could become and all possibilities within an ASCII terminal. The goal is to reimagine what people think a command line interface is without having to lose its core power.
 
-- [ ] Explore launcher functionality similar to Alfred and others
-- [ ] Readline improvements
-- [ ] [Interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
-- [ ] Key bindings
-- [ ] [Syntax highlighting in CLJS](https://github.com/dundalek/closh/issues/21)
+- [ ] Explore launcher functionality similar to Alfred, Lacona and others
+- [ ] Try to integrate [Liquid](https://github.com/mogenslund/liquid) as the editor interface, which would enable us:
+  - [ ] Better and more flexible readline experience
+  - [ ] Customizable key bindings
+- [ ] Try  to explore [Trikl](https://github.com/lambdaisland/trikl) for building [interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
+- [ ] Make the JVM more convenient to be used as an interactive shell:
+  - [ ] Reimplement the history search
+  - [ ] [Add support for aliases and abbreviations](https://github.com/dundalek/closh/issues/106) (only custom commands are now supported in the JVM version)
 - [ ] Automatic abbreviation suggestion
 - [ ] Data helpers that automatically parse command output into data structures
 
@@ -224,6 +224,11 @@ npm run test-auto
 Thank you for the support:
 
 - [AdGoji](https://www.adgoji.com/)
+
+## Mentions
+
+- [Hacker News](https://news.ycombinator.com/item?id=15600928)
+- [root.cz](https://www.root.cz/clanky/softwarova-sklizen-19-12-2018/)
 
 ## Copyright & License
 

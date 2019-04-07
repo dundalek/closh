@@ -7,7 +7,8 @@
             [closh.completion-test]
             [closh.core-test]
             [closh.reader-test]
-            [closh.util-test]))
+            [closh.util-test]
+            [closh.scripting-test]))
 
 (def report-orig clojure.test/report)
 
@@ -26,4 +27,5 @@
        'closh.pipeline-test
        'closh.completion-test
        'closh.core-test
-       'closh.util-test))))
+       'closh.util-test
+       'closh.scripting-test))))

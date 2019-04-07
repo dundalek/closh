@@ -4,6 +4,11 @@
             #?(:cljs [closh.zero.platform.util :refer [wait-for-event]]))
   (:refer-clojure :exclude [line-seq]))
 
+(defn wait-when-process [proc]
+  (if (process? proc)
+    (process/wait proc)
+    proc))
+
 (defn wait-for-pipeline
   "Wait for a pipeline to complete. Standard outputs of a process are piped to stdout and stderr."
   [proc]

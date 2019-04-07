@@ -203,6 +203,10 @@ Which is equivalent to bash:
 VAR=1 command
 ```
 
+#### Built-in environment variables
+
+- `PWD` - a path to the current working directory
+
 ### Custom prompt
 
 The prompt can be customized by defining `closh-prompt` function in `~/.closhrc` file.

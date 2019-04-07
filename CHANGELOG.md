@@ -2,6 +2,16 @@
 
 ## [master](https://github.com/dundalek/closh/compare/v0.3.3...master) (unreleased)
 
+### New features
+
+- Add support for script mode based on clojure.main
+
+### Other changes
+
+- Update Clojure to 1.10
+- Use fully qualified names for emitted commands
+- Fix bugs in sequential execution
+
 ## [0.3.3](https://github.com/dundalek/closh/compare/v0.3.2...v0.3.3) (2019-01-02)
 
 - Fix displaying completions provided by zsh ([#115](https://github.com/dundalek/closh/issues/115))

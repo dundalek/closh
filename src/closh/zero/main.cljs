@@ -36,7 +36,8 @@
     ; ignore SIGINT when not running a command (when running a command it already interupts execution with exception)
     (.on "SIGINT" (fn [])))
   (closh.zero.platform.eval/execute-text
-    (str (pr-str closh.zero.env/*closh-environment-init*)))
+    (str (pr-str closh.zero.env/*closh-environment-requires*)
+         (pr-str closh.zero.env/*closh-environment-init*)))
   (load-init-file (path/join (os/homedir) ".closhrc"))
   (.catch (init-database)
    (fn [err]

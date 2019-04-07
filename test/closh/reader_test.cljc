@@ -34,6 +34,56 @@
     '((+ 1 2))
     "(+ 1 2)")
 
+  (are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
+
+    '((ls)
+      (echo x)
+      ((+ 1 2)))
+    "ls\necho x\n(+ 1 2)"
+
+    '((echo a)
+      (echo b))
+    "echo a\\;echo b"
+
+    '((echo a)
+      (echo b))
+    "echo a \\;echo b"
+
+    '((echo a)
+      (echo b))
+    "echo a\\; echo b"
+
+    '((echo a)
+      (echo b))
+    "echo a \\; echo b"
+
+    '((echo a))
+    "echo a ; echo b"
+
+    '((echo a)
+      (echo b))
+    "\\;echo a\\;echo b\\;"
+
+    '((echo a)
+      (b))
+    "echo a \nb"
+
+    '((echo a b))
+    "echo a \\\nb"
+
+    '((echo a | (clojure.string/upper-case)))
+    "echo a \\\n | (clojure.string/upper-case)"
+
+    '((echo a)
+      (echo b))
+    "\n\necho a\n\n\necho b\n\n")
+
+    ; (list (list 'ls (symbol "A Filename With Spaces")))
+    ; "ls A\\ Filename\\ With\\ Spaces")
+
+    ; Maybe allow trailing pipe without backslash escape?
+    ; '((echo a | (clojure.string/upper-case)))
+    ; "echo a |\n (clojure.string/upper-case)")
 
   (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
 

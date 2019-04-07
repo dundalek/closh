@@ -7,13 +7,13 @@
             [rebel-readline.clojure.service.local :as clj-service]
             [rebel-readline.tools :as tools]
             [clojure.string :as string]
-            [clojure.main :refer [repl-requires]]
             [clojure.java.io :as jio]
-            [closh.zero.env :refer [*closh-environment-init*]]
+            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*]]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.frontend.main]
-            [closh.zero.service.completion :refer [complete-shell]])
+            [closh.zero.frontend.main :as main]
+            [closh.zero.service.completion :refer [complete-shell]]
+            [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main])
   (:import [org.jline.reader Completer ParsedLine LineReader]))
 
 (defn repl-prompt []
@@ -29,7 +29,6 @@
           (catch Exception e
             (str "closh: Error in (closh-title): " (:cause (Throwable->map e)))))]
     (.print System/out (str "\u001b]0;" title "\u0007"))))
-
 
 (def opts {:prompt repl-prompt})
 
@@ -88,7 +87,7 @@
   `(let [thread# (Thread/currentThread)]
      (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
 
-(defn -main [& args]
+(defn repl [[_ & args] inits]
   (core/ensure-terminal
     (core/with-line-reader
       (doto
@@ -104,8 +103,11 @@
         (apply
           clojure.main/repl
           (-> {:init (fn []
+                        (clojure-main/initialize args inits)
                         (in-ns 'user)
                         (apply require repl-requires)
+                        (in-ns 'user)
+                        (eval *closh-environment-requires*)
                         (eval *closh-environment-init*)
                         (try
                           (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
@@ -118,3 +120,11 @@
               (merge opts {:prompt (fn [])})
               seq
               flatten))))))
+
+(defn -main [& args]
+  (with-redefs [clojure-main/load-script main/load-script
+                clojure-main/eval-opt main/eval-opt
+                clojure-main/repl-opt repl
+                clojure-main/help-opt main/help-opt
+                clojure.core/load-reader main/load-reader]
+    (apply clojure-main/main args)))

@@ -1,5 +1,7 @@
 (ns closh.zero.compiler
-  (:require [closh.zero.env :refer [*closh-commands*]]))
+  (:require [closh.zero.env :refer [*closh-commands*]]
+            [closh.zero.core :as core]
+            [closh.zero.pipeline :as pipeline]))
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
@@ -7,15 +9,13 @@
 
 (def ^:no-doc pipes
   "Maps shorthand symbols of pipe functions to full name"
-  {'| 'pipe
-   '|> 'pipe-multi
+  {'| `pipeline/pipe
+   '|> `pipeline/pipe-multi
   ;  '|>> ' pipe-thread-last
    ; '|| ' pipe-mapcat
-   '|? 'pipe-filter
-   '|& 'pipe-reduce})
+   '|? `pipeline/pipe-filter
+   '|& `pipeline/pipe-reduce})
    ; '|! 'pipe-foreach
-
-(declare ^:dynamic *process-pipeline*)
 
 (defn ^:no-doc process-arg
   "Transform conformed argument."
@@ -24,9 +24,9 @@
     ;; clojure form - use as is
     (or (boolean? arg) (number? arg) (seq? arg) (vector? arg)) [arg]
     ;; strings do limited expansion
-    (string? arg) (list 'expand-partial arg)
+    (string? arg) (list `core/expand-partial arg)
     ;; otherwise coerce to string and do full expansion
-    :else (list 'expand (str arg))))
+    :else (list `core/expand (str arg))))
 
 (defn ^:no-doc process-redirect
   "Transform conformed redirection specification."
@@ -35,7 +35,7 @@
               (list? arg) arg
               (number? arg) arg
               (keyword? arg) arg
-              :else (list 'expand-redirect (str arg)))]
+              :else (list `core/expand-redirect (str arg)))]
     (case op
       > [[:out (or fd 1) arg]]
       < [[:in (or fd 0) arg]]
@@ -86,7 +86,7 @@
 
              :else
              (concat
-               (list 'shx name-val)
+               (list `core/shx name-val)
                [(vec parameters)]
                (if (seq redirects) [{:redir redirects}]))))))))
 
@@ -96,7 +96,7 @@
   [symb]
   (or
    (special-symbol? symb)
-   (#{'shx 'fn} symb)))
+   (#{`core/shx 'fn} symb)))
    ; TODO: how to dynamically resolve and check for macro?
    ; (-> symb resolve meta :macro boolean)))
 
@@ -133,21 +133,24 @@
 (defn ^:no-doc process-pipeline-interactive
   "Transform conformed pipeline specification in interactive mode. Pipeline by default reads from stdin and writes to stdout."
   ([pipeline]
-   (process-pipeline
-     pipeline
-     (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
-                   [:redirect {:op '>& :fd 2 :arg :stderr}]]
-                  (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
-     [[:redirect {:op '>& :fd 1 :arg :stdout}]
-      [:redirect {:op '>& :fd 2 :arg :stderr}]])))
+   (list 'closh.zero.pipeline/wait-for-pipeline
+         (process-pipeline
+           pipeline
+           (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
+                         [:redirect {:op '>& :fd 2 :arg :stderr}]]
+                        (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
+           [[:redirect {:op '>& :fd 1 :arg :stdout}]
+            [:redirect {:op '>& :fd 2 :arg :stderr}]]))))
 
 (defn ^:no-doc process-pipeline-batch
   "Transform conformed pipeline specification in batch mode. "
-  [pipeline] (process-pipeline pipeline [] []))
+  [pipeline]
+  (list 'closh.zero.pipeline/wait-when-process
+        (process-pipeline pipeline [] [])))
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
-  [{:keys [pipeline pipelines]}]
+  [{:keys [pipeline pipelines]} process-pipeline]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
     (:pipeline
       (reduce
@@ -157,29 +160,31 @@
                 pred (if neg 'true? 'false?)
                 tmp (gensym)]
             (assoc pipeline :pipeline
-                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(*process-pipeline* (:pipeline pipeline)))]
+                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
                       (if (~pred (closh.zero.pipeline/pipeline-condition ~tmp))
                         ~child
                         ~tmp)))))
         (-> items
             (first)
-            (update :pipeline *process-pipeline*))
+            (update :pipeline process-pipeline))
         (rest items)))))
 
 ;; TODO: handle rest of commands when job control is implemented
 (defn ^:no-doc process-command-list
   "Transform conformed command list specification."
-  [{:keys [cmd cmds]}]
-  (process-command-clause cmd))
+  [{:keys [cmd cmds]} process-pipeline]
+  (if (empty? cmds)
+    (process-command-clause cmd #(second (process-pipeline %)))
+    (concat ['do (process-command-clause cmd process-pipeline)]
+            (map #(process-command-clause (:cmd %) process-pipeline) (butlast cmds))
+            [(process-command-clause (:cmd (last cmds)) #(second (process-pipeline %)))])))
 
 (defn compile-interactive
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."
   [ast]
-  (binding [*process-pipeline* process-pipeline-interactive]
-    (process-command-list ast)))
+  (process-command-list ast process-pipeline-interactive))
 
 (defn compile-batch
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses batch pipeline mode."
   [ast]
-  (binding [*process-pipeline* process-pipeline-batch]
-    (process-command-list ast)))
+  (process-command-list ast process-pipeline-batch))
