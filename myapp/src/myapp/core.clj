@@ -15,22 +15,21 @@
                (list 'load-script f)))))
 
 (defn read-output-stream [^java.io.BufferedReader in]
-  (future
-    (try
-      (loop []
-        (let [eof -1 ;(char 0x04)
-              c-int (.read in)]
-          (if (= c-int eof)
-            (println "Received SIGINT")
-            (let [c (char c-int)]
-              ;; FIXME Something weird with the offset of the string in the terminal (not sure)
-              #_(println "Received input" (pr-str c))
-              (print c) (flush)
-              (recur)))))
-      (catch Throwable t
-        (println "Failure in loop " (ex-message t))))))
+  (try
+    (loop []
+      (let [eof -1 ;(char 0x04)
+            c-int (.read in)]
+        (if (= c-int eof)
+          (println "Received SIGINT")
+          (let [c (char c-int)]
+            ;; FIXME Something weird with the offset of the string in the terminal (not sure)
+            #_(println "Received input" (pr-str c))
+            (print c) (flush)
+            (recur)))))
+    (catch Throwable t
+      (println "Failure in loop " (ex-message t)))))
 
-(defn -main [filename & [delay] ]
+(defn -main [filename & _]
   ;; Connect to closh server
   (let [s (Socket. "127.0.0.1" 49999)]
     (if (.isConnected s)
@@ -44,7 +43,6 @@
             (println :repl/quit)))
 
         (read-output-stream in)
-        (if delay
-          (Thread/sleep (Long/parseLong delay))) ;; Missing exceptions otherwise
+
         (println "Done")
         (System/exit 0)))))
