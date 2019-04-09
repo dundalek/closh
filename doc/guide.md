@@ -242,6 +242,8 @@ Bash [prompt format](http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-esc
   (decode-prompt PS1 #js{:env js/process.env}))
 ```
 
+Or you can implement a custom [prompt in clojure](https://gist.github.com/jeroenvandijk/22927bd763ab786ec826a7727b43208c).
+
 ### Tab completion
 
 Closh delegates completion to existing shells. When tab completion is triggered it tries to fetch completions first from `fish`, then `zsh` and finally `bash`. One the mentioned shells needs to be installed for completion to work.
