@@ -1,47 +1,45 @@
 (ns closh.zero.platform.process
-  (:require [closh.zero.platform.util :refer [wait-for-event jsx->clj]]
-            [closh.zero.platform.io :refer [open-io-streams]]
-            [goog.object :as gobj]
-            [child_process]))
+  (:require ;;[closh.zero.platform.io :refer [open-io-streams]]
+            [planck.shell :refer [sh *sh-dir* *sh-env*]]
+            [planck.core]))
 
 (defn process? [proc]
-  (instance? child_process/ChildProcess proc))
+  (= #{:exit :out :err} (set (keys proc))))
 
 (defn exit-code [proc]
-  (.-exitCode proc))
+  (:exit proc))
 
 (defn wait
   "Wait untils process exits and all of its stdio streams are closed."
   [proc]
-  (when (and (process? proc)
-             (nil? (exit-code proc)))
-    (wait-for-event proc "close"))
+  ; (when (and (process? proc)
+  ;            (nil? (exit-code proc)))
+  ;   (wait-for-event proc "close"))
   proc)
 
 (defn exit [code]
-  (js/process.exit code))
+  (planck.core/exit code))
 
 (defn cwd []
-  (js/process.cwd))
+  *sh-dir*)
 
 (defn chdir [dir]
-  (js/process.chdir dir))
+  ;; todo maybe need to resolve dir
+  (set! *sh-dir* dir))
 
 (defn shx
   "Executes a command as child process."
   ([cmd] (shx cmd []))
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
-   (child_process/spawn
-     cmd
-     (apply array (flatten args))
-     #js{:stdio (open-io-streams (:redir opts))})))
+   (apply sh (concat cmd (flatten args)))))
+   ;;#js{:stdio (open-io-streams (:redir opts))})))
 
 (defn setenv
-  ([k] (js-delete js/process.env k))
-  ([k v] (do (gobj/set js/process.env k v)
+  ([k] (set! *sh-env* (dissoc *sh-env* k)))
+  ([k v] (do (set! *sh-env* (assoc *sh-env* k v))
              v)))
 
 (defn getenv
-  ([] (jsx->clj js/process.env))
-  ([k] (gobj/get js/process.env k)))
+  ([] *sh-env*)
+  ([k] (get *sh-env* k)))

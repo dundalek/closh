@@ -35,6 +35,8 @@
     "test-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs; npm run test-clj\"",
     "test-cljs": "lumo -K -c src/common:src/lumo:test -m closh.test-util.runner",
     "test-cljs-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs\"",
+    "test-planck": "planck -K -c src/common:src/planck:test -m closh.test-util.runner-planck",
+    "test-planck-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-planck\"",
     "test-windows": "lumo -K -c src/common;src/lumo;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clojure -Atest -m closh.test-util.runner",

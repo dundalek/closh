@@ -7,6 +7,7 @@ package-lock.json
 .nrepl-port
 /doc/api
 .lumo_cache
+.planck_cache
 .cpcache
 .idea
 .rebel_readline_history
