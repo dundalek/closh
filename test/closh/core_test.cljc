@@ -74,7 +74,7 @@
              content)))
 
 (defn closh-spawn-helper [cmd]
-  #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "--classpath" "src:test" "-m" "closh.test-util.spawn-helper" cmd]))
+  #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
      :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
 
 (defn closh-spawn [cmd]

@@ -8,7 +8,7 @@ var fs = require('fs');
 var isWindows = /^win/.test(process.platform);
 var bin = isWindows ? 'lumo.cmd' : 'lumo';
 var args = [
-  '--classpath', path.join(__dirname, '..', 'src'),
+  '--classpath', path.join(__dirname, '..', 'src', 'common') + ':' + path.join(__dirname, '..', 'src', 'lumo'),
   '--cache', path.join(os.homedir(), '.closh', 'cache', 'lumo'),
   '-m', 'closh.zero.main',
 ];
