@@ -3,7 +3,7 @@
             [clojure.string]
             [lumo.repl]
             [goog.object :as gobj]
-            [closh.zero.platform.process :as process]
+            [closh.zero.platform.process :refer [process?] :as process]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
@@ -182,6 +182,11 @@
 
    nil))
 
+(defn repl-print [result]
+  (when-not (or (nil? result)
+                (process? result))
+    (.write js/process.stdout (with-out-str (pprint result)))))
+
 (defn -main
   [& args]
   (let [rl (readline/createInterface
@@ -229,12 +234,8 @@
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]
               (try
-                (let [result (execute-command-text (expand-alias input))]
-                  (when-not (or (nil? result)
-                                (instance? child_process/ChildProcess result)
-                                (and (seq? result)
-                                     (every? #(instance? child_process/ChildProcess %) result)))
-                    (.write js/process.stdout (with-out-str (pprint result)))))
+                (-> (execute-command-text (expand-alias input))
+                    (repl-print))
                 (catch :default e
                   (js/console.error e)))
               (._setRawMode rl previous-mode)))
