@@ -8,7 +8,7 @@
             [rebel-readline.tools :as tools]
             [clojure.string :as string]
             [clojure.java.io :as jio]
-            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*]]
+            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.frontend.main :as main]
@@ -43,6 +43,7 @@
 (defn repl-print
   [& args]
   (when-not (or (nil? (first args))
+                (identical? (first args) env/success)
                 (process? (first args)))
     (apply syntax-highlight-prn args)))
 

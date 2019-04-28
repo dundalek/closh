@@ -3,6 +3,7 @@
             [clojure.string]
             [lumo.repl]
             [goog.object :as gobj]
+            [closh.zero.env :as env]
             [closh.zero.platform.process :refer [process?] :as process]
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
@@ -184,6 +185,7 @@
 
 (defn repl-print [result]
   (when-not (or (nil? result)
+                (identical? (first args) env/success)
                 (process? result))
     (.write js/process.stdout (with-out-str (pprint result)))))
 

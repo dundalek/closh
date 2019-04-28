@@ -2,7 +2,7 @@
   (:require [clojure.tools.reader.reader-types :refer [string-push-back-reader push-back-reader read-char unread]]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.platform.process :refer [process?]]
-            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*]]
+            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
             [closh.zero.utils.clojure-main :refer [repl repl-requires with-read-known] :as clojure-main])
   (:refer-clojure :exclude [load-reader])
   (:import [clojure.lang Compiler RT LineNumberingPushbackReader]
@@ -64,6 +64,7 @@
 (defn repl-print
   [& args]
   (when-not (or (nil? (first args))
+                (identical? (first args) env/success)
                 (process? (first args)))
     (apply prn args)))
 

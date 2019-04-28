@@ -1,6 +1,7 @@
 (ns closh.zero.builtin
   (:require [clojure.string]
-            [closh.zero.platform.process :as process]))
+            [closh.zero.platform.process :as process]
+            [closh.zero.env :as env]))
 
 (defn exit
   "Exits the process using optional first argument as exit code."
@@ -40,4 +41,4 @@
                 (getenv "HOME"))]
     (process/chdir dir)
     (setenv "PWD" (process/cwd))
-    nil))
+    env/success))

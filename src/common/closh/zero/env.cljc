@@ -1,5 +1,8 @@
 (ns closh.zero.env)
 
+(def success #?(:clj (Object.) :cljs #()))
+(def failure #?(:clj (Object.) :cljs #()))
+
 (def ^:dynamic *closh-aliases* (atom {}))
 (def ^:dynamic *closh-abbreviations* (atom {}))
 (def ^:dynamic *closh-commands* (atom {}))
