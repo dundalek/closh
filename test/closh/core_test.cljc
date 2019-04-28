@@ -222,7 +222,10 @@
     "echo abc '> /tmp/x"
 
     "{"
-    "cat < package.json | (first)")
+    "cat < package.json | (first)"
+
+    "ok\n"
+    "cd . && echo ok")
 
     ; TODO: Fix input redirection to a function
     ; "{"
