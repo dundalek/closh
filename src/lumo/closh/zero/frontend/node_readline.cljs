@@ -185,7 +185,7 @@
 
 (defn repl-print [result]
   (when-not (or (nil? result)
-                (identical? (first args) env/success)
+                (identical? result env/success)
                 (process? result))
     (.write js/process.stdout (with-out-str (pprint result)))))
 
