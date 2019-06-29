@@ -1,6 +1,8 @@
 (ns closh.zero.platform.process
-  (:require [closh.zero.platform.io :refer [*stdout* *stderr*]])
-  (:import java.io.File))
+  (:require [clojure.java.io :refer [default-streams-impl make-input-stream make-output-stream IOFactory]]
+            [closh.zero.platform.io :refer [*stdout* *stderr*]])
+  (:import (java.io File)
+           (java.net URL MalformedURLException)))
 
 (def ^:dynamic *env* (atom {}))
 
@@ -21,15 +23,16 @@
 (defn exit [code]
   (System/exit code))
 
-; Might not be right be should do for now
-; https://stackoverflow.com/questions/1234795/why-is-the-user-dir-system-property-working-in-java
 (defn cwd []
   @*cwd*)
 
+(defn resolve-path [s]
+  (let [f (File. s)]
+    (-> (if (.isAbsolute f) f (File. (cwd) s))
+        (.getCanonicalPath))))
+
 (defn chdir [dir]
-  (let [f (File. dir)
-        target (-> (if (.isAbsolute f) f (File. (cwd) dir))
-                   (.getCanonicalPath))]
+  (let [target (resolve-path dir)]
     (if (.isDirectory (File. target))
       (reset! *cwd* target)
       (throw (Exception. (str target ": Is not a directory"))))))
@@ -114,3 +117,18 @@
                 ([] (.waitFor process))
                 ([timeout unit] (.waitFor process timeout unit))))
             process)))))
+
+;; Extend protocols to make IO functions aware of the CWD, e.g. for slurp
+(extend String
+  IOFactory
+  (assoc default-streams-impl
+    :make-input-stream (fn [^String x opts]
+                         (try
+                          (make-input-stream (URL. x) opts)
+                          (catch MalformedURLException e
+                            (make-input-stream (File. (resolve-path x)) opts))))
+    :make-output-stream (fn [^String x opts]
+                          (try
+                           (make-output-stream (URL. x) opts)
+                           (catch MalformedURLException err
+                            (make-output-stream (File. (resolve-path x)) opts))))))
