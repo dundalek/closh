@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix cd does not return success value ([#70](https://github.com/dundalek/closh/issues/70))
+- Fix metadata handling that affected dynamic vars ([#146](https://github.com/dundalek/closh/issues/146))
 
 ## [0.4.0](https://github.com/dundalek/closh/compare/v0.3.3...v0.4.0) (2019-04-07)
 
