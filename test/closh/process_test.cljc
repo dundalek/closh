@@ -57,4 +57,11 @@
            (do
              (chdir "..")
              (chdir d)
-             (cwd))))))
+             (cwd)))))
+
+  (is (= (slurp "deps.edn")
+         (do
+           (chdir "src")
+           (let [out (slurp "../deps.edn")]
+             (chdir "..")
+             out)))))
