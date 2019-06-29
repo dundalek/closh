@@ -199,11 +199,6 @@ Run the cljs app
 npm start
 ```
 
-Run in dev mode reloading on changes
-```
-npm run dev
-```
-
 Run the clj app
 ```
 clojure -m closh.zero.frontend.rebel
@@ -218,6 +213,10 @@ Re-run tests on change
 ```
 npm run test-auto
 ```
+
+### Manual Java builds
+
+Run `npm run pkg-java`. The resulting binary will be in `target/closh-zero.jar`.
 
 ## Sponsors
 
