@@ -33,8 +33,10 @@
     (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b")
 
     "a b\n"
-    (closh "resources/fixtures/script-mode-tests/cond.cljc")))
+    (closh "resources/fixtures/script-mode-tests/cond.cljc")
 
+    "true"
+    (closh "-e" "(print (:dynamic (meta ^:dynamic {})))")))
 
 (deftest scripting-errors-test
 
