@@ -4,6 +4,8 @@
 
 (def ^:dynamic *env* (atom {}))
 
+(def ^:dynamic *cwd* (atom (System/getProperty "user.dir")))
+
 (defn process? [proc]
   (instance? Process proc))
 
@@ -22,12 +24,14 @@
 ; Might not be right be should do for now
 ; https://stackoverflow.com/questions/1234795/why-is-the-user-dir-system-property-working-in-java
 (defn cwd []
-  (.getCanonicalPath (File. "")))
+  @*cwd*)
 
 (defn chdir [dir]
-  (let [target (.getAbsolutePath (File. dir))]
+  (let [f (File. dir)
+        target (-> (if (.isAbsolute f) f (File. (cwd) dir))
+                   (.getCanonicalPath))]
     (if (.isDirectory (File. target))
-      (System/setProperty "user.dir" target)
+      (reset! *cwd* target)
       (throw (Exception. (str target ": Is not a directory"))))))
 
 (defn setenv
