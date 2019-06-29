@@ -5,7 +5,7 @@
 
 (def ^:no-doc builtins
   "Set of symbols of builtin functions"
-  #{'cd 'exit 'quit 'getenv 'setenv})
+  #{'cd 'exit 'quit 'getenv 'setenv 'dh})
 
 (def ^:no-doc pipes
   "Maps shorthand symbols of pipe functions to full name"
