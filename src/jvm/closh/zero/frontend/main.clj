@@ -49,7 +49,7 @@
                 (let [form (closh.zero.reader/read opts rdr)]
                   (if (= form eof)
                     (.close writer)
-                    (do
+                    (binding [*print-meta* true]
                       (doseq [c (pr-str (conj form 'closh.zero.macros/sh-wrapper))]
                         (.write writer (int c)))))))
               (let [c (proxy-super read)]
