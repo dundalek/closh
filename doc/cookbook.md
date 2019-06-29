@@ -107,3 +107,31 @@ Here is an example how you could do that with `closh`:
 ```clojure
 (doseq [f (expand "*.txt")] (sh unoconv (str f) (str/replace f #"\.txt$" ".pdf")))
 ```
+
+## Temporarily change Current Working Directory
+
+In bash it is usually done using subshell or directory stack:
+```bash
+# Using subshell
+(cd SOME_PATH && exec_some_command)
+
+# Using directory stack
+pushd SOME_PATH
+exec_some_command
+popd
+```
+
+Possible solution in closh with a macro:
+```clojure
+(defmacro with-cwd [dir & body])
+  `(binding [closh.zero.platform.process/*cwd*
+             (atom (closh.zero.platform.process/resolve-path dir))])
+    (sh ~@body)
+```
+
+Then it can be used as:
+```clojure
+(with-cwd "src"
+  pwd \;
+  ls -l)
+```
