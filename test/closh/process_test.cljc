@@ -3,7 +3,7 @@
             [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :as process :refer [shx process? cwd chdir]]
             [closh.zero.pipeline :refer [process-output]]
-            #?@(:cljs [[path] [tmp]]))
+            #?@(:cljs [[path] [tmp] [lumo.io :refer [spit slurp]]]))
   #?(:clj (:import [java.io File])))
 
 #?(:cljs (tmp/setGracefulCleanup))
@@ -57,4 +57,11 @@
            (do
              (chdir "..")
              (chdir d)
-             (cwd))))))
+             (cwd)))))
+
+  (is (= (slurp "deps.edn")
+         (do
+           (chdir "src")
+           (let [out (slurp "../deps.edn")]
+             (chdir "..")
+             out)))))
