@@ -52,7 +52,7 @@
     `(shx "wc" [(expand "-l")] {:redir [[:set 2 1]]})
     '(wc -l 2 >& 1)
 
-    `(apply ~'cd (concat (expand "dirname")))
+    `(apply ((deref closh.zero.env/*closh-commands*) (quote ~'cd)) (concat (closh.zero.core/expand "dirname")))
     '(cd dirname)
 
     ;; === Expansion coercion tests ===
@@ -69,7 +69,7 @@
     `(shx "echo" [[(~'+ 1 2)]])
     '(echo (+ 1 2))
 
-    `(apply ~'exit (concat [1] (expand-partial "abc")))
+    `(apply ((deref closh.zero.env/*closh-commands*) (quote ~'exit)) (concat [1] (closh.zero.core/expand-partial "abc")))
     '(exit 1 "abc"))
 
   (is (=

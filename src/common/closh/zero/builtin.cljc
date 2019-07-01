@@ -1,9 +1,10 @@
 (ns closh.zero.builtin
   (:require [clojure.string]
             [closh.zero.platform.process :as process]
-            [closh.zero.env :as env]))
+            [closh.zero.env :as env]
+            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [defcmd]]))
 
-(defn exit
+(defcmd exit
   "Exits the process using optional first argument as exit code."
   ([]
    (exit 0))
@@ -13,8 +14,10 @@
 (def quit
   "Alias for `exit`."
   exit)
+(defcmd quit
+  exit)
 
-(defn getenv
+(defcmd getenv
   "Gets environment variables. Given X args where X is:
   0  - Returns a map of all environment variables and their values
   1  - Returns the value of the specified environment variable as a string
@@ -26,14 +29,14 @@
                #(vector % (process/getenv %))
                args))))
 
-(defn setenv
+(defcmd setenv
   "Sets environment variables. Takes args as key value pairs and returns a list of values"
   [& args]
   (doall (map
           (fn [[k v]] (process/setenv k v))
           (partition 2 args))))
 
-(defn cd
+(defcmd cd
   "Changes current working directory to a path of a first given argument."
   [& args]
   ;; flatten is used because we can get arguments from expand which are collections

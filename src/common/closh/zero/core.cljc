@@ -1,9 +1,8 @@
 (ns closh.zero.core
   (:require [clojure.string]
             #?(:cljs [goog.object :as gobj])
-            [closh.zero.builtin :refer [getenv]]
             [closh.zero.platform.io :refer [glob *stderr*]]
-            [closh.zero.platform.process :as process :refer [process?]]
+            [closh.zero.platform.process :as process]
             [closh.zero.pipeline :refer [process-value]]
             [closh.zero.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
@@ -13,13 +12,13 @@
   "Expands env variable, it does not look inside string."
   [s]
   (if (re-find #"^\$" s)
-    (getenv (subs s 1))
+    (process/getenv (subs s 1))
     s))
 
 (defn expand-tilde
   "Expands tilde character to a path to user's home directory."
   [s]
-  (clojure.string/replace-first s #"^~" (getenv "HOME")))
+  (clojure.string/replace-first s #"^~" (process/getenv "HOME")))
 
 (defn expand-filename
   "Expands filename based on globbing patterns"
