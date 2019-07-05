@@ -135,3 +135,17 @@ Then it can be used as:
   pwd \;
   ls -l)
 ```
+
+## Get absolute location of a script
+
+Useful to reference files relatively to a location of running script. In bash usually done with a following idiom:
+
+```bash
+__dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+```
+
+It can be done in closh with:
+
+```clojure
+(def dir (-> *file* clojure.java.io/as-file .getParentFile .getCanonicalPath))
+```
