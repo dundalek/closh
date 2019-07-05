@@ -251,7 +251,9 @@
 
     "echo x | cat < package.json"
 
-    "cat < package.json | cat")
+    "cat < package.json | cat"
+
+    "/bin/ech? x")
 
   (are [x y] (= (bash x) (closh y))
     "echo \"*\""
