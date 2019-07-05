@@ -78,10 +78,9 @@
                `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
 
              :else
-             (concat
-               (list `core/shx name-val)
-               [(vec parameters)]
-               (if (seq redirects) [{:redir redirects}]))))))))
+             `(core/shx (core/expand-command ~name-val)
+                        ~(vec parameters)
+                        ~@(when (seq redirects) [{:redir redirects}]))))))))
 
 (defn ^:no-doc special?
   "Predicate to detect special form so we know not to partial apply it when piping.

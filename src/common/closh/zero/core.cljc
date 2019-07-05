@@ -52,6 +52,11 @@
       expand-filename)
     (list)))
 
+(defn expand-command
+  "Expands first command token."
+  [s]
+  (first (expand s)))
+
 (defn get-command-suggestion
   "Get suggestion for a missing command using command-not-found utility."
   [cmdname]
