@@ -36,6 +36,11 @@
           (fn [[k v]] (process/setenv k v))
           (partition 2 args))))
 
+(defcmd unsetenv
+  "Unsets environment variables."
+  [& args]
+  (doall (map process/unsetenv args)))
+
 (defcmd cd
   "Changes current working directory to a path of a first given argument."
   [& args]

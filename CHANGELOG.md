@@ -2,6 +2,8 @@
 
 ## [master](https://github.com/dundalek/closh/compare/v0.4.0...master) (unreleased)
 
+- Add unsetenv builtin ([#14](https://github.com/dundalek/closh/issues/140))
+
 ### Fixes
 
 - Fix cd which broke with Java 11 ([#144](https://github.com/dundalek/closh/issues/144))

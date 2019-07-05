@@ -1,6 +1,6 @@
 (ns closh.zero.util
   (:require [clojure.data :refer [diff]]
-            [closh.zero.platform.process :refer [shx setenv getenv]]
+            [closh.zero.platform.process :refer [shx setenv getenv unsetenv]]
             [closh.zero.pipeline :refer [process-value]]
             #?(:clj [clojure.data.json :as json])
             #?@(:cljs [[fs] [tmp]])))
@@ -30,7 +30,7 @@
   (let [var-diff (diff before after)
         removed (remove #(ignore-env-vars (first %)) (first var-diff))
         changed (remove #(ignore-env-vars (first %)) (second var-diff))]
-    (doseq [[k _] removed] (setenv k))
+    (doseq [[k _] removed] (unsetenv k))
     (doseq [[k v] changed] (setenv k v))))
 
 (defn source-shell

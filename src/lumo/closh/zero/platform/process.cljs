@@ -37,10 +37,12 @@
      (apply array (flatten args))
      #js{:stdio (open-io-streams (:redir opts))})))
 
-(defn setenv
-  ([k] (js-delete js/process.env k))
-  ([k v] (do (gobj/set js/process.env k v)
-             v)))
+(defn setenv [k v]
+  (do (gobj/set js/process.env k v)
+      v))
+
+(defn unsetenv [k]
+  (js-delete js/process.env k))
 
 (defn getenv
   ([] (jsx->clj js/process.env))

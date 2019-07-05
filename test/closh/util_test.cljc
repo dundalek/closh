@@ -1,6 +1,6 @@
 (ns closh.util-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
-            [closh.zero.platform.process :refer [getenv setenv shx]]
+            [closh.zero.platform.process :refer [getenv setenv unsetenv shx]]
             [closh.zero.pipeline :refer [pipeline-value]]
             [closh.zero.util :refer [source-shell]]))
 
@@ -25,4 +25,8 @@
                   (getenv "B"))))
 
   (is (= "hello\n" (do (setenv "B" "hello")
-                       (pipeline-value (shx "bash" ["-c" "echo $B"]))))))
+                       (pipeline-value (shx "bash" ["-c" "echo $B"])))))
+
+  (is (= nil (do (setenv "B" "hi")
+                 (unsetenv "B")
+                 (getenv "B")))))

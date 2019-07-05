@@ -13,7 +13,7 @@
             '[closh.zero.compiler]
             '[closh.zero.parser]
             '[closh.zero.core :refer [shx expand]]
-            '[closh.zero.builtin :refer [cd exit quit getenv setenv]]
+            '[closh.zero.builtin :refer [cd exit quit getenv setenv unsetenv]]
             '[closh.zero.platform.process]
             '[closh.zero.pipeline]
             '[clojure.string :as str]

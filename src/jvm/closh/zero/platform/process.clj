@@ -37,11 +37,13 @@
       (reset! *cwd* target)
       (throw (Exception. (str target ": Is not a directory"))))))
 
-(defn setenv
-  ([k] (swap! *env* dissoc k))
-  ([k v] (let [val (str v)]
-           (swap! *env* assoc k val)
-           val)))
+(defn setenv [k v]
+  (let [val (str v)]
+    (swap! *env* assoc k val)
+    val))
+
+(defn unsetenv [k]
+  (swap! *env* dissoc k))
 
 (defn getenv
   ([] (merge
