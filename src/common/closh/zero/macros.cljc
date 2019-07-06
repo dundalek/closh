@@ -27,7 +27,9 @@
 (defmacro sh-str
   "Expands command mode returning process output as string."
   [& tokens]
-  `(-> ~(compiler/compile-batch (parser/parse tokens))
+  `(-> ~(compiler/process-command-list
+         (parser/parse tokens)
+         compiler/process-pipeline-command-substitution)
        (pipeline/process-output)
        (str)
        (str/trim)))
@@ -35,7 +37,9 @@
 (defmacro sh-seq
   "Expands command mode collecting process output returning it as a sequence of strings split by whitespace."
   [& tokens]
-  `(-> ~(compiler/compile-batch (parser/parse tokens))
+  `(-> ~(compiler/process-command-list
+         (parser/parse tokens)
+         compiler/process-pipeline-command-substitution)
        (pipeline/process-output)
        (str/trim)
        (str/split #"\s+")))
@@ -43,7 +47,9 @@
 (defmacro sh-lines
   "Expands command mode collecting process output returning it as a sequence of lines."
   [& tokens]
-  `(-> ~(compiler/compile-batch (parser/parse tokens))
+  `(-> ~(compiler/process-command-list
+         (parser/parse tokens)
+         compiler/process-pipeline-command-substitution)
        (pipeline/process-output)
        (str/trim)
        (str/split #"\n")))

@@ -140,6 +140,15 @@
   (list `pipeline/wait-when-process
         (process-pipeline pipeline [] [])))
 
+(defn ^:no-doc process-pipeline-command-substitution
+  "Transform pipeline for command substitution mode, do not capture stderr."
+  [pipeline]
+  (list `pipeline/wait-for-pipeline
+        (process-pipeline
+          pipeline
+          []
+          [[:redirect {:op '>& :fd 2 :arg :stderr}]])))
+
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
   [{:keys [pipeline pipelines]} process-pipeline]
