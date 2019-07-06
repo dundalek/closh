@@ -39,6 +39,24 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 **[Try closh online](https://repl.it/@dundalek/closh-playground)** in the browser without installing anything.
 
+### Clojure/JVM version
+
+Download the jar file from the [releases page](https://github.com/dundalek/closh/releases) and run it with:
+```sh
+java -jar closh-zero.jar
+```
+
+The jar file also contains a special header, so once you make it executable you can run it directly:
+```sh
+chmod +x closh-zero.jar
+./closh-zero.jar
+```
+
+It can also run with `clojure` CLI:
+```sh
+clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.4.0" :sha "17e62d5bceaa0cb65476e00d10a239a1017ec5b8"}}}' -m closh.zero.frontend.rebel
+```
+
 ### ClojureScript/Lumo version
 
 Install closh (requires [Node.js](https://nodejs.org/) version 9.x, support for version 10 is in progress, see [#113](https://github.com/dundalek/closh/issues/113)):
@@ -54,24 +72,6 @@ npm install -g closh --unsafe-perm
 To install development version from master branch:
 ```
 npm i -g dundalek/closh
-```
-
-### Clojure/JVM version
-
-Run with `clojure` CLI:
-```sh
-clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.4.0" :sha "17e62d5bceaa0cb65476e00d10a239a1017ec5b8"}}}' -m closh.zero.frontend.rebel
-```
-
-Alternatively for a faster startup you can download AOT compiled uberjar file from the [releases page](https://github.com/dundalek/closh/releases) and run it with:
-```sh
-java -jar closh-zero.jar
-```
-
-The jar file also contains a special header, so once you make it executable you can run it directly:
-```sh
-chmod +x closh-zero.jar
-./closh-zero.jar
 ```
 
 ## Quick Start
