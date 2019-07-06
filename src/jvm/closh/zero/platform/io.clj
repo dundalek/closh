@@ -1,5 +1,5 @@
 (ns closh.zero.platform.io
-  (:require [clojure.string]
+  (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [org.satta.glob :as clj-glob])
   (:refer-clojure :exclude [line-seq]))
@@ -13,21 +13,19 @@
 (defn glob
   ([s] (glob s nil))
   ([s cwd-file]
-   (let [pattern (clojure.string/replace s relpath-regex "")
+   (let [pattern (str/replace s relpath-regex "")
          is-relative (not= s pattern)
          result (clj-glob/glob pattern (java.io.File. cwd-file))]
       (if (seq result)
-        (let [len (count cwd-file)]
-          (map
-            #(let [s (str %)
-                   path (if (= cwd-file (subs s 0 len))
-                          (subs s (inc len))
-                          s)]
-               (if is-relative
-                 (str "./" path)
-                 path))
-            result))
-        [s]))))
+        (for [item result]
+          (let [s (str item)
+                path (if (str/starts-with? s cwd-file)
+                       (subs s (inc (count cwd-file)))
+                       s)]
+            (if is-relative
+              (str "./" path)
+              path)))
+        (list s)))))
 
 (defn out-stream
   "Get stdout stream of a given process."
