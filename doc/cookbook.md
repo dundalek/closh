@@ -149,3 +149,25 @@ It can be done in closh with:
 ```clojure
 (def dir (-> *file* clojure.java.io/as-file .getParentFile .getCanonicalPath))
 ```
+
+## Helpers for file tests
+
+You can use [datoteka](https://funcool.github.io/datoteka/latest/#reference) library which provides helper functions for tests on files like `path?`, `file?`, `absolute?`, `relative?`, `executable?`, `exists?`, `directory?`, `regular-file?`, `link?`, `hidden?`, `readable?`, `writable?`.
+
+Add following into your `~/.closhrc`.
+```clojure
+#?(:clj
+   (do
+     (require '[cemerick.pomegranate])
+     (cemerick.pomegranate/add-dependencies
+       :coordinates '[[funcool/datoteka "1.1.0"]]
+       :repositories (merge cemerick.pomegranate.aether/maven-central
+                            {"clojars" "https://clojars.org/repo"}))
+     (require '[datoteka.core :as f])))
+
+```
+
+Then you can use those functions for example like:
+```clojure
+(f/executable? "myapp") && ./myapp
+```
