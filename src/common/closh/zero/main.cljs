@@ -13,7 +13,9 @@
             [closh.zero.service.history :refer [init-database]]
             [closh.zero.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
             [closh.zero.frontend.node-readline]
-            #?@(:cljs [[fs] [os] [path]])))
+            [fs]
+            [os]
+            [path]))
 
 (enable-console-print!)
 

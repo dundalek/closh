@@ -1,6 +1,5 @@
 (ns closh.zero.core
   (:require [clojure.string]
-            #?(:cljs [goog.object :as gobj])
             [closh.zero.platform.io :refer [glob *stderr*]]
             [closh.zero.platform.process :as process]
             [closh.zero.pipeline :refer [process-value]]
@@ -85,7 +84,7 @@
                     (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
       :clj (try
              (process/shx cmd args opts)
-             (catch java.io.IOException ex
+             (catch java.io.IOException _
                (let [suggestion (get-command-suggestion cmd)]
                  (when-not (clojure.string/blank? suggestion)
                    (.print *stderr* suggestion))

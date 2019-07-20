@@ -1,5 +1,5 @@
 (ns closh.zero.macros
-  (:require [clojure.string :as trim]
+  (:require [clojure.string :as str]
             [closh.zero.parser :as parser]
             [closh.zero.compiler :as compiler]
             [closh.zero.pipeline :as pipeline]
@@ -69,8 +69,9 @@
        (process/exit-code)
        (zero?)))
 
-(defmacro sh-wrapper [& tokens]
+(defmacro sh-wrapper
   "Like sh macro but if the result is a process then returns nil. This is useful for eval mode so that process objects are not printed out."
+  [& tokens]
   `(let [result# (sh ~@tokens)]
      (when-not (process/process? result#) result#)))
 

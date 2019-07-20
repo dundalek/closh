@@ -47,7 +47,7 @@
           (.run db table-session)
           (.run db table-history)
           (.run db "INSERT INTO session VALUES (?, ?)"
-                   #js[nil (Date.now)]
+                   #js[nil (js/Date.now)]
             (fn [err]
               (if err
                 (reject err)
@@ -73,7 +73,7 @@
   (get-db
     (fn [db]
       (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
-               #js[nil session-id (Date.now) command cwd]
+               #js[nil session-id (js/Date.now) command cwd]
                cb))))
 
 (defn search-history

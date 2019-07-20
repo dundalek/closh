@@ -9,7 +9,8 @@
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
             [closh.zero.service.history :refer [add-history]]
-            #?@(:cljs [[readline] [child_process]])))
+            [readline]
+            [child_process]))
 
 (def ^:no-doc readline-tty-write readline/Interface.prototype._ttyWrite)
 

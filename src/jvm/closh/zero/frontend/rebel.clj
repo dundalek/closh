@@ -5,7 +5,6 @@
             [rebel-readline.clojure.line-reader :as clj-line-reader]
             [rebel-readline.jline-api :as api]
             [rebel-readline.clojure.service.local :as clj-service]
-            [rebel-readline.tools :as tools]
             [clojure.string :as string]
             [clojure.java.io :as jio]
             [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]

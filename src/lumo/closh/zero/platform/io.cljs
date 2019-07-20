@@ -32,7 +32,7 @@
            (lazy-cat lines (line-seq read-chunk nil))
            (lazy-cat (butlast lines) (line-seq read-chunk (last lines)))))
        (recur read-chunk (str line chunk)))
-     (if (not (empty? line))
+     (if (seq line)
        (list line)
        (list)))))
 
@@ -110,7 +110,7 @@
 (defn output-stream? [s]
   (instance? stream/Writable s))
 
-(defn input-stream [x & opts]
+(defn input-stream [x & _]
   (fs/createReadStream x))
 
 (defn output-stream [x & opts]

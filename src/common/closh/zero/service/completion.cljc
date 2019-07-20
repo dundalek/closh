@@ -13,7 +13,7 @@
      "Helper function to get output from a node stream as a string."
      [stream]
      (js/Promise.
-       (fn [resolve reject]
+       (fn [resolve _]
         (let [out (closh.zero.platform.io/stream-output stream)]
           (doto stream
             (.on "end" #(resolve @out))
@@ -51,7 +51,7 @@
   (try
     (chain-> (get-completions-spawn "fish" "completion/completion.fish" [line])
              (fn [completions] (map #(first (clojure.string/split % #"\t")) completions))) ; discard the tab-separated description
-    (catch #?(:clj Exception :cljs :default) e
+    (catch #?(:clj Exception :cljs :default) _
       nil)))
 
 (defn complete-bash
@@ -59,7 +59,7 @@
   [line]
   (try
     (get-completions-spawn "bash" "completion/completion.bash" [line])
-    (catch #?(:clj Exception :cljs :default) e
+    (catch #?(:clj Exception :cljs :default) _
       nil)))
 
 (defn complete-zsh
@@ -67,7 +67,7 @@
   [line]
   (try
     (get-completions-spawn "zsh" "completion/completion.zsh" [line])
-    (catch #?(:clj Exception :cljs :default) e
+    (catch #?(:clj Exception :cljs :default) _
       nil)))
 
 #?(:cljs
