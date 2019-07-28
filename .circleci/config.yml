@@ -75,7 +75,7 @@ jobs:
 
   test-macos-cljs:
     macos:
-      xcode: "9.1.0"
+      xcode: "10.2.1"
 
     working_directory: /Users/distiller/project
 
@@ -101,7 +101,7 @@ jobs:
 
   test-macos-clj:
     macos:
-      xcode: "9.1.0"
+      xcode: "10.2.1"
 
     working_directory: /Users/distiller/project
 
