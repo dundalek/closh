@@ -1,6 +1,16 @@
 # Changelog
 
-## [master](https://github.com/dundalek/closh/compare/v0.4.0...master) (unreleased)
+## [master](https://github.com/dundalek/closh/compare/v0.4.1...master) (unreleased)
+
+### New features
+### Fixes
+### Other changes
+
+## [0.4.1](https://github.com/dundalek/closh/compare/v0.4.0...v0.4.1) (2019-08-10)
+
+This is a bugfix release containing fixes mostly around current working directory as well as fixing compatibility with Java 11.
+
+### New features
 
 - Add unsetenv builtin ([#140](https://github.com/dundalek/closh/issues/140))
 
