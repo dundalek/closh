@@ -1,0 +1,50 @@
+#!/usr/bin/env closh-zero.jar
+
+(defcmd wait-for-enter []
+  (print "Press Enter to continue: ")
+  (flush)
+  (read-line)
+  (println))
+
+(let [current-branch (sh-str git rev-parse --abbrev-ref HEAD)]
+  (when (not= current-branch "master")
+    (sh echo Currently on the branch (str "`" current-branch "`") \;
+        echo Please switch to "`master`", make sure it is up-to-date and retry release \;
+        echo Exiting... \;
+        exit 1)))
+
+echo Runing tests...
+npm run test || echo Tests failed - Exiting && exit 1
+echo
+
+echo Update changelog - Collect all changes and create a new section for the release in CHANGELOG.md
+wait-for-enter
+
+echo Update version in package.json
+wait-for-enter
+
+echo Update version in deps.edn
+wait-for-enter
+
+echo Create git tag
+wait-for-enter
+
+echo Update hash in readme to the tagged commit
+wait-for-enter
+
+echo Bulding the JAR...
+npm run pkg-java
+
+echo Create release on Github - copy the notes from Changelog
+wait-for-enter
+
+echo Upload closh-zero.jar to Github release
+wait-for-enter
+
+echo Pushing branch and tag...
+git push && git push --tags
+
+Publishing npm publish
+npm publish
+
+echo Release done - spread the word in chats!
