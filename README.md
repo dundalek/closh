@@ -54,7 +54,7 @@ chmod +x closh-zero.jar
 
 It can also run with `clojure` CLI:
 ```sh
-clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.4.0" :sha "17e62d5bceaa0cb65476e00d10a239a1017ec5b8"}}}' -m closh.zero.frontend.rebel
+clojure -Sdeps '{:deps {closh {:git/url "https://github.com/dundalek/closh.git" :tag "v0.4.1" :sha "2bc9e645b65dc144233c5c41e5ca2685b1f54df7"}}}' -m closh.zero.frontend.rebel
 ```
 
 ### ClojureScript/Lumo version
