@@ -26,7 +26,7 @@
   rewrite-cljs  {:mvn/version "0.4.3"  :exclusions [org.clojure/tools.reader]}
   rewrite-clj {:mvn/version  "0.5.2" :exclusions [org.clojure/tools.reader]}}
 
- :paths ["src/common" "src/jvm"]
+ :paths ["src/common" "src/jvm" "resources"]
 
  :aliases
  {:test {:extra-paths ["test"]
