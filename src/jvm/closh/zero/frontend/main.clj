@@ -1,12 +1,13 @@
 (ns closh.zero.frontend.main
   (:require [clojure.tools.reader.reader-types :refer [string-push-back-reader push-back-reader read-char unread]]
             [closh.zero.reader :refer [read-sh]]
+            [closh.zero.core :as core]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
             [closh.zero.utils.clojure-main :refer [repl repl-requires with-read-known] :as clojure-main])
   (:refer-clojure :exclude [load-reader])
   (:import [clojure.lang Compiler RT LineNumberingPushbackReader]
-           [java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader]))
+           [java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader BufferedReader]))
 
 (def custom-environment
   (str "(do "
@@ -57,9 +58,22 @@
       (.setLineNumber custom-reader 0)
       custom-reader)))
 
+(defn line-reader [f rdr]
+  (let [rdr (BufferedReader. rdr)
+        writer (PipedWriter.)
+        reader (PipedReader. writer)]
+    (proxy [PushbackReader] [reader]
+      (read []
+        (when-not (proxy-super ready)
+          (if-let [line (.readLine rdr)]
+            (doseq [c (f (str line \newline))]
+              (.write writer (int c)))
+            (.close writer)))
+        (proxy-super read)))))
+
 (defn repl-read
   [request-prompt request-exit]
-  (read-sh {:read-cond :allow} *in*))
+  (read-sh {:read-cond :allow} (line-reader core/expand-alias *in*)))
 
 (defn repl-print
   [& args]
