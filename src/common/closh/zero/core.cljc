@@ -102,7 +102,7 @@
        input))))
 
 (defn expand-abbreviation
-  ([input] (expand-alias @*closh-abbreviations* input))
+  ([input] (expand-abbreviation @*closh-abbreviations* input))
   ([aliases input]
    (let [token (re-find #"[^\s]+" input)
          alias (get aliases token)]
