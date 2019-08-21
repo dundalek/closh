@@ -175,10 +175,10 @@
   "Transform conformed command list specification."
   [{:keys [cmd cmds]} process-pipeline]
   (if (empty? cmds)
-    (process-command-clause cmd #(second (process-pipeline %)))
-    (concat ['do (process-command-clause cmd process-pipeline)]
-            (map #(process-command-clause (:cmd %) process-pipeline) (butlast cmds))
-            [(process-command-clause (:cmd (last cmds)) #(second (process-pipeline %)))])))
+    (process-command-clause (:cmd cmd) #(second (process-pipeline %)))
+    (concat ['do]
+            (map #(process-command-clause (:cmd %) process-pipeline) cmds)
+            [(process-command-clause (:cmd cmd) #(second (process-pipeline %)))])))
 
 (defn compile-interactive
   "Parse tokens in command mode into clojure form that can be evaled. First it runs spec conformer and then does the transformation of conformed result. Uses interactive pipeline mode."

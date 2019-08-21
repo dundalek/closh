@@ -16,7 +16,7 @@
 
 (def ^:no-doc cmd-op
   "Set of symbols of operators separating commands"
-  #{\;}) ; TODO '&
+  #{\; '&})
 
 (def ^:no-doc op
   "Set of symbols of all operators"
@@ -27,10 +27,10 @@
 (s/def ::clause-op clause-op)
 (s/def ::cmd-op cmd-op)
 
-
-(s/def ::cmd-list (s/cat :cmd ::cmd-clause
-                         :cmds (s/* (s/cat :op ::cmd-op
-                                           :cmd ::cmd-clause))))
+(s/def ::cmd-list (s/cat :cmds (s/* (s/cat :cmd ::cmd-clause
+                                           :op ::cmd-op))
+                         :cmd (s/cat :cmd ::cmd-clause
+                                     :op (s/? ::cmd-op))))
 
 (s/def ::cmd-clause (s/cat :pipeline ::pipeline
                            :pipelines (s/* (s/cat :op ::clause-op
