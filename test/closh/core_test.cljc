@@ -2,7 +2,7 @@
   (:require [clojure.test :refer [deftest testing is are]]
             [closh.test-util.util :refer [null-file]]
             [clojure.spec.alpha :as s]
-            [clojure.string]
+            [clojure.string :as str]
             [closh.zero.reader]
             [closh.zero.builtin :refer [getenv setenv]]
             [closh.zero.env]
@@ -429,6 +429,13 @@
   (is (= "42" (:stdout (closh "(sh setenv ONE 42) (sh getenv ONE)"))))
   (is (= "42" (:stdout (closh "(sh setenv \"ONE\" \"42\") (sh getenv \"ONE\")"))))
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
+
+(deftest test-builtin-cd
+
+  (is (str/ends-with? (let [result (str/trim (:stdout (closh "mkdir -p \"out/1\" && cd out && cd 1 && pwd")))]
+                        (closh "cd ../..")
+                        result)
+                      "/out/1")))
 
 (deftest commands
   (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
