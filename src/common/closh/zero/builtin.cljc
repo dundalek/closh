@@ -47,6 +47,6 @@
   ;; flatten is used because we can get arguments from expand which are collections
   (let [dir (or (first args)
                 (getenv "HOME"))]
-    (process/chdir dir)
+    (process/chdir (str dir)) ; Extra (str ..) to handle case when directory name is a number
     (setenv "PWD" (process/cwd))
     env/success))
