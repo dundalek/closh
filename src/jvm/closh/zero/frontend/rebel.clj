@@ -97,7 +97,10 @@
             (when api/*line-reader* @api/*line-reader*))
           {:completer (clojure-completer)})
         (.setVariable LineReader/HISTORY_FILE (str (jio/file (System/getProperty "user.home") ".closh" "history")))
-        (.setHistory (jline-history/memory-history)))
+        ;;(.setHistory (jline-history/history-wrapper (jline-history/memory-history)))
+        ;;(.setHistory (jline-history/history-wrapper (jline-history/sqlite-history)))
+        (.setHistory (doto (jline-history/sqlite-history)
+                           (.moveToEnd))))
       (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
         (when-let [prompt-fn (:prompt opts)]
           (swap! api/*line-reader* assoc :prompt prompt-fn))
