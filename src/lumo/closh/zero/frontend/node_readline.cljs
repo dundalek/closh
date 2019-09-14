@@ -8,9 +8,8 @@
             [closh.zero.platform.eval :refer [execute-text execute-command-text]]
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
-            [closh.zero.service.history :refer [add-history]]
-            [readline]
-            [child_process]))
+            [closh.zero.service.history :as history]
+            #?@(:cljs [[readline] [child_process]])))
 
 (def ^:no-doc readline-tty-write readline/Interface.prototype._ttyWrite)
 
@@ -84,7 +83,7 @@
 (defn search-history-prev
   "Searches previous item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (closh.zero.service.history/search-history-prev query history-state search-mode
+  (history/search-history-prev query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -101,7 +100,7 @@
 (defn search-history-next
   "Searches next item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (closh.zero.service.history/search-history-next query history-state search-mode
+  (history/search-history-next query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -232,7 +231,7 @@
           (when-not (clojure.string/blank? input)
             (reset! readline-state initial-readline-state)
             (when-not (re-find #"^\s+" input)
-              (add-history input (process/cwd)
+              (history/add-history input (process/cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]
