@@ -2,41 +2,23 @@
   (:require [clojure.string]
             [goog.object :as gobj]
             [sqlite3 :as sqlite]
-            [os]
             [path]
-            [fs]))
-
-(def db-file
-  "Path to the db file, defaults to ~/.closh/closh.sqlite"
-  (path/join (os/homedir) ".closh" "closh.sqlite"))
+            [fs]
+            [closh.zero.service.history-common :refer [table-history table-session get-db-filename]]))
 
 (declare ^:dynamic db)
 (declare ^:dynamic db-promise)
 (declare ^:dynamic session-id)
 
-(def ^:no-doc table-history
-  "CREATE TABLE IF NOT EXISTS history (
- id INTEGER PRIMARY KEY,
- session_id INTEGER NOT NULL,
- time INTEGER NOT NULL,
- command TEXT NOT NULL,
- cwd TEXT NOT NULL
-);")
-
-(def ^:no-doc table-session
-  "CREATE TABLE IF NOT EXISTS session (
- id INTEGER PRIMARY KEY,
- time INTEGER NOT NULL
-);")
-
 (defn- init-database-file []
   (js/Promise.
     (fn [resolve reject]
-     (fs/mkdir (path/dirname db-file)
-       (fn [err]
-         (if (and err (not= (.-code err) "EEXIST"))
-           (reject err)
-           (resolve (sqlite/Database. db-file))))))))
+      (let [db-file (get-db-filename)]
+        (fs/mkdir (path/dirname db-file)
+          (fn [err]
+            (if (and err (not= (.-code err) "EEXIST"))
+              (reject err)
+              (resolve (sqlite/Database. db-file)))))))))
 
 (defn- init-database-tables-session
   [db]
@@ -64,7 +46,7 @@
     (set! db-promise (.then p (fn [] db)))
     (.then p (fn [] {:db db :session-id session-id}))))
 
-(defn get-db [cb]
+(defn- get-db [cb]
   (.then db-promise cb))
 
 (defn add-history

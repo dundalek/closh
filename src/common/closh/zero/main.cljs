@@ -10,7 +10,7 @@
             [closh.zero.builtin]
             [closh.zero.util]
             [closh.zero.platform.eval :refer [execute-text]]
-            [closh.zero.service.history :refer [init-database]]
+            [closh.zero.service.history :as history]
             [closh.zero.macros :refer-macros [sh sh-str sh-code sh-ok sh-seq sh-lines sh-value defalias defabbr defcmd]]
             [closh.zero.frontend.node-readline]
             [fs]
@@ -41,7 +41,7 @@
     (str (pr-str closh.zero.env/*closh-environment-requires*)
          (pr-str closh.zero.env/*closh-environment-init*)))
   (load-init-file (path/join (os/homedir) ".closhrc"))
-  (.catch (init-database)
+  (.catch (history/init-database)
    (fn [err]
      (js/console.error "Error initializing history database:" err)
      (process/exit 1)))
