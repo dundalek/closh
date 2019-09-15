@@ -79,7 +79,9 @@
   `(swap! env/*closh-aliases* assoc (str (quote ~name)) ~value))
 
 (defmacro defabbr [name value]
-  `(swap! env/*closh-abbreviations* assoc (str (quote ~name)) ~value))
+  `(do (swap! env/*closh-abbreviations* assoc (str (quote ~name)) ~value)
+       ;; Temporary workaround: Treat abbreviations as aliases in the JVM version until proper abbreviation expansion is implemented
+       #?(:clj (defalias ~name ~value))))
 
 (defmacro defcmd [name & body]
   (if (= 1 (count body))
