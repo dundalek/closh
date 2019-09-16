@@ -1,14 +1,65 @@
 (ns closh.zero.frontend.jline-history
-  (:require [clojure.java.jdbc :as jdbc])
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.java.io :as io]
+            [closh.zero.service.history-common :refer [table-history table-session #_get-db-filename]]
+            [closh.zero.platform.process :as process])
   (:import [org.jline.reader History History$Entry]
-           [java.time Instant]))
+           [java.time Instant]
+           [java.util ListIterator]))
+
+(defn get-db-filename []
+  "database.sqlite")
 
 (def db-spec
-  {:classname   "org.sqlite.JDBC"
+  {:classname "org.sqlite.JDBC"
    :subprotocol "sqlite"
-   :subname     "database.sqlite"})
+   :subname (get-db-filename)})
 
-;; TODO: use gen-class
+(defn create-iterator [iterator]
+  (reify ListIterator
+    (hasNext [this]
+      (.hasNext iterator))
+    (hasPrevious [this]
+      (.hasPrevious iterator))
+    (next [this]
+      (.next iterator))
+    (previous [this]
+      (.previous iterator))
+    (add [this e]
+      (throw (UnsupportedOperationException.)))
+    (nextIndex [this]
+      (throw (UnsupportedOperationException.)))
+    (previousIndex [this]
+      (throw (UnsupportedOperationException.)))
+    (remove [this]
+      (throw (UnsupportedOperationException.)))
+    (set [this e]
+      (throw (UnsupportedOperationException.)))))
+
+(defn flip-iterator [iterator]
+  (reify ListIterator
+    (hasNext [this]
+      (.hasPrevious iterator))
+    (hasPrevious [this]
+      (.hasNext iterator))
+    (next [this]
+      (.previous iterator))
+    (previous [this]
+      (.next iterator))
+    (add [this e]
+      (throw (UnsupportedOperationException.)))
+    (nextIndex [this]
+      (throw (UnsupportedOperationException.)))
+    (previousIndex [this]
+      (throw (UnsupportedOperationException.)))
+    (remove [this]
+      (throw (UnsupportedOperationException.)))
+    (set [this e]
+      (throw (UnsupportedOperationException.)))))
+
+
+
+;; TODO: maybe use gen-class
 (defn create-entry [index time line]
   (reify History$Entry
     (index [this] index)
@@ -16,7 +67,6 @@
     (line [this] line)
     (toString [this]
       (format "%d: %s" index line))))
-
 
 #_(defn create-entry [index time line]
     (reify History$Entry
@@ -71,7 +121,7 @@
         (.moveToEnd this))
 
       (iterator [this index]
-        (.listIterator @!items index))
+        (create-iterator (.listIterator @!items index)))
       (current [this]
         (let [index (.index this)]
           (if (>= index (.size this))
@@ -151,8 +201,16 @@
       (println "History: moveToEnd")
       (log (.moveToEnd h)))))
 
+(defn- init-database-tables-session [db-spec]
+  (jdbc/db-do-commands db-spec [table-history table-session])
+  (-> (jdbc/insert! db-spec :session {:time (System/currentTimeMillis)})
+      (first)
+      (get (keyword "last_insert_rowid()"))))
+
 (defn sqlite-history []
-  (let [!index (atom 0)]
+  (io/make-parents (get-db-filename))
+  (let [session-id (init-database-tables-session db-spec)
+        !index (atom 0)]
     (reify History
       ;; Attaching reader is just to customize history behavior by injecting options. It is extra coupling, we don't need that.
       (attach [this reader]
@@ -180,17 +238,19 @@
           :command))
       (add [this time line]
         (jdbc/insert! db-spec :history
-                      {:session_id 1 ;; TODO: session
+                      {:session_id session-id
                        :time (.toEpochMilli time)
                        :command line
-                       :cwd ""}) ;; TODO: cwd
+                       :cwd (process/cwd)})
         (.moveToEnd this))
 
       (iterator [this index]
+        ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
         (-> (jdbc/query db-spec
-                        ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history ORDER BY id"]
+                        ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history ORDER BY id DESC"]
                         {:row-fn row->entry})
-            (.listIterator index)))
+            (.listIterator (- (.size this) index))
+            (flip-iterator)))
       (current [this]
         (let [index (.index this)]
           (if (>= index (.size this))
@@ -213,7 +273,6 @@
           false))
       (moveToEnd [this]
         (reset! !index (.size this))))))
-      ;;(resetIndex [this]))))
 
 (comment
   (def h (memory-history))
@@ -245,6 +304,9 @@
   (.previous iter)
   (.hasNext iter)
   (.index (.next iter))
+
+  (jdbc/query db-spec
+                  ["SELECT id, time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history ORDER BY id DESC"])
 
   (def iter (->>
               (jdbc/query db-spec
