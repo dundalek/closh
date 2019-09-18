@@ -210,7 +210,10 @@
 (defn sqlite-history []
   (io/make-parents (get-db-filename))
   (let [session-id (init-database-tables-session db-spec)
-        !index (atom 0)]
+        !index (atom 0)
+        !all-count (atom 0)
+        !all-last-id (atom 0)
+        !session-count (atom 0)]
     (reify History
       ;; Attaching reader is just to customize history behavior by injecting options. It is extra coupling, we don't need that.
       (attach [this reader]
@@ -225,17 +228,19 @@
       (purge [this]
         #_(println "History: purge"))
       (size [this]
-        (-> (jdbc/query db-spec ["SELECT count(*) AS result FROM history"])
-          first
-          :result))
+        (+ @!all-count @!session-count))
       (index [this]
         @!index)
       (last [this]
         (dec (.size this)))
       (get [this index]
-        (-> (jdbc/query db-spec ["SELECT command FROM history ORDER BY id LIMIT 1 OFFSET ?" index])
-          first
-          :command))
+        (let [[op offset] (if (< index @!all-count)
+                            ["!=" index]
+                            ["=" (- index @!all-count)])
+              query (str "SELECT command FROM history WHERE session_id " op " ? ORDER BY id LIMIT 1 OFFSET ?")]
+          (-> (jdbc/query db-spec [query session-id offset])
+            first
+            :command)))
       (add [this time line]
         (jdbc/insert! db-spec :history
                       {:session_id session-id
@@ -243,12 +248,14 @@
                        :command line
                        :cwd (process/cwd)})
         (.moveToEnd this))
-
       (iterator [this index]
         ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
-        (-> (jdbc/query db-spec
-                        ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history ORDER BY id DESC"]
-                        {:row-fn row->entry})
+        (-> (concat (jdbc/query db-spec
+                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE session_id = ? ORDER BY id DESC" @!all-count session-id]
+                                {:row-fn row->entry})
+                    (jdbc/query db-spec
+                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
+                                {:row-fn row->entry}))
             (.listIterator (- (.size this) index))
             (flip-iterator)))
       (current [this]
@@ -272,7 +279,55 @@
               true)
           false))
       (moveToEnd [this]
-        (reset! !index (.size this))))))
+        (let [{:keys [lastid allcount]} (first (jdbc/query db-spec ["SELECT max(id) as lastid, count(*) as allcount FROM history WHERE session_id != ?" session-id]))
+              {:keys [sessioncount]} (first (jdbc/query db-spec ["SELECT count(*) as sessioncount FROM history WHERE session_id = ?" session-id]))]
+          (reset! !all-last-id lastid)
+          (reset! !all-count allcount)
+          (reset! !session-count sessioncount)
+          (reset! !index (.size this)))))))
+
+(comment
+
+ (def iter
+   (let [session-id 2
+         !all-count (atom 2)
+         !all-last-id (atom 3)
+         !session-count (atom 1)]
+     (-> (concat (jdbc/query db-spec
+                             ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE session_id = ? ORDER BY id DESC" @!all-count session-id]
+                             {:row-fn row->entry})
+                 (jdbc/query db-spec
+                             ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
+                             {:row-fn row->entry}))
+       (.listIterator 0)
+       #_(.listIterator (- (.size this) index))
+       (flip-iterator))))
+
+
+ (def s1 (doto (sqlite-history 1) (.moveToEnd)))
+ (def s2 (doto (sqlite-history 2) (.moveToEnd)))
+
+ (def iter (.iterator s1 (.index s1)))
+ (def iter (.iterator s2 (.index s2)))
+
+ (.next iter)
+ (.previous iter)
+ (.hasPrevious iter)
+ (.hasNext iter)
+
+ (.index s1)
+
+ (.get s1 0)
+
+ (.add s1 "a")
+ (.add s1 "c")
+ (.add s2 "b")
+
+ (.size s1)
+ (.size s2)
+
+ (.moveToEnd s1)
+ (.moveToEnd s2))
 
 (comment
   (def h (memory-history))
@@ -286,9 +341,12 @@
   (.previous h)
   (.index h)
 
-
   (.add h "a")
   (.add h "b")
+
+  (def iter (.listIterator [:a :b :c]))
+
+  (.next iter)
 
   (str)
 
@@ -304,6 +362,8 @@
   (.previous iter)
   (.hasNext iter)
   (.index (.next iter))
+
+  (jdbc/query db-spec ["SELECT * FROM history"])
 
   (jdbc/query db-spec
                   ["SELECT id, time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history ORDER BY id DESC"])
