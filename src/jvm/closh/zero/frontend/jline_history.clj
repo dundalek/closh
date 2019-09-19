@@ -1,14 +1,12 @@
 (ns closh.zero.frontend.jline-history
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [clojure.string :as str]
+            [clojure.java.jdbc :as jdbc]
             [clojure.java.io :as io]
-            [closh.zero.service.history-common :refer [table-history table-session #_get-db-filename]]
+            [closh.zero.service.history-common :refer [table-history table-session get-db-filename]]
             [closh.zero.platform.process :as process])
   (:import [org.jline.reader History History$Entry]
            [java.time Instant]
            [java.util ListIterator]))
-
-(defn get-db-filename []
-  "database.sqlite")
 
 (def db-spec
   {:classname "org.sqlite.JDBC"
@@ -222,9 +220,6 @@
         #_(println "History: load"))
       (save [this]
         #_(println "History: save"))
-      ;;(write [this file incremental])
-      ;;(append [this file incremental])
-      ;;(read [this file incremental])
       (purge [this]
         #_(println "History: purge"))
       (size [this]
@@ -242,11 +237,13 @@
             first
             :command)))
       (add [this time line]
-        (jdbc/insert! db-spec :history
-                      {:session_id session-id
-                       :time (.toEpochMilli time)
-                       :command line
-                       :cwd (process/cwd)})
+        (when (and (not (str/blank? line))
+                   (not (re-find #"^\s+" line)))
+          (jdbc/insert! db-spec :history
+                        {:session_id session-id
+                         :time (.toEpochMilli time)
+                         :command (str/trim line)
+                         :cwd (process/cwd)}))
         (.moveToEnd this))
       (iterator [this index]
         ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
