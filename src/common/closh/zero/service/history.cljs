@@ -10,15 +10,14 @@
 (declare ^:dynamic db-promise)
 (declare ^:dynamic session-id)
 
-(defn- init-database-file []
+(defn- init-database-file [db-file]
   (js/Promise.
     (fn [resolve reject]
-      (let [db-file (get-db-filename)]
-        (fs/mkdir (path/dirname db-file)
-          (fn [err]
-            (if (and err (not= (.-code err) "EEXIST"))
-              (reject err)
-              (resolve (sqlite/Database. db-file)))))))))
+      (fs/mkdir (path/dirname db-file)
+        (fn [err]
+          (if (and err (not= (.-code err) "EEXIST"))
+            (reject err)
+            (resolve (sqlite/Database. db-file))))))))
 
 (defn- init-database-tables-session
   [db]
@@ -38,13 +37,14 @@
 
 (defn init-database
   "Creates the db connection and gets a new session id (creates the tables if they not exist)."
-  []
-  (let [p (-> (init-database-file)
-              (.then #(do (set! db %)
-                          (init-database-tables-session %)))
-              (.then #(do (set! session-id %))))]
-    (set! db-promise (.then p (fn [] db)))
-    (.then p (fn [] {:db db :session-id session-id}))))
+  ([] (init-database (get-db-filename)))
+  ([db-file]
+   (let [p (-> (init-database-file db-file)
+               (.then #(do (set! db %)
+                           (init-database-tables-session %)))
+               (.then #(do (set! session-id %))))]
+     (set! db-promise (.then p (fn [] db)))
+     (.then p (fn [] {:db db :session-id session-id})))))
 
 (defn- get-db [cb]
   (.then db-promise cb))

@@ -8,11 +8,6 @@
            [java.time Instant]
            [java.util ListIterator]))
 
-(def db-spec
-  {:classname "org.sqlite.JDBC"
-   :subprotocol "sqlite"
-   :subname (get-db-filename)})
-
 (defn flip-iterator [iterator]
   (reify ListIterator
     (hasNext [this]
@@ -52,13 +47,18 @@
       (first)
       (get (keyword "last_insert_rowid()"))))
 
-(defn sqlite-history []
-  (io/make-parents (get-db-filename))
-  (let [session-id (init-database-tables-session db-spec)
-        !index (atom 0)
-        !all-count (atom 0)
-        !all-last-id (atom 0)
-        !session-count (atom 0)]
+(defn sqlite-history
+  ([] (sqlite-history (get-db-filename)))
+  ([db-file]
+   (io/make-parents db-file)
+   (let [db-spec {:classname "org.sqlite.JDBC"
+                  :subprotocol "sqlite"
+                  :subname db-file}
+         session-id (init-database-tables-session db-spec)
+         !index (atom 0)
+         !all-count (atom 0)
+         !all-last-id (atom 0)
+         !session-count (atom 0)]
     (reify History
       ;; Attaching reader is just to customize history behavior by injecting options. It is extra coupling, we don't need that.
       (attach [this reader]
@@ -128,7 +128,7 @@
           (reset! !all-last-id lastid)
           (reset! !all-count allcount)
           (reset! !session-count sessioncount)
-          (reset! !index (.size this)))))))
+          (reset! !index (.size this))))))))
 
 
 
