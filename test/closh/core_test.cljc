@@ -1,6 +1,6 @@
 (ns closh.core-test
   (:require [clojure.test :refer [deftest testing is are]]
-            [closh.test-util.util :refer [null-file]]
+            [closh.test-util.util :refer [null-file with-tempfile with-tempfile-content create-fake-writer get-fake-writer str-fake-writer]]
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [closh.zero.reader]
@@ -9,13 +9,13 @@
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            #?(:cljs [closh.zero.platform.util :refer [wait-for-event]])
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [closh.zero.platform.io]
             [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
-            #?(:cljs [lumo.io :refer [spit slurp]])))
+            #?(:cljs [lumo.io :refer [spit slurp]])
+            #?(:cljs [fs])))
 
 #?(:clj
    (do
@@ -23,55 +23,11 @@
      (binding [*ns* user-namespace]
        (eval closh.zero.env/*closh-environment-requires*)))
    :cljs
-   (do
-     (def fs (js/require "fs"))
-     (def tmp (js/require "tmp"))
-
-     ;; Clean up tmp files on unhandled exception
-     (tmp.setGracefulCleanup)
-
-     (closh.zero.platform.eval/execute-text
-       (str (pr-str closh.zero.env/*closh-environment-requires*)))))
-
-
-(defn with-tempfile [cb]
- #?(:cljs
-    (let [file (tmp.fileSync)
-             f (.-name file)
-             result (cb f)
-             out (fs.readFileSync f "utf-8")]
-         (.removeCallback file)
-         [out result])
-    :clj
-    (let [file (java.io.File/createTempFile "closh-test-" ".txt")
-          f (.getAbsolutePath file)
-          _ (.deleteOnExit file)
-          result (cb f)]
-      [(slurp f) result])))
+   (closh.zero.platform.eval/execute-text
+     (str (pr-str closh.zero.env/*closh-environment-requires*))))
 
 (defn bash [cmd]
   (pipeline/process-value (shx "bash" ["-c" cmd])))
-
-(defn create-fake-writer []
-  #?(:clj (java.io.ByteArrayOutputStream.)
-     :cljs
-      (let [file (tmp.fileSync)
-            name (.-name file)
-            stream (.createWriteStream fs name)]
-        (wait-for-event stream "open")
-        {:file file
-         :name name
-         :stream stream})))
-
-(defn get-fake-writer [writer]
-  #?(:clj (java.io.PrintStream. writer)
-     :cljs (:stream writer)))
-
-(defn str-fake-writer [writer]
-  #?(:clj (str writer)
-     :cljs (let [content (.readFileSync fs (:name writer) "utf-8")]
-             (.removeCallback (:file writer))
-             content)))
 
 (defn closh-spawn-helper [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
@@ -122,7 +78,7 @@
              (clojure.string/split-lines)
              (seq))
          (closh.zero.platform.io/line-seq
-          #?(:cljs (.createReadStream (js/require "fs") "package.json")
+          #?(:cljs (fs/createReadStream "package.json")
              :clj (java.io.FileInputStream. "package.json")))))
 
   (are [x y] (= x (:stdout (closh y)))
@@ -319,7 +275,7 @@
     "bash -c \"echo err 1>&2; echo out\""
     "bash -c \"echo err 1>&2; echo out\"")
 
-  (are [x y] (= x (first (with-tempfile (fn [f] (closh y)))))
+  (are [x y] (= x (with-tempfile-content (fn [f] (closh y))))
 
     "x1\n"
     (str "echo x1 > " f)
@@ -344,13 +300,13 @@
     (str "(sh echo x3 | (clojure.string/upper-case) > \"" f "\")"
          "(sh echo y1 | (clojure.string/upper-case) >> \"" f "\")"))
 
-  (are [x y] (= x (second (with-tempfile (fn [f] (closh y)))))
+  (are [x y] (= x (with-tempfile (fn [f] (closh y))))
 
     {:stdout "", :stderr "", :code 0}
     (str "echo hello | (clojure.string/upper-case) > " f))
 
-  (are [x y] (= (first (with-tempfile (fn [f] (bash x))))
-                (first (with-tempfile (fn [f] (closh y)))))
+  (are [x y] (= (with-tempfile-content (fn [f] (bash x)))
+                (with-tempfile-content (fn [f] (closh y))))
 
     ; macOS does not have `tac` command but `tail -r` can be used instead
     (str "(ls | tac || ls | tail -r) > " f)
@@ -474,4 +430,4 @@
                   (:stdout (closh "cmd-hello | tr \"[:lower:]\" \"[:upper:]\"")))))
 
   (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
-                   (first (with-tempfile (fn [f] (closh (str "echo -n abc | cmd-upper > " f)))))))))
+                   (with-tempfile-content (fn [f] (closh (str "echo -n abc | cmd-upper > " f))))))))
