@@ -6,9 +6,7 @@
             [fs]
             [closh.zero.service.history-common :refer [table-history table-session get-db-filename]]))
 
-(declare ^:dynamic db)
 (declare ^:dynamic db-promise)
-(declare ^:dynamic session-id)
 
 (defn- init-database-file [db-file]
   (js/Promise.
@@ -39,12 +37,15 @@
   "Creates the db connection and gets a new session id (creates the tables if they not exist)."
   ([] (init-database (get-db-filename)))
   ([db-file]
-   (let [p (-> (init-database-file db-file)
-               (.then #(do (set! db %)
+   (let [!db (atom nil)
+         !session-id (atom nil)
+         p (-> (init-database-file db-file)
+               (.then #(do (reset! !db %)
                            (init-database-tables-session %)))
-               (.then #(do (set! session-id %))))]
-     (set! db-promise (.then p (fn [] db)))
-     (.then p (fn [] {:db db :session-id session-id})))))
+               (.then #(do (reset! !session-id %)))
+               (.then (fn [] {:db @!db :session-id @!session-id})))]
+     (set! db-promise p)
+     p)))
 
 (defn- get-db [cb]
   (.then db-promise cb))
@@ -53,7 +54,7 @@
   "Adds a new item to history."
   [command cwd cb]
   (get-db
-    (fn [db]
+    (fn [{:keys [db session-id]}]
       (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
                #js[nil session-id (js/Date.now) command cwd]
                cb))))
@@ -73,17 +74,17 @@
                     (when index (str " AND id " operator " $index "))
                     " AND session_id " (if skip-session "!=" "=") " $sid "
                     " AND command LIKE $expr ESCAPE '\\' "
-                 " ORDER BY id " direction " LIMIT 1;")
-        params #js{:$expr expr
-                   :$sid session-id}]
-    (when index (gobj/set params "$index" index))
+                 " ORDER BY id " direction " LIMIT 1;")]
     (get-db
-      (fn [db]
-        (.get db sql params
-          (fn [err data]
-            (cb err
-                (when data
-                  [(.-command data) (assoc history-state :index (.-id data))]))))))))
+      (fn [{:keys [db session-id]
+            (let [params #js{:$expr expr
+                                  :$sid session-id}]
+              (when index (gobj/set params "$index" index))
+              (.get db sql params
+                (fn [err data]
+                   (cb err
+                       (when data
+                         [(.-command data) (assoc history-state :index (.-id data))])))))}]))))
 
 (defn search-history-prev
   "Searches for the previous item in history DB."
