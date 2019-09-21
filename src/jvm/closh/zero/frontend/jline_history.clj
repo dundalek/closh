@@ -79,7 +79,7 @@
         (let [[op offset] (if (< index @!all-count)
                             ["!=" index]
                             ["=" (- index @!all-count)])
-              query (str "SELECT command FROM history WHERE session_id " op " ? ORDER BY id LIMIT 1 OFFSET ?")]
+              query (str "SELECT command FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id " op " ? ORDER BY id LIMIT 1 OFFSET ?")]
           (-> (jdbc/query db-spec [query session-id offset])
             first
             :command)))
@@ -95,10 +95,10 @@
       (iterator [this index]
         ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
         (-> (concat (jdbc/query db-spec
-                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE session_id = ? ORDER BY id DESC" @!all-count session-id]
+                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id = ? ORDER BY id DESC" @!all-count session-id]
                                 {:row-fn row->entry})
                     (jdbc/query db-spec
-                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
+                                ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
                                 {:row-fn row->entry}))
             (.listIterator (- (.size this) index))
             (flip-iterator)))
@@ -123,8 +123,8 @@
               true)
           false))
       (moveToEnd [this]
-        (let [{:keys [lastid allcount]} (first (jdbc/query db-spec ["SELECT max(id) as lastid, count(*) as allcount FROM history WHERE session_id != ?" session-id]))
-              {:keys [sessioncount]} (first (jdbc/query db-spec ["SELECT count(*) as sessioncount FROM history WHERE session_id = ?" session-id]))]
+        (let [{:keys [lastid allcount]} (first (jdbc/query db-spec ["SELECT max(id) as lastid, count(*) as allcount FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id != ?" session-id]))
+              {:keys [sessioncount]} (first (jdbc/query db-spec ["SELECT count(*) as sessioncount FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id = ?" session-id]))]
           (reset! !all-last-id lastid)
           (reset! !all-count allcount)
           (reset! !session-count sessioncount)

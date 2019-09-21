@@ -54,10 +54,10 @@
                 (history->seq)))))
 
   ;; No duplicates are returned
-  #_(is (= ["1: a" "0: b"]
-           (with-tempfile %
-             #(-> (doto (jhistory/sqlite-history %)
-                    (.add "a")
-                    (.add "b")
-                    (.add "a"))
-                  (history->seq))))))
+  (is (= ["1: a" "0: b"]
+         (with-tempfile
+           #(-> (doto (jhistory/sqlite-history %)
+                  (.add "a")
+                  (.add "b")
+                  (.add "a"))
+                (history->seq))))))
