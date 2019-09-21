@@ -16,6 +16,8 @@
 (def ^:no-doc initial-readline-state {:mode :input})
 (def ^:no-doc readline-state (atom initial-readline-state))
 
+(declare ^:dynamic db-promise)
+
 (defn restore-previous-state
   "Helper to restore the previously backed up readline state after search is canceled or finished."
   [state]
@@ -83,7 +85,7 @@
 (defn search-history-prev
   "Searches previous item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (history/search-history-prev query history-state search-mode
+  (history/search-history-prev db-promise query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -100,7 +102,7 @@
 (defn search-history-next
   "Searches next item in history."
   [{:keys [query history-state search-mode] :as state} rl]
-  (history/search-history-next query history-state search-mode
+  (history/search-history-next db-promise query history-state search-mode
     (fn [err data]
       (when err (js/console.log "Error searching history:" err))
       (swap! readline-state
@@ -191,6 +193,11 @@
 
 (defn -main
   [& args]
+  (set! db-promise
+    (-> (history/init-database)
+        (.catch (fn [err]
+                  (js/console.error "Error initializing history database:" err)
+                  (process/exit 1)))))
   (let [rl (readline/createInterface
              #js{:input js/process.stdin
                  :output js/process.stdout
@@ -231,7 +238,7 @@
           (when-not (clojure.string/blank? input)
             (reset! readline-state initial-readline-state)
             (when-not (re-find #"^\s+" input)
-              (history/add-history input (process/cwd)
+              (history/add-history db-promise input (process/cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             ; (.startSigintWatchdog util-binding)
             (let [previous-mode (._setRawMode rl false)]

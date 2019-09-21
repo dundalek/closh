@@ -6,8 +6,6 @@
             [fs]
             [closh.zero.service.history-common :refer [table-history table-session get-db-filename]]))
 
-(declare ^:dynamic db-promise)
-
 (defn- init-database-file [db-file]
   (js/Promise.
     (fn [resolve reject]
@@ -38,22 +36,17 @@
   ([] (init-database (get-db-filename)))
   ([db-file]
    (let [!db (atom nil)
-         !session-id (atom nil)
-         p (-> (init-database-file db-file)
-               (.then #(do (reset! !db %)
-                           (init-database-tables-session %)))
-               (.then #(do (reset! !session-id %)))
-               (.then (fn [] {:db @!db :session-id @!session-id})))]
-     (set! db-promise p)
-     p)))
-
-(defn- get-db [cb]
-  (.then db-promise cb))
+         !session-id (atom nil)]
+     (-> (init-database-file db-file)
+         (.then #(do (reset! !db %)
+                     (init-database-tables-session %)))
+         (.then #(do (reset! !session-id %)))
+         (.then (fn [] {:db @!db :session-id @!session-id}))))))
 
 (defn add-history
   "Adds a new item to history."
-  [command cwd cb]
-  (get-db
+  [db-promise command cwd cb]
+  (.then db-promise
     (fn [{:keys [db session-id]}]
       (.run db "INSERT INTO history VALUES (?, ?, ?, ?, ?)"
                #js[nil session-id (js/Date.now) command cwd]
@@ -61,7 +54,7 @@
 
 (defn search-history
   "Searches the history DB."
-  [query history-state search-mode operator direction cb]
+  [db-promise query history-state search-mode operator direction cb]
   (let [{:keys [index skip-session]} history-state
         escaped (clojure.string/replace query #"[%_]" #(str "\\" %))
         expr (case search-mode
@@ -75,41 +68,43 @@
                     " AND session_id " (if skip-session "!=" "=") " $sid "
                     " AND command LIKE $expr ESCAPE '\\' "
                  " ORDER BY id " direction " LIMIT 1;")]
-    (get-db
-      (fn [{:keys [db session-id]
-            (let [params #js{:$expr expr
-                                  :$sid session-id}]
-              (when index (gobj/set params "$index" index))
-              (.get db sql params
-                (fn [err data]
-                   (cb err
-                       (when data
-                         [(.-command data) (assoc history-state :index (.-id data))])))))}]))))
+    (.then db-promise
+      (fn [{:keys [db session-id]}]
+        (let [params #js{:$expr expr
+                         :$sid session-id}]
+          (when index (gobj/set params "$index" index))
+          (.get db sql params
+            (fn [err data]
+               (cb err
+                   (when data
+                     [(.-command data) (assoc history-state :index (.-id data))])))))))))
 
 (defn search-history-prev
   "Searches for the previous item in history DB."
-  [query history-state search-mode cb]
-  (search-history query history-state search-mode "<" "DESC"
+  [db-promise query history-state search-mode cb]
+  (search-history db-promise query history-state search-mode "<" "DESC"
     (fn [err data]
       (if err
         (cb err)
         (if (and (not data)
                  (not (:skip-session history-state)))
-          (search-history-prev query
+          (search-history-prev db-promise
+                               query
                                (assoc history-state :skip-session true :index nil)
                                search-mode cb)
           (cb err data))))))
 
 (defn search-history-next
   "Searches for the next item in history DB."
-  [query history-state search-mode cb]
-  (search-history query history-state search-mode ">" "ASC"
+  [db-promise query history-state search-mode cb]
+  (search-history db-promise query history-state search-mode ">" "ASC"
     (fn [err data]
       (if err
         (cb err)
         (if (and (not data)
                  (:skip-session history-state))
-          (search-history-next query
+          (search-history-next db-promise
+                               query
                                (assoc history-state :skip-session false :index nil)
                                search-mode cb)
           (cb err data))))))
