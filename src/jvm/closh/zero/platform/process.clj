@@ -1,5 +1,6 @@
 (ns closh.zero.platform.process
   (:require [clojure.java.io :as io :refer [default-streams-impl make-input-stream make-output-stream IOFactory]]
+            [clojure.string :as str]
             [closh.zero.platform.io :refer [*stdout* *stderr*]])
   (:import (java.io File)
            (java.net URL MalformedURLException)))
@@ -26,10 +27,12 @@
 (defn cwd []
   @*cwd*)
 
-(defn resolve-path [s]
+(defn resolve-file [s]
   (let [f (File. s)]
-    (-> (if (.isAbsolute f) f (File. (cwd) s))
-        (.getCanonicalPath))))
+    (if (.isAbsolute f) f (File. (cwd) s))))
+
+(defn resolve-path [s]
+  (.getCanonicalPath (resolve-file s)))
 
 (defn chdir [dir]
   (let [target (resolve-path dir)]
@@ -53,15 +56,19 @@
          (get @*env* k)
          (System/getenv k))))
 
+(defn- executable? [file]
+  (and (.isFile file) (.canExecute file)))
+
 (defn find-executable
   ([name] (find-executable name (getenv "PATH")))
   ([name path]
-   (if (.isAbsolute (io/file name))
+   (if (and (str/includes? name File/separator)
+            (executable? (resolve-file name)))
      name
      (->> (.split (or path "") File/pathSeparator)
           (keep (fn [dirname]
                   (let [file (io/file dirname name)]
-                    (when (and (.isFile file) (.canExecute file))
+                    (when (executable? file)
                       (.getAbsolutePath file)))))
           (first)))))
 
@@ -140,9 +147,9 @@
                          (try
                           (make-input-stream (URL. x) opts)
                           (catch MalformedURLException e
-                            (make-input-stream (File. (resolve-path x)) opts))))
+                            (make-input-stream (resolve-file x) opts))))
     :make-output-stream (fn [^String x opts]
                           (try
                            (make-output-stream (URL. x) opts)
                            (catch MalformedURLException err
-                            (make-output-stream (File. (resolve-path x)) opts))))))
+                            (make-output-stream (resolve-file x) opts))))))
