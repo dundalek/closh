@@ -3,7 +3,17 @@
 ## [master](https://github.com/dundalek/closh/compare/v0.4.1...master) (unreleased)
 
 ### New features
+
+- Improved history storage in JVM (stores it in sqlite db same as the lumo version)
+- Implements alias expansion in JVM by [@djblue](https://github.com/djblue) ([#150](https://github.com/dundalek/closh/pull/150))
+- Make abbreviations work in JVM (by treating them as same as aliases for now)
+
 ### Fixes
+
+- Fix tab completions when launching closh via clojure CLI by [@djblue](https://github.com/djblue) ([#148](https://github.com/dundalek/closh/pull/148))
+- Fix typo in expand-abbreviation by [@djblue](https://github.com/djblue) ([#149](https://github.com/dundalek/closh/pull/149))
+- Fix when argument to cd is a number ([#153](https://github.com/dundalek/closh/issues/153))
+
 ### Other changes
 
 ## [0.4.1](https://github.com/dundalek/closh/compare/v0.4.0...v0.4.1) (2019-08-10)

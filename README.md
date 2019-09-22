@@ -175,6 +175,7 @@ I hope that new UI ideas above will get people excited and interested. After tha
 
 ### Lumo version (CLJS)
 
+- No script mode
 - No syntax highlighting
 - [Prompt quirks](https://github.com/dundalek/closh/issues/71)
 - Synchronous execution hacks (via deasync library)
