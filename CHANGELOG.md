@@ -13,6 +13,7 @@
 - Fix tab completions when launching closh via clojure CLI by [@djblue](https://github.com/djblue) ([#148](https://github.com/dundalek/closh/pull/148))
 - Fix typo in expand-abbreviation by [@djblue](https://github.com/djblue) ([#149](https://github.com/dundalek/closh/pull/149))
 - Fix when argument to cd is a number ([#153](https://github.com/dundalek/closh/issues/153))
+- Fix ignoring updates to PATH when executing binaries (JVM)
 
 ### Other changes
 

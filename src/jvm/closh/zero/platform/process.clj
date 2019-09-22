@@ -1,5 +1,5 @@
 (ns closh.zero.platform.process
-  (:require [clojure.java.io :refer [default-streams-impl make-input-stream make-output-stream IOFactory]]
+  (:require [clojure.java.io :as io :refer [default-streams-impl make-input-stream make-output-stream IOFactory]]
             [closh.zero.platform.io :refer [*stdout* *stderr*]])
   (:import (java.io File)
            (java.net URL MalformedURLException)))
@@ -53,12 +53,24 @@
          (get @*env* k)
          (System/getenv k))))
 
+(defn find-executable
+  ([name] (find-executable name (getenv "PATH")))
+  ([name path]
+   (if (.isAbsolute (io/file name))
+     name
+     (->> (.split (or path "") File/pathSeparator)
+          (keep (fn [dirname]
+                  (let [file (io/file dirname name)]
+                    (when (and (.isFile file) (.canExecute file))
+                      (.getAbsolutePath file)))))
+          (first)))))
+
 (defn shx
      "Executes a command as child process."
      ([cmd] (shx cmd []))
      ([cmd args] (shx cmd args {}))
      ([cmd args opts]
-      (let [builder (ProcessBuilder. (into-array String (map str (concat [cmd] (flatten args)))))
+      (let [builder (ProcessBuilder. (into-array String (map str (concat [(some-> cmd find-executable)] (flatten args)))))
             std-flip (atom false)
             redirects
             (reduce
