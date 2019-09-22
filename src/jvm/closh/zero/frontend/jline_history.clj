@@ -2,7 +2,7 @@
   (:require [clojure.string :as str]
             [clojure.java.jdbc :as jdbc]
             [clojure.java.io :as io]
-            [closh.zero.service.history-common :refer [table-history table-session get-db-filename]]
+            [closh.zero.service.history-common :refer [table-history table-session get-db-filename check-history-line]]
             [closh.zero.platform.process :as process])
   (:import [org.jline.reader History History$Entry]
            [java.time Instant]
@@ -86,12 +86,11 @@
             first
             :command)))
       (add [this time line]
-        (when (and (not (str/blank? line))
-                   (not (re-find #"^\s+" line)))
+        (when-let [line (check-history-line line)]
           (jdbc/insert! db-spec :history
                         {:session_id session-id
                          :time (.toEpochMilli time)
-                         :command (str/trim line)
+                         :command line
                          :cwd (process/cwd)}))
         (.moveToEnd this))
       (iterator [this index]

@@ -1,6 +1,7 @@
 (ns closh.zero.service.history-common
   (:require #?(:cljs [path]
                :clj [clojure.java.io :as io])
+            [clojure.string :as str]
             [closh.zero.platform.process :as process]))
 
 (def ^:no-doc table-history
@@ -24,3 +25,8 @@
     #?(:cljs (apply path/join parts)
         :clj (-> (apply io/file parts)
                  (.getCanonicalPath)))))
+
+(defn check-history-line [s]
+  (when (and (not (str/blank? s))
+             (not (re-find #"^\s+" s)))
+    (str/trim s)))

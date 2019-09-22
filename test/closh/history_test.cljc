@@ -2,6 +2,7 @@
   (:require [clojure.test :refer [deftest is are testing]]
             [closh.test-util.util :refer [with-tempfile]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [chain->]]
+            #?(:cljs [closh.zero.service.history-common :refer [check-history-line]])
             #?(:cljs [closh.test-util.util :refer-macros [with-async]])
             #?(:cljs [util])
             #?(:cljs [closh.zero.service.history :as history]
@@ -42,7 +43,9 @@
 
 (defn add-history [h command]
   #?(:clj (.add h command)
-     :cljs (add-history-promise h command "")))
+     :cljs (if-let [command (check-history-line command)]
+             (add-history-promise h command "")
+             (js/Promise.resolve))))
 
 (defn assert-history [expected h]
   #?(:clj (is (= expected (history->seq h)))

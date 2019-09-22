@@ -9,6 +9,7 @@
             [closh.zero.core :refer [expand-alias expand-abbreviation]]
             [closh.zero.service.completion]
             [closh.zero.service.history :as history]
+            [closh.zero.service.history-common :refer [check-history-line]]
             #?@(:cljs [[readline] [child_process]])))
 
 (def ^:no-doc readline-tty-write readline/Interface.prototype._ttyWrite)
@@ -237,7 +238,7 @@
           (.pause rl)
           (when-not (clojure.string/blank? input)
             (reset! readline-state initial-readline-state)
-            (when-not (re-find #"^\s+" input)
+            (when-let [input (check-history-line input)]
               (history/add-history db-promise input (process/cwd)
                 (fn [err] (when err (js/console.error "Error saving history:" err)))))
             ; (.startSigintWatchdog util-binding)
