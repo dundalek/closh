@@ -8,7 +8,8 @@
             [closh.completion-test]
             [closh.core-test]
             [closh.reader-test]
-            [closh.util-test]))
+            [closh.util-test]
+            [closh.history-test]))
 
 (defmethod report [:cljs.test/default :end-run-tests] [m]
   (if (cljs.test/successful? m)
@@ -25,4 +26,5 @@
      'closh.pipeline-test
      'closh.completion-test
      'closh.core-test
-     'closh.util-test)))
+     'closh.util-test
+     'closh.history-test)))

@@ -56,3 +56,10 @@
      :cljs (let [content (fs/readFileSync (:name writer) "utf-8")]
              (.removeCallback (:file writer))
              content)))
+
+(defmacro with-async [& body]
+  `(clojure.test/async done#
+     (->
+       ~@body
+       (.catch (fn [err#] (clojure.test/is (nil? err#))))
+       (.then done#))))
