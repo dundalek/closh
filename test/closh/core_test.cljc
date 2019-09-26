@@ -16,10 +16,21 @@
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
             #?(:cljs [fs])
-            #?(:clj [sci.core :as sci])))
+            #?(:clj [sci.core :as sci])
+            #?(:clj [clojure.walk :as walk])))
 
 #?(:clj
     (do
+
+     (defn macroexpand-all
+       [form]
+       (walk/prewalk (fn [x]
+                       (if (and (seq? x)
+                                (not (#{'let 'clojure.core/let} (first x))))
+                         (macroexpand x)
+                         x))
+                     form))
+
      (eval closh.zero.env/*closh-environment-requires*)
      (def bindings
        (->> closh.zero.env/*closh-environment-requires*
@@ -38,13 +49,24 @@
                               (ns-publics namespace)
                               (map (fn [[k v]]
                                      [(symbol (str as) (str k)) (deref v)]))))))))
-            (into {})))
+            (into {'deref deref
+                   'clojure.core/deref deref
+                   'swap! swap!
+                   'clojure.core/swap! swap!
+                   'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*})))
 
      (defn sci-eval [form]
        #_(eval form)
-       (sci/eval-string (pr-str form) {:bindings bindings}))))
+       ; (println "== Evaling:" form)
+       ; (println "== Expanded: " (macroexpand-all form))
+       (sci/eval-string (pr-str (macroexpand-all form)) {:bindings bindings}))))
 
 (comment
+ (sci/eval-string (pr-str '(let [a 1 b 2] (+ a b))))
+
+ (sci/eval-string (pr-str '(/ (+ 1 (Math/sqrt 5)) 2)))
+ (sci/eval-string (pr-str '(/ (+ 1 (. Math sqrt 5)) 2)))
+
  (sci-eval '(closh.zero.pipeline/process-value (shx "ls")))
 
  (sci-eval (macroexpand (sh-str "date")))
@@ -443,15 +465,15 @@
   (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
                     (:stdout (closh "cmd-x abc")))))
 
-  (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
-                    (:stdout (closh "(cmd-x \"abc\")")))))
+  (is (= "abcX" (:stdout (closh (pr-str '(do (defcmd cmd-x [s] (str s "X"))
+                                             (cmd-x "abc")))))))
 
   (is (= "abcY" (do (closh (pr-str '(defcmd cmd-y (fn [s] (str s "Y")))))
                     (:stdout (closh "cmd-y abc")))))
 
-  (is (= "original fn" (do (closh (pr-str '(do (defn cmd-y [_] "original fn")
-                                               (defcmd cmd-y (fn [s] (str s "Y"))))))
-                           (:stdout (closh "(cmd-y \"abc\")")))))
+  (is (= "original fn" (:stdout (closh (pr-str '(do (defn cmd-y [_] "original fn")
+                                                    (defcmd cmd-y (fn [s] (str s "Y")))
+                                                    (cmd-y "abc")))))))
 
   (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [s] (str s "Z"))
                                         (defcmd cmd-z fn-z))))
