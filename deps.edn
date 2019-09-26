@@ -16,6 +16,15 @@
   org.clojure/java.jdbc {:mvn/version "0.7.9"}
   org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
 
+  borkdude/sci
+    {:git/url "https://github.com/borkdude/sci"
+     :sha "1463f84738120275bc58351232ecd1acdaf0fcb1"
+     :exclusions [org.clojure/tools.reader]}
+  borkdude/edamame
+    {:git/url "https://github.com/borkdude/edamame"
+     :sha "53e219d8c8099305a6f7f7f01173ab586aa647b6"
+     :exclusions [org.clojure/tools.reader]}
+
   ; rebel-readline and its dependencies
   com.bhauman/rebel-readline {:mvn/version "0.1.4" :exclusions [cljfmt/cljfmt]}
   org.jline/jline-reader {:mvn/version "3.5.1"}

@@ -15,7 +15,41 @@
             [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
-            #?(:cljs [fs])))
+            #?(:cljs [fs])
+            #?(:clj [sci.core :as sci])))
+
+#?(:clj
+    (do
+     (eval closh.zero.env/*closh-environment-requires*)
+     (def bindings
+       (->> closh.zero.env/*closh-environment-requires*
+            (drop 1)
+            (mapcat (fn [[_ [namespace & opts]]]
+                      (let [{:keys [as refer]} (apply hash-map opts)]
+                        (concat
+                          (for [x refer]
+                            [x (deref (ns-resolve namespace x))])
+                          (->>
+                            (ns-publics namespace)
+                            (map (fn [[k v]]
+                                   [(symbol (str namespace) (str k)) (deref v)])))
+                          (when as
+                            (->>
+                              (ns-publics namespace)
+                              (map (fn [[k v]]
+                                     [(symbol (str as) (str k)) (deref v)]))))))))
+            (into {})))
+
+     (defn sci-eval [form]
+       #_(eval form)
+       (sci/eval-string (pr-str form) {:bindings bindings}))))
+
+(comment
+ (sci-eval '(closh.zero.pipeline/process-value (shx "ls")))
+
+ (sci-eval (macroexpand (sh-str "date")))
+
+ (sci-eval '(sh-str "date")))
 
 #?(:clj
    (do
@@ -39,8 +73,8 @@
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
       (let [code (closh.zero.reader/read (string-push-back-reader cmd))
-            proc #?(:clj (eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                  (closh.zero.pipeline/wait-for-pipeline)))
+            proc #?(:clj (sci-eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                      (closh.zero.pipeline/wait-for-pipeline)))
                     :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
         (if (process/process? proc)
           (do
@@ -58,7 +92,7 @@
      :clj (let [code (closh.zero.compiler/compile-batch
                        (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
             (binding [*ns* user-namespace]
-              (closh.zero.pipeline/process-value (eval code))))))
+              (closh.zero.pipeline/process-value (sci-eval code))))))
 
 (deftest run-test
 
