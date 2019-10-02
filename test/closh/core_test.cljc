@@ -16,8 +16,7 @@
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
             #?(:cljs [fs])
-            #?(:clj [sci.core :as sci])
-            #?(:clj [clojure.walk :as walk])))
+            #?(:clj [sci.core :as sci])))
 
 #?(:clj
     (do
@@ -60,7 +59,7 @@
 
      (def sci-env (atom {}))
 
-     (defn sci-eval [form]
+     (defn custom-eval [form]
        #_(eval form)
        (sci/eval-string (pr-str form) {:bindings bindings
                                        :env sci-env}))))
@@ -87,8 +86,8 @@
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
       (let [code (closh.zero.reader/read (string-push-back-reader cmd))
-            proc #?(:clj (sci-eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                      (closh.zero.pipeline/wait-for-pipeline)))
+            proc #?(:clj (custom-eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                        (closh.zero.pipeline/wait-for-pipeline)))
                     :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
         (if (process/process? proc)
           (do
@@ -106,7 +105,7 @@
      :clj (let [code (closh.zero.compiler/compile-batch
                        (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
             (binding [*ns* user-namespace]
-              (closh.zero.pipeline/process-value (sci-eval code))))))
+              (closh.zero.pipeline/process-value (custom-eval code))))))
 
 (deftest run-test
 
