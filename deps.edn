@@ -18,7 +18,7 @@
 
   borkdude/sci
     {:git/url "https://github.com/borkdude/sci"
-     :sha "1463f84738120275bc58351232ecd1acdaf0fcb1"
+     :sha "ebd6b89cbe203b4aadf4bbe325ac148d598fc6de"
      :exclusions [org.clojure/tools.reader]}
   borkdude/edamame
     {:git/url "https://github.com/borkdude/edamame"

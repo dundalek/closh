@@ -21,57 +21,49 @@
 
 #?(:clj
     (do
-
-     (defn macroexpand-all
-       [form]
-       (walk/prewalk (fn [x]
-                       (if (and (seq? x)
-                                (not (#{'let 'clojure.core/let} (first x))))
-                         (macroexpand x)
-                         x))
-                     form))
-
      (eval closh.zero.env/*closh-environment-requires*)
      (def bindings
-       (->> closh.zero.env/*closh-environment-requires*
-            (drop 1)
-            (mapcat (fn [[_ [namespace & opts]]]
-                      (let [{:keys [as refer]} (apply hash-map opts)]
-                        (concat
-                          (for [x refer]
-                            [x (deref (ns-resolve namespace x))])
-                          (->>
-                            (ns-publics namespace)
-                            (map (fn [[k v]]
-                                   [(symbol (str namespace) (str k)) (deref v)])))
-                          (when as
+       (merge
+         (->> closh.zero.env/*closh-environment-requires*
+              (drop 1)
+              (mapcat (fn [[_ [namespace & opts]]]
+                        (let [{:keys [as refer]} (apply hash-map opts)]
+                          (concat
+                            (for [x refer]
+                              [x (deref (ns-resolve namespace x))])
                             (->>
                               (ns-publics namespace)
                               (map (fn [[k v]]
-                                     [(symbol (str as) (str k)) (deref v)]))))))))
-            (into {'deref deref
-                   'clojure.core/deref deref
-                   'swap! swap!
-                   'clojure.core/swap! swap!
-                   'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*})))
+                                     [(symbol (str namespace) (str k)) (deref v)])))
+                            (when as
+                              (->>
+                                (ns-publics namespace)
+                                (map (fn [[k v]]
+                                       [(symbol (str as) (str k)) (deref v)]))))))))
+              (into {}))
+         (let [namespace 'closh.zero.macros]
+           (->> (ns-publics namespace)
+                (mapcat (fn [[k _]]
+                          (let [macro (with-meta
+                                        (fn [& args]
+                                          (macroexpand (cons (symbol (str namespace) (str k)) args)))
+                                        {:sci/macro true})]
+                            [[(symbol (str k)) macro]
+                             [(symbol (str namespace) (str k)) macro]])))
+                (into {})))
+         {'deref deref
+          'clojure.core/deref deref
+          'swap! swap!
+          'clojure.core/swap! swap!
+          'Math/sqrt #(Math/sqrt %)
+          'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*}))
+
+     (def sci-env (atom {}))
 
      (defn sci-eval [form]
        #_(eval form)
-       ; (println "== Evaling:" form)
-       ; (println "== Expanded: " (macroexpand-all form))
-       (sci/eval-string (pr-str (macroexpand-all form)) {:bindings bindings}))))
-
-(comment
- (sci/eval-string (pr-str '(let [a 1 b 2] (+ a b))))
-
- (sci/eval-string (pr-str '(/ (+ 1 (Math/sqrt 5)) 2)))
- (sci/eval-string (pr-str '(/ (+ 1 (. Math sqrt 5)) 2)))
-
- (sci-eval '(closh.zero.pipeline/process-value (shx "ls")))
-
- (sci-eval (macroexpand (sh-str "date")))
-
- (sci-eval '(sh-str "date")))
+       (sci/eval-string (pr-str form) {:bindings bindings
+                                       :env sci-env}))))
 
 #?(:clj
    (do
