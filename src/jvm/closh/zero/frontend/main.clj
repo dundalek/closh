@@ -4,7 +4,8 @@
             [closh.zero.core :as core]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
-            [closh.zero.utils.clojure-main :refer [repl repl-requires with-read-known] :as clojure-main])
+            [closh.zero.utils.clojure-main :refer [repl repl-requires with-read-known] :as clojure-main]
+            [clj-async-profiler.core :as prof])
   (:refer-clojure :exclude [load-reader])
   (:import [clojure.lang Compiler RT LineNumberingPushbackReader]
            [java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader BufferedReader]))
@@ -148,11 +149,14 @@
                (clojure.string/replace #"java -cp clojure\.jar clojure\.main" "closh-zero.jar"))))
 
 (defn -main [& args]
-  (with-redefs [clojure-main/load-script load-script
-                clojure-main/eval-opt eval-opt
-                clojure-main/repl-opt repl-opt
-                clojure-main/help-opt help-opt
-                clojure.core/load-reader load-reader]
-                ;; redef does not seem to work, must use alter var root
-                ;; clojure.core/load-file compiler-load-file]
-    (apply clojure-main/main args)))
+  (println
+    (prof/profile
+      {:return-file true}
+      (with-redefs [clojure-main/load-script load-script
+                    clojure-main/eval-opt eval-opt
+                    clojure-main/repl-opt repl-opt
+                    clojure-main/help-opt help-opt
+                    clojure.core/load-reader load-reader]
+                    ;; redef does not seem to work, must use alter var root
+                    ;; clojure.core/load-file compiler-load-file]
+        (apply clojure-main/main args)))))

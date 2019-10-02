@@ -16,6 +16,8 @@
   org.clojure/java.jdbc {:mvn/version "0.7.9"}
   org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
 
+  com.clojure-goes-fast/clj-async-profiler {:mvn/version "0.4.0"}
+
   ; rebel-readline and its dependencies
   com.bhauman/rebel-readline {:mvn/version "0.1.4" :exclusions [cljfmt/cljfmt]}
   org.jline/jline-reader {:mvn/version "3.5.1"}

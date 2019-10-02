@@ -42,6 +42,7 @@
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
     "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
+    "profile-main": "scripts/profile-prepare.sh && clojure -J-Djdk.attach.allowAttachSelf -J-XX:+UnlockDiagnosticVMOptions -J-XX:+DebugNonSafepoints -m closh.zero.frontend.main",
     "rebel": "clojure -m closh.zero.frontend.rebel",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
   },
