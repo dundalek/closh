@@ -44,6 +44,7 @@
     "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "rebel": "clojure -m closh.zero.frontend.rebel",
+    "rebel-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -m closh.zero.frontend.rebel",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
   },
   "repository": {

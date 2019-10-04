@@ -13,6 +13,7 @@
             [closh.zero.platform.eval :as eval]
             [closh.zero.frontend.main :as main]
             [closh.zero.service.completion :refer [complete-shell]]
+            [closh.zero.util :refer [thread-stop]]
             [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main]
             [closh.zero.frontend.jline-history :as jline-history])
   (:import [org.jline.reader Completer ParsedLine LineReader]))
@@ -87,7 +88,7 @@
 
 (defn handle-sigint-form []
   `(let [thread# (Thread/currentThread)]
-     (clojure.repl/set-break-handler! (fn [signal#] (.stop thread#)))))
+     (clojure.repl/set-break-handler! (fn [signal#] (thread-stop thread#)))))
 
 (defn repl [[_ & args] inits]
   (core/ensure-terminal

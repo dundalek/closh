@@ -1,7 +1,9 @@
 (ns closh.zero.utils.sci
-  (:require [clojure.java.io :as io]
+  (:require [clojure.repl]
+            [clojure.java.io :as io]
             [clojure.tools.reader :as reader]
             [clojure.tools.reader.reader-types :refer [push-back-reader]]
+            [closh.zero.util :refer [thread-stop]]
             [sci.core :as sci]
             [closh.zero.env]))
 
@@ -63,6 +65,9 @@
      'swap! swap!
      'clojure.core/swap! swap!
      'Math/sqrt #(Math/sqrt %)
+     'java.lang.Thread/currentThread #(Thread/currentThread)
+     'thread-stop thread-stop
+     'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
      'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*}))
 
 (def sci-env (atom {}))
