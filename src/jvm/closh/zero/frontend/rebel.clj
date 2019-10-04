@@ -10,6 +10,7 @@
             [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
+            [closh.zero.platform.eval :as eval]
             [closh.zero.frontend.main :as main]
             [closh.zero.service.completion :refer [complete-shell]]
             [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main]
@@ -18,14 +19,14 @@
 
 (defn repl-prompt []
   (try
-    (eval '(print (closh-prompt)))
+    (eval/eval '(print (closh-prompt)))
     (catch Exception e
       (println "Error printing prompt:" (:cause (Throwable->map e)))
       (println "Please check the definition of closh-prompt function in your ~/.closhrc")
       (print "$ ")))
   (let [title
         (try
-          (eval '(closh-title))
+          (eval/eval '(closh-title))
           (catch Exception e
             (str "closh: Error in (closh-title): " (:cause (Throwable->map e)))))]
     (.print System/out (str "\u001b]0;" title "\u0007"))))
@@ -82,7 +83,7 @@
   "Loads init file."
   [init-path]
   (when (.isFile (jio/file init-path))
-    (eval `(load-file ~init-path))))
+    (eval/eval `(load-file ~init-path))))
 
 (defn handle-sigint-form []
   `(let [thread# (Thread/currentThread)]
@@ -114,7 +115,7 @@
                         (in-ns 'user)
                         (apply require repl-requires)
                         (in-ns 'user)
-                        (eval *closh-environment-requires*)
+                        (eval/eval-closh-requires)
                         (eval *closh-environment-init*)
                         (try
                           (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
@@ -123,7 +124,7 @@
                               (println "Error while loading init file ~/.closhrc:\n" e)))))
                :print repl-print
                :read (create-repl-read)
-               :eval (fn [form] (eval `(do ~(handle-sigint-form) ~form)))}
+               :eval (fn [form] (eval/eval `(do ~(handle-sigint-form) ~form)))}
               (merge opts {:prompt (fn [])})
               seq
               flatten))))))

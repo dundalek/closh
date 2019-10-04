@@ -38,6 +38,7 @@
     "test-windows": "lumo -K -c src/common;src/lumo;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clojure -Atest -m closh.test-util.runner",
+    "test-clj-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m closh.test-util.runner",
     "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
     "test-clj-ci": "clojure -Atest -m cognitect.test-runner",

@@ -67,7 +67,6 @@
 
 (def sci-env (atom {}))
 
-(defn custom-eval [form]
-  #_(eval form)
+(defn sci-eval [form]
   (sci/eval-string (pr-str form) {:bindings bindings
                                   :env sci-env}))

@@ -4,6 +4,7 @@
             [closh.zero.core :as core]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
+            [closh.zero.platform.eval :as eval]
             [closh.zero.utils.clojure-main :refer [repl repl-requires with-read-known] :as clojure-main])
   (:refer-clojure :exclude [load-reader])
   (:import [clojure.lang Compiler RT LineNumberingPushbackReader]
@@ -87,7 +88,7 @@
   (repl :init (fn []
                 (clojure-main/initialize args inits)
                 (apply require repl-requires)
-                (eval *closh-environment-requires*)
+                (eval/eval-closh-requires)
                 (eval *closh-environment-init*))
         :read repl-read
         :print repl-print)
@@ -136,7 +137,7 @@
         reader (make-custom-reader (java.io.StringReader. str))]
       (loop [input (with-read-known (read reader false eof))]
         (when-not (= input eof)
-          (let [value (eval input)]
+          (let [value (eval/eval input)]
             (when-not (nil? value)
               (prn value))
             (recur (with-read-known (read reader false eof))))))))

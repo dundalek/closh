@@ -16,13 +16,13 @@
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
             #?(:cljs [fs])
-            #?(:clj [closh.zero.utils.sci :refer [custom-eval]])))
+            #?(:clj [closh.zero.platform.eval :as eval])))
 
 #?(:clj
    (do
      (def user-namespace (create-ns 'user))
      (binding [*ns* user-namespace]
-       (eval closh.zero.env/*closh-environment-requires*)))
+       (eval/eval-closh-requires)))
    :cljs
    (closh.zero.platform.eval/execute-text
      (str (pr-str closh.zero.env/*closh-environment-requires*))))
@@ -40,7 +40,7 @@
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
       (let [code (closh.zero.reader/read (string-push-back-reader cmd))
-            proc #?(:clj (custom-eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+            proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
                                         (closh.zero.pipeline/wait-for-pipeline)))
                     :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
         (if (process/process? proc)
@@ -59,7 +59,7 @@
      :clj (let [code (closh.zero.compiler/compile-batch
                        (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
             (binding [*ns* user-namespace]
-              (closh.zero.pipeline/process-value (custom-eval code))))))
+              (closh.zero.pipeline/process-value (eval/eval code))))))
 
 (deftest run-test
 
