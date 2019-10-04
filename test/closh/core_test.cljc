@@ -16,53 +16,7 @@
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
             #?(:cljs [fs])
-            #?(:clj [sci.core :as sci])))
-
-#?(:clj
-    (do
-     (eval closh.zero.env/*closh-environment-requires*)
-     (def bindings
-       (merge
-         (->> closh.zero.env/*closh-environment-requires*
-              (drop 1)
-              (mapcat (fn [[_ [namespace & opts]]]
-                        (let [{:keys [as refer]} (apply hash-map opts)]
-                          (concat
-                            (for [x refer]
-                              [x (deref (ns-resolve namespace x))])
-                            (->>
-                              (ns-publics namespace)
-                              (map (fn [[k v]]
-                                     [(symbol (str namespace) (str k)) (deref v)])))
-                            (when as
-                              (->>
-                                (ns-publics namespace)
-                                (map (fn [[k v]]
-                                       [(symbol (str as) (str k)) (deref v)]))))))))
-              (into {}))
-         (let [namespace 'closh.zero.macros]
-           (->> (ns-publics namespace)
-                (mapcat (fn [[k _]]
-                          (let [macro (with-meta
-                                        (fn [& args]
-                                          (macroexpand (cons (symbol (str namespace) (str k)) args)))
-                                        {:sci/macro true})]
-                            [[(symbol (str k)) macro]
-                             [(symbol (str namespace) (str k)) macro]])))
-                (into {})))
-         {'deref deref
-          'clojure.core/deref deref
-          'swap! swap!
-          'clojure.core/swap! swap!
-          'Math/sqrt #(Math/sqrt %)
-          'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*}))
-
-     (def sci-env (atom {}))
-
-     (defn custom-eval [form]
-       #_(eval form)
-       (sci/eval-string (pr-str form) {:bindings bindings
-                                       :env sci-env}))))
+            #?(:clj [closh.zero.utils.sci :refer [custom-eval]])))
 
 #?(:clj
    (do
