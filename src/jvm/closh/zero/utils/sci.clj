@@ -56,6 +56,12 @@
 
 (closh-requires)
 
+(declare ctx)
+
+(defn load-file* [file]
+  (let [s (slurp file)]
+    (sci/eval-string s ctx)))
+
 (def bindings
   (merge
     (closh-bindings)
@@ -64,6 +70,9 @@
      'clojure.core/deref deref
      'swap! swap!
      'clojure.core/swap! swap!
+     'print print
+     'println println
+     'load-file load-file*
      'Math/sqrt #(Math/sqrt %)
      'java.lang.Thread/currentThread #(Thread/currentThread)
      'thread-stop thread-stop
@@ -72,6 +81,8 @@
 
 (def sci-env (atom {}))
 
+(def ctx {:bindings bindings
+          :env sci-env})
+
 (defn sci-eval [form]
-  (sci/eval-string (pr-str form) {:bindings bindings
-                                  :env sci-env}))
+  (sci/eval-string (pr-str form) ctx))

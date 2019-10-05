@@ -84,7 +84,7 @@
   "Loads init file."
   [init-path]
   (when (.isFile (jio/file init-path))
-    (eval/eval `(load-file ~init-path))))
+    (eval/eval `(~'load-file ~init-path))))
 
 (defn handle-sigint-form []
   `(let [thread# (Thread/currentThread)]
