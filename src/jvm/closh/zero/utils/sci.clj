@@ -2,10 +2,10 @@
   (:require [clojure.repl]
             [clojure.java.io :as io]
             [clojure.tools.reader :as reader]
-            [clojure.tools.reader.reader-types :refer [push-back-reader]]
             [closh.zero.util :refer [thread-stop]]
             [sci.core :as sci]
-            [closh.zero.env]))
+            [closh.zero.env])
+  (:import (java.io PushbackReader)))
 
 (defmacro closh-requires []
   closh.zero.env/*closh-environment-requires*)
@@ -36,7 +36,7 @@
 
 (defmacro closh-macro-bindings []
   (with-open [rdr (io/reader "src/common/closh/zero/macros.cljc")]
-    (let [prdr (push-back-reader rdr)
+    (let [prdr (PushbackReader. rdr)
           eof (Object.)
           opts {:eof eof :read-cond :allow :features #{:clj}}]
       (loop [bindings {}]

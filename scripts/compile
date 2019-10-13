@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+NATIVE_IMAGE=`which native-image` || true
+
+if [ -z "$NATIVE_IMAGE" ]; then
+  if [ -z "$GRAALVM_HOME" ]; then
+      echo "Please set GRAALVM_HOME"
+      exit 1
+  fi
+
+  "$GRAALVM_HOME/bin/gu" install native-image || true
+
+  NATIVE_IMAGE="$GRAALVM_HOME/bin/native-image"
+fi
+
+#CLOSH_VERSION=$(jq ".version" package.json)
+
+# # We also need to AOT sci, else something didn't work in the Mac build on CircleCI
+# # See https://github.com/oracle/graal/issues/1613
+# ( cd /tmp;  git clone https://github.com/borkdude/sci 2> /dev/null || true )
+# mkdir -p src/sci
+# cp -R /tmp/sci/src/* src
+
+
+# npm run uberjar-sci
+
+# "-H:IncludeResources=CLOSH_VERSION" \
+# "-H:IncludeResources=SCI_VERSION" \
+
+$NATIVE_IMAGE \
+  -jar target/closh-zero-sci.jar \
+  -H:Name=closh-zero-sci \
+  -H:+ReportExceptionStackTraces \
+  -J-Dclojure.spec.skip-macros=true \
+  -J-Dclojure.compiler.direct-linking=true \
+  -H:ReflectionConfigurationFiles=reflection.json \
+  --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
+  --initialize-at-build-time \
+  --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
+  -H:Log=registerResource: \
+  -H:EnableURLProtocols=http,https \
+  --enable-all-security-services \
+  -H:+JNI \
+  --verbose \
+  --no-fallback \
+  --no-server \
+  --report-unsupported-elements-at-runtime \
+  -H:+TraceClassInitialization \
+  -H:+PrintClassInitialization \
+  "-J-Xmx6g"

@@ -117,7 +117,7 @@
                         (apply require repl-requires)
                         (in-ns 'user)
                         (eval/eval-closh-requires)
-                        (eval *closh-environment-init*)
+                        (eval/eval *closh-environment-init*)
                         (try
                           (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
                           (catch Exception e

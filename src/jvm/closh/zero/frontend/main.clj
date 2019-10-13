@@ -1,4 +1,5 @@
 (ns closh.zero.frontend.main
+  (:gen-class)
   (:require [clojure.tools.reader.reader-types :refer [string-push-back-reader push-back-reader read-char unread]]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.core :as core]
@@ -89,7 +90,7 @@
                 (clojure-main/initialize args inits)
                 (apply require repl-requires)
                 (eval/eval-closh-requires)
-                (eval *closh-environment-init*))
+                (eval/eval *closh-environment-init*))
         :read repl-read
         :print repl-print)
   (prn)
