@@ -1,7 +1,6 @@
 (ns closh.core-test
   (:require [clojure.test :refer [deftest testing is are]]
             [closh.test-util.util :refer [null-file with-tempfile with-tempfile-content create-fake-writer get-fake-writer str-fake-writer]]
-            [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [closh.zero.reader]
             [closh.zero.builtin :refer [getenv setenv]]
