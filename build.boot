@@ -26,6 +26,6 @@
    (deps :quick-merge true :aliases [:sci])
    (aot :all true)
    (uber)
-   (jar :file "closh-zero-sci.jar" :main 'closh.zero.frontend.main)
+   (jar :file "closh-zero-sci.jar" :main 'closh.zero.frontend.plain)
    (sift :include #{#"closh-zero-sci.jar"})
    (target)))

@@ -28,6 +28,7 @@ fi
 
 # "-H:IncludeResources=CLOSH_VERSION" \
 # "-H:IncludeResources=SCI_VERSION" \
+# --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
 
 $NATIVE_IMAGE \
   -jar target/closh-zero-sci.jar \
@@ -38,7 +39,6 @@ $NATIVE_IMAGE \
   -H:ReflectionConfigurationFiles=reflection.json \
   --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
   --initialize-at-build-time \
-  --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
   -H:Log=registerResource: \
   -H:EnableURLProtocols=http,https \
   --enable-all-security-services \
@@ -49,4 +49,4 @@ $NATIVE_IMAGE \
   --report-unsupported-elements-at-runtime \
   -H:+TraceClassInitialization \
   -H:+PrintClassInitialization \
-  "-J-Xmx6g"
+  "-J-Xmx8g"

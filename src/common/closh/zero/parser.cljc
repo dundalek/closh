@@ -1,5 +1,5 @@
 (ns closh.zero.parser
-  (:require #_[closh.zero.parser-spec :as parser]
-            [closh.zero.parser-squarepeg :as parser]))
+  (:require #?(:cljs [closh.zero.parser-spec :as parser]
+               :clj [closh.zero.parser-squarepeg :as parser])))
 
 (def parse parser/parse)
