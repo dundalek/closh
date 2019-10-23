@@ -5,6 +5,8 @@
             [closh.zero.pipeline :refer [process-value]]
             [closh.zero.env :refer [*closh-aliases* *closh-abbreviations*]]))
 
+#?(:clj (set! *warn-on-reflection* true))
+
 (def command-not-found-bin "/usr/lib/command-not-found")
 
 (defn expand-variable
@@ -87,10 +89,10 @@
              (catch java.io.IOException _
                (let [suggestion (get-command-suggestion cmd)]
                  (when-not (clojure.string/blank? suggestion)
-                   (.print *stderr* suggestion))
-                 (.println *stderr* (str cmd ": command not found"))))
+                   (.print ^java.io.PrintStream *stderr* suggestion))
+                 (.println ^java.io.PrintStream *stderr* (str cmd ": command not found"))))
              (catch Exception ex
-               (.println *stderr* (str "Unexpected error:\n" ex)))))))
+               (.println ^java.io.PrintStream *stderr* (str "Unexpected error:\n" ex)))))))
 
 (defn expand-alias
   ([input] (expand-alias @*closh-aliases* input))

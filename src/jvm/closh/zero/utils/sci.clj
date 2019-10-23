@@ -85,4 +85,5 @@
           :env sci-env})
 
 (defn sci-eval [form]
+  (pr-str "EVALUATING" form)
   (sci/eval-string (pr-str form) ctx))
