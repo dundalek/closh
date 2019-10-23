@@ -36,7 +36,7 @@
      `(-> ~(closh.zero.compiler/compile-interactive
             (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
           (closh.zero.pipeline/wait-for-pipeline)))
-    ;; doesn't work yet:
+    ;; also works:
     (eval/eval
      `(-> ~(closh.zero.compiler/compile-interactive
             (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
