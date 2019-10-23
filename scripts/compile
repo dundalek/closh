@@ -31,10 +31,20 @@ fi
 # --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
 
 export __CLOSH_USE_SCI_EVAL__=true
-npm run compile-sci
+
+use_lein=false # set to true to build uberjar with project.clj instead of boot
+
+if [ $use_lein = true ]; then
+    npm run compile-sci-lein
+    jar=target/closh-sci-0.0.1-SNAPSHOT-standalone.jar
+else
+    npm run compile-sci-boot
+    jar=target/closh-zero-sci.jar
+fi
+
 
 $NATIVE_IMAGE \
-  -jar target/closh-sci-0.0.1-SNAPSHOT-standalone.jar \
+  -jar "$jar" \
   -H:Name=closh-zero-sci \
   -H:+ReportExceptionStackTraces \
   -J-Dclojure.spec.skip-macros=true \
