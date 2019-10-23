@@ -13,7 +13,7 @@
  (let [eof (Object.)
        opts {:eof eof :read-cond :allow :features #{:clj}}]
    (loop [forms []]
-      (let [form (edn/read opts rdr)]
+      (let [form (edn/read opts rdr)] ;; NOTE: clojure.core/read triggers the locking issue
         (if (= form eof)
           (seq forms)
           (recur (conj forms form)))))))
