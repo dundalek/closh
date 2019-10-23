@@ -15,7 +15,7 @@
   ([s cwd-file]
    (let [pattern (str/replace s relpath-regex "")
          is-relative (not= s pattern)
-         result (clj-glob/glob pattern (java.io.File. cwd-file))]
+         result (clj-glob/glob pattern #_(java.io.File. cwd-file))] ;; workaround for now
       (if (seq result)
         (for [item result]
           (let [s (str item)
