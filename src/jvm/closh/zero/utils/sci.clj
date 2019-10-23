@@ -1,11 +1,10 @@
 (ns closh.zero.utils.sci
-  (:require [sci.core :as sci])
-  #_(:require ;; [clojure.repl]
-            [clojure.java.io :as io]
-            [clojure.tools.reader :as reader]
-            ;; [closh.zero.util :refer [thread-stop]]
-            
-            [closh.zero.env])
+  (:require [sci.core :as sci]
+            [closh.zero.pipeline :as pipeline]
+            [closh.zero.core :as closh-core]
+            [closh.zero.env :as env]
+            [closh.zero.util :refer [thread-stop]]
+            [clojure.repl :as repl])
   (:import (java.io PushbackReader)))
 
 (comment
@@ -58,36 +57,48 @@
 
   (closh-requires)
 
-  (declare ctx)
-
-  (defn load-file* [file]
-    (let [s (slurp file)]
-      (sci/eval-string s ctx)))
-
-  (def bindings
+  #_(def bindings
     (merge
      (closh-bindings)
      (closh-macro-bindings)
-     {'deref deref
-      'clojure.core/deref deref
-      'swap! swap!
-      'clojure.core/swap! swap!
-      'print print
-      'println println
-      'load-file load-file*
-      'Math/sqrt #(Math/sqrt %)
-      'java.lang.Thread/currentThread #(Thread/currentThread)
+     {
       ;; 'thread-stop thread-stop
       ;; 'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
       ;; 'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*
       }))
   )
 
+(declare ctx)
+
+(defn load-file* [file]
+  (let [s (slurp file)]
+    (sci/eval-string s ctx)))
+
 (def sci-env (atom {}))
 
-(def ctx {:bindings {} ;; bindings
+(def bindings {'deref deref
+               'clojure.core/deref deref
+               'swap! swap!
+               'clojure.core/swap! swap!
+               'print print
+               'println println
+               'load-file load-file*
+               'Math/sqrt #(Math/sqrt %)
+               'java.lang.Thread/currentThread #(Thread/currentThread)
+               'thread-stop thread-stop
+               'clojure.repl/set-break-handler! repl/set-break-handler!
+               'closh.zero.env/*closh-commands* env/*closh-commands*})
+
+(def ctx {:bindings bindings
+          :namespaces {'clojure.core {'println println}
+                       'closh.zero.pipeline {'pipe pipeline/pipe
+                                             'redir pipeline/redir
+                                             'wait-for-pipeline pipeline/wait-for-pipeline}
+                       'closh.zero.core {'shx closh-core/shx
+                                         'expand-command closh-core/expand-command
+                                         'expand closh-core/expand} }
           :env sci-env})
 
 (defn sci-eval [form]
-  (prn "EVAL FORM" form)
+  ;; (prn "EVAL FORM" form)
   (sci/eval-string (pr-str form) ctx))
