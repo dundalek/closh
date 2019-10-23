@@ -30,8 +30,10 @@ fi
 # "-H:IncludeResources=SCI_VERSION" \
 # --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
 
+lein do clean, uberjar
+
 $NATIVE_IMAGE \
-  -jar target/closh-zero-sci.jar \
+  -jar target/closh-sci-0.0.1-SNAPSHOT-standalone.jar \
   -H:Name=closh-zero-sci \
   -H:+ReportExceptionStackTraces \
   -J-Dclojure.spec.skip-macros=true \

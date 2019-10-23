@@ -14,3 +14,6 @@ closh.iml
 yarn-error.log
 /hs_err_*
 .clj-kondo
+closh-zero-sci
+reports
+resources/completion
