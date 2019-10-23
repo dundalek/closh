@@ -84,13 +84,13 @@
          std-flip (atom false)
          redirects
          (reduce
-          (fn [redirects [op fd ^String target]]
+          (fn [redirects [op fd target]]
             (case op
               :rw (throw (Exception. "Read/Write redirection is not supported"))
               (let [redirect (case op
-                               :in (java.lang.ProcessBuilder$Redirect/from (File. target))
-                               :out (java.lang.ProcessBuilder$Redirect/to (File. target))
-                               :append (java.lang.ProcessBuilder$Redirect/appendTo (File. target))
+                               :in (java.lang.ProcessBuilder$Redirect/from (File. ^String target))
+                               :out (java.lang.ProcessBuilder$Redirect/to (File. ^String target))
+                               :append (java.lang.ProcessBuilder$Redirect/appendTo (File. ^String target))
                                :set (if (#{:stdin :stdout :stderr} target)
                                       (case target
                                         :stdin java.lang.ProcessBuilder$Redirect/INHERIT
