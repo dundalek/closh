@@ -14,7 +14,7 @@
 
 (defn glob
   ([s] (glob s nil))
-  ([s cwd-file]
+  ([s ^String cwd-file]
    (let [pattern (str/replace s relpath-regex "")
          is-relative (not= s pattern)
          result (clj-glob/glob pattern (java.io.File. cwd-file))]
