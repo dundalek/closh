@@ -1,6 +1,7 @@
 (ns closh.zero.frontend.sci
   (:gen-class)
-  (:require ;; [closh.zero.platform.eval :as eval]
+  (:require
+   [closh.zero.platform.eval :as eval]
    [closh.zero.compiler]
    [closh.zero.parser :as parser]
    #_[closh.zero.pipeline]
@@ -24,20 +25,19 @@
     #_(println (read-all (PushbackReader. (StringReader. cmd))))
     ;; works:
     #_(println (parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
+    ;; works:
+    #_(clojure.core/->
+       (closh.zero.core/shx (closh.zero.core/expand-command "echo")
+                            [(closh.zero.core/expand "hello")
+                             (closh.zero.core/expand "clojure")]
+                            {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}))
+    ;; works:
+    #_(println
+     `(-> ~(closh.zero.compiler/compile-interactive
+            (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
+          (closh.zero.pipeline/wait-for-pipeline)))
     ;; doesn't work yet:
-    #_(println `(-> ~(closh.zero.compiler/compile-interactive
-                    (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-                  (closh.zero.pipeline/wait-for-pipeline)))
-    (clojure.core/->
-     (closh.zero.core/shx (closh.zero.core/expand-command "echo")
-                          [(closh.zero.core/expand "hello")
-                           (closh.zero.core/expand "clojure")]
-                          {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]})
-     #_(closh.zero.pipeline/wait-for-pipeline))
-
-    ;; (clojure.core/-> (closh.zero.core/shx (closh.zero.core/expand-command echo) [(closh.zero.core/expand hello) (closh.zero.core/expand clojure)] {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}) (closh.zero.pipeline/wait-for-pipeline))
-
-    #_(eval/eval
-       `(-> ~(closh.zero.compiler/compile-interactive
-              (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-            (closh.zero.pipeline/wait-for-pipeline)))))
+    (eval/eval
+     `(-> ~(closh.zero.compiler/compile-interactive
+            (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
+          (closh.zero.pipeline/wait-for-pipeline)))))

@@ -4,6 +4,8 @@
             #?(:cljs [closh.zero.platform.util :refer [wait-for-event]]))
   (:refer-clojure :exclude [line-seq]))
 
+#?(:clj (set! *warn-on-reflection* true))
+
 (defn wait-when-process [proc]
   (if (process? proc)
     (process/wait proc)

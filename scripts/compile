@@ -30,7 +30,8 @@ fi
 # "-H:IncludeResources=SCI_VERSION" \
 # --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
 
-lein do clean, uberjar
+export __CLOSH_USE_SCI_EVAL__=true
+npm run compile-sci
 
 $NATIVE_IMAGE \
   -jar target/closh-sci-0.0.1-SNAPSHOT-standalone.jar \
