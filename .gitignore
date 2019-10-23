@@ -16,4 +16,4 @@ yarn-error.log
 .clj-kondo
 closh-zero-sci
 reports
-*.jar
+*.zip
