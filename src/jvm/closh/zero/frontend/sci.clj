@@ -4,7 +4,6 @@
    #_[closh.zero.reader :as reader]
    #_[clojure.tools.reader.reader-types :refer [string-push-back-reader]]
    [clojure.edn :as edn]
-   [closh.zero.builtin :as builtin] ;; defines cmds
    [closh.zero.compiler]
    [closh.zero.parser :as parser]
    [closh.zero.pipeline]
@@ -21,7 +20,6 @@
           (recur (conj forms form)))))))
 
 (defn -main [& args]
-  (builtin/rt)
   (let [cmd (or (first args) "echo hello clojure")]
     ;; works:
     #_(println (read-all (PushbackReader. (StringReader. cmd))))
