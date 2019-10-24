@@ -43,7 +43,6 @@
     "test-clj-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m closh.test-util.runner",
     "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
-    "test-clj-ci": "npm run test-clj && npm run test-clj-sci",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "rebel": "clojure -m closh.zero.frontend.rebel",
     "rebel-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -m closh.zero.frontend.rebel",
