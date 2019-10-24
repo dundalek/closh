@@ -86,11 +86,13 @@
                     (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
       :clj (try
              (process/shx cmd args opts)
-             (catch java.io.IOException _
+             (catch java.io.IOException e
                (let [suggestion (get-command-suggestion cmd)]
                  (when-not (clojure.string/blank? suggestion)
                    (.print ^java.io.PrintStream *stderr* suggestion))
-                 (.println ^java.io.PrintStream *stderr* (str cmd ": command not found"))))
+                 (.println ^java.io.PrintStream *stderr* (str cmd ": command not found"))
+                 (println "STACKTRACE:")
+                 (.printStackTrace e)))
              (catch Exception ex
                (.println ^java.io.PrintStream *stderr* (str "Unexpected error:\n" ex)))))))
 
