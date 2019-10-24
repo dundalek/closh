@@ -88,14 +88,7 @@ jobs:
               --enable-url-protocols=http,https \
               --allow-incomplete-classpath \
               -jar closh-zero-sci.jar \
-              closh-zero-sci
-              
-      - name: Test binary
-        run: | 
-          ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
-          ./closh-zero-sci ; \ 
-          ./closh-zero-sci 'echo "hi"' ; \
-          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+              closh-zero-sci              
           
       - run: tar -cvzf closh-zero-sci.tgz ./closh-zero-sci
 
@@ -103,6 +96,13 @@ jobs:
         with:
           path: closh-zero-sci.tgz
           name: closh-zero-sci
+
+      - name: Test binary
+        run: | 
+          ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
+          ./closh-zero-sci ; \ 
+          ./closh-zero-sci 'echo "hi"' ; \
+          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;:  
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 
