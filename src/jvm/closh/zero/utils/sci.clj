@@ -94,9 +94,17 @@
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
                                              'wait-for-pipeline pipeline/wait-for-pipeline}
-                       'closh.zero.core {'shx closh-core/shx
+                       'closh.zero.core {'expand-variable closh-core/expand-variable
+                                         'expand-tilde closh-core/expand-tilde
+                                         'expand-filename closh-core/expand-filename
+                                         'expand-redirect closh-core/expand-redirect
+                                         'expand-partial closh-core/expand-partial
+                                         'expand closh-core/expand
                                          'expand-command closh-core/expand-command
-                                         'expand closh-core/expand} }
+                                         'get-command-suggestion closh-core/get-command-suggestion
+                                         'shx closh-core/shx
+                                         'expand-alias closh-core/expand-alias
+                                         'expand-abbreviation closh-core/expand-abbreviation}}
           :env sci-env})
 
 (defn sci-eval [form]
