@@ -1,0 +1,136 @@
+name: deploy
+
+# on:
+#   push:
+#     tags:
+#       - "*.*.*"
+on: [push, pull_request]
+
+jobs:
+  # Initial task to compile a JAR, store as a pipeline artifact to be used by
+  # downstream builders.
+  build-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Parse Ref
+        id: parse-ref
+        run: |
+          echo ::set-output name=version::${GITHUB_REF#refs/tags/}
+
+      - name: Install Node.js 9.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 9.x
+          
+      - name: Install Boot-clj etc (https://github.com/marketplace/actions/setup-clojure)
+        uses: DeLaGuardo/setup-clojure@2.0
+        with:
+          boot: 2.8.3
+          
+      - name: Check boot version
+        run: boot -V
+
+      # - name: Install shadow-cljs
+      #   run: |
+      #     npm install shadow-cljs
+      #     npm install
+      #
+      # - name: Install npm packages
+      #   run: |
+      #     npm install
+          
+      - name: Build into uberjar via boot
+        run: |
+          npm run compile-sci-boot && \
+          mv target/closh-zero-sci.jar closh-zero-sci.jar
+
+      - uses: actions/upload-artifact@v1
+        with:
+          path: closh-zero-sci.jar
+          name: jar
+
+  # Use GraalVM on macOS to convert JAR to a native macOS binary
+  native-image-mac:
+    needs: [build-jar]
+    runs-on: macOS-10.14
+    steps:
+      - name: Parse Ref
+        id: parse-ref
+        run: |
+          echo ::set-output name=version::${GITHUB_REF#refs/tags/}
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: jar
+          path: .
+
+      - name: Prepare GraalVM
+        uses: DeLaGuardo/setup-graalvm@1.0
+        with:
+          graalvm-version: "19.2.1"
+
+      - name: Install native-image
+        run: gu install native-image
+
+      - name: Build macOS native image
+        run: |
+          native-image \
+              -Dclojure.compiler.direct-linking=true \
+              --initialize-at-build-time \
+              --report-unsupported-elements-at-runtime \
+              --no-server \
+              --no-fallback \
+              --enable-url-protocols=http,https \
+              --allow-incomplete-classpath \
+              -jar closh-zero-sci.jar \
+              closh-zero-sci
+
+      - run: tar -cvzf closh-zero-sci.tgz ./closh-zero-sci
+
+      - uses: actions/upload-artifact@v1
+        with:
+          path: closh-zero-sci.tgz
+          name: closh-zero-sci
+
+  # Collate artifacts, upload to GitHub Releases on semver tags
+
+  releaser:
+    needs: [native-image-mac]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse Ref
+        id: parse-ref
+        run: |
+          echo ::set-output name=version::${GITHUB_REF#refs/tags/}
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: closh-zero-sci
+          path: .
+
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./closh-zero-sci.tgz
+          asset_name: closh-zero-sci.tgz
+          asset_content_type: application/tar+gzip
