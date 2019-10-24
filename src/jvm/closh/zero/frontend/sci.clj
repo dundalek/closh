@@ -7,7 +7,8 @@
    [closh.zero.compiler]
    [closh.zero.parser :as parser]
    [closh.zero.pipeline]
-   [closh.zero.platform.eval :as eval])
+   [closh.zero.platform.eval :as eval]
+   [closh.zero.platform.process :as process])
   (:import (java.io PushbackReader StringReader)))
 
 (defn read-all [rdr]
@@ -21,6 +22,7 @@
 
 (defn -main [& args]
   (let [cmd (or (first args) "echo hello clojure")]
+    (reset! process/*cwd* (System/getProperty "user.dir"))
     ;; works:
     #_(println (read-all (PushbackReader. (StringReader. cmd))))
     ;; works:
