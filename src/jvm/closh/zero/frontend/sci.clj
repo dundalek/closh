@@ -33,9 +33,9 @@
                             {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}))
     ;; works:
     #_(println
-     `(-> ~(closh.zero.compiler/compile-interactive
-            (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-          (closh.zero.pipeline/wait-for-pipeline)))
+       `(-> ~(closh.zero.compiler/compile-interactive
+              (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
+            (closh.zero.pipeline/wait-for-pipeline)))
     ;; also works:
     (eval/eval
      `(-> ~(closh.zero.compiler/compile-interactive

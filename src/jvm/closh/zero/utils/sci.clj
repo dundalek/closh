@@ -2,8 +2,11 @@
   (:require [sci.core :as sci]
             [closh.zero.pipeline :as pipeline]
             [closh.zero.core :as closh-core]
+            [closh.zero.platform.process :as process]
+            [closh.zero.builtin :as builtin]
             [closh.zero.env :as env]
             [closh.zero.util :refer [thread-stop]]
+            [closh.zero.macros-fns :as macros-fns]
             [clojure.repl :as repl])
   (:import (java.io PushbackReader)))
 
@@ -58,15 +61,15 @@
   (closh-requires)
 
   #_(def bindings
-    (merge
-     (closh-bindings)
-     (closh-macro-bindings)
-     {
-      ;; 'thread-stop thread-stop
-      ;; 'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
-      ;; 'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*
-      }))
-  )
+     (merge
+      (closh-bindings)
+      (closh-macro-bindings)
+      {})))
+       ;; 'thread-stop thread-stop
+       ;; 'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
+       ;; 'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*
+
+
 
 (declare ctx)
 
@@ -87,13 +90,36 @@
                'java.lang.Thread/currentThread #(Thread/currentThread)
                'thread-stop thread-stop
                'clojure.repl/set-break-handler! repl/set-break-handler!
-               'closh.zero.env/*closh-commands* env/*closh-commands*})
+               'closh.zero.env/*closh-commands* env/*closh-commands*
+               'cd builtin/cd
+               'exit builtin/exit
+               'quit builtin/quit
+               'getenv builtin/getenv
+               'setenv builtin/setenv
+               'unsetenv builtin/unsetenv
+               'sh (with-meta macros-fns/sh {:sci/macro true})
+               'sh-value (with-meta macros-fns/sh-value {:sci/macro true})
+               'sh-val (with-meta macros-fns/sh-val {:sci/macro true})
+               'sh-str (with-meta macros-fns/sh-str {:sci/macro true})
+               'sh-seq (with-meta macros-fns/sh-seq {:sci/macro true})
+               'sh-lines (with-meta macros-fns/sh-lines {:sci/macro true})
+               'sh-code (with-meta macros-fns/sh-code {:sci/macro true})
+               'sh-ok (with-meta macros-fns/sh-ok {:sci/macro true})
+               'sh-wrapper (with-meta macros-fns/sh-wrapper {:sci/macro true})
+               'defalias (with-meta macros-fns/defalias {:sci/macro true})
+               'defabbr (with-meta macros-fns/defabbr {:sci/macro true})
+               'defcmd (with-meta macros-fns/defcmd {:sci/macro true})})
 
 (def ctx {:bindings bindings
           :namespaces {'clojure.core {'println println}
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
-                                             'wait-for-pipeline pipeline/wait-for-pipeline}
+                                             'wait-for-pipeline pipeline/wait-for-pipeline
+                                             'pipeline-condition pipeline/pipeline-condition
+                                             'pipe-multi pipeline/pipe-multi
+                                             'process-output pipeline/process-output}
+                       'closh.zero.platform.process {'exit-code process/exit-code
+                                                     'wait process/wait}
                        'closh.zero.core {'expand-variable closh-core/expand-variable
                                          'expand-tilde closh-core/expand-tilde
                                          'expand-filename closh-core/expand-filename
