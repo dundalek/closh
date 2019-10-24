@@ -5,7 +5,7 @@
 
 (deftest test-reader
 
-  (are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
+  #_(are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
 
     (list 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
@@ -34,7 +34,7 @@
     '((+ 1 2))
     "(+ 1 2)")
 
-  (are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
+  #_(are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
 
     '((ls)
       (echo x)
@@ -85,7 +85,7 @@
     ; '((echo a | (clojure.string/upper-case)))
     ; "echo a |\n (clojure.string/upper-case)")
 
-  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
+  #_(are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
 
     "echo (str 8.8.8)"
 
