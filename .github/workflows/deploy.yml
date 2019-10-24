@@ -99,38 +99,38 @@ jobs:
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 
-  releaser:
-    needs: [native-image-mac]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Parse Ref
-        id: parse-ref
-        run: |
-          echo ::set-output name=version::${GITHUB_REF#refs/tags/}
+  # releaser:
+  #   needs: [native-image-mac]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Parse Ref
+  #       id: parse-ref
+  #       run: |
+  #         echo ::set-output name=version::${GITHUB_REF#refs/tags/}
 
-      - uses: actions/download-artifact@v1
-        with:
-          name: closh-zero-sci
-          path: .
+  #     - uses: actions/download-artifact@v1
+  #       with:
+  #         name: closh-zero-sci
+  #         path: .
 
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
+  #     - name: Create Release
+  #       id: create-release
+  #       uses: actions/create-release@v1.0.0
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref }}
+  #         release_name: ${{ github.ref }}
+  #         draft: false
+  #         prerelease: false
 
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./closh-zero-sci.tgz
-          asset_name: closh-zero-sci.tgz
-          asset_content_type: application/tar+gzip
+  #     - name: Upload Release Asset
+  #       id: upload-release-asset
+  #       uses: actions/upload-release-asset@v1.0.1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create-release.outputs.upload_url }}
+  #         asset_path: ./closh-zero-sci.tgz
+  #         asset_name: closh-zero-sci.tgz
+  #         asset_content_type: application/tar+gzip
