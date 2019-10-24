@@ -44,7 +44,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: clojure -Atest -m cognitect.test-runner
+      - run: npm run test-clj-ci
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -66,7 +66,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: clojure -Atest -m cognitect.test-runner
+      - run: npm run test-clj-ci
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -116,7 +116,7 @@ jobs:
       - run: brew install clojure bc
 
       # run tests
-      - run: clojure -Atest -m cognitect.test-runner
+      - run: npm run test-clj-ci
 
       - save_cache:
           paths:
