@@ -5,7 +5,7 @@
 
 (deftest test-reader
 
-  #_(are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
+  (are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
 
     (list 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
@@ -34,7 +34,7 @@
     '((+ 1 2))
     "(+ 1 2)")
 
-  #_(are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
+  (are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
 
     '((ls)
       (echo x)
@@ -78,14 +78,14 @@
       (echo b))
     "\n\necho a\n\n\necho b\n\n")
 
-    ; (list (list 'ls (symbol "A Filename With Spaces")))
-    ; "ls A\\ Filename\\ With\\ Spaces")
+                                        ; (list (list 'ls (symbol "A Filename With Spaces")))
+                                        ; "ls A\\ Filename\\ With\\ Spaces")
 
-    ; Maybe allow trailing pipe without backslash escape?
-    ; '((echo a | (clojure.string/upper-case)))
-    ; "echo a |\n (clojure.string/upper-case)")
+                                        ; Maybe allow trailing pipe without backslash escape?
+                                        ; '((echo a | (clojure.string/upper-case)))
+                                        ; "echo a |\n (clojure.string/upper-case)")
 
-  #_(are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
+  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
 
     "echo (str 8.8.8)"
 

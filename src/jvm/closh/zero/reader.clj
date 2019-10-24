@@ -4,11 +4,11 @@
                             *read-eval* *data-readers* *suppress-read*])
   (:require [clojure.tools.reader.reader-types :refer [log-source string-push-back-reader unread read-char indexing-reader? get-line-number get-column-number get-file-name source-logging-reader?]]
             [clojure.tools.reader :refer [*read-eval*]]
-            [clojure.tools.reader.impl.utils :refer :all]
+            [clojure.tools.reader.impl.utils :as rutils]
             [clojure.tools.reader.impl.errors :as err])
   (:import [java.util List LinkedList]))
 
-(def ^:no-doc read*-orig #'clojure.tools.reader/read*)
+(def ^:no-doc read*-orig @#'clojure.tools.reader/read*)
 
 (defn- ^:no-doc ^boolean macro-terminating?
   "Customizes `clojure.tools.reader/macro-terminating?` so that read-token is more permissive. For example it does not stop on curly braces but reads them in so they can be used for brace expansion."
@@ -70,7 +70,7 @@
            (recur)
            ret)))
     (catch Exception e
-      (if (ex-info? e)
+      (if (rutils/ex-info? e)
         (let [d (ex-data e)]
           (if (= :reader-exception (:type d))
             (throw e)
@@ -111,8 +111,7 @@
            (if-let [result (seq (persistent! coll))]
              (transform result)
              (read-orig opts reader))
-
-           (and (not= ch \newline) (whitespace? ch)) (recur coll)
+           (and (not= ch \newline) (rutils/whitespace? ch)) (recur coll)
 
            :else (do
                    (unread reader ch)

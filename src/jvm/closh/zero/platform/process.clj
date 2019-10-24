@@ -106,7 +106,7 @@
        (let [redir (if (#{:stdin :stdout :stderr} target)
                      java.lang.ProcessBuilder$Redirect/PIPE
                      target)]
-         (case fd
+         (case (long fd)
            0 (.redirectInput builder redir)
            1 (if (= target :stderr)
                (reset! std-flip true)
