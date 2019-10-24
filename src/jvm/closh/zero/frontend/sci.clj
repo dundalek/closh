@@ -1,13 +1,14 @@
 (ns closh.zero.frontend.sci
   (:gen-class)
   (:require
-   [closh.zero.platform.eval :as eval]
+   #_[closh.zero.reader :as reader]
+   #_[clojure.tools.reader.reader-types :refer [string-push-back-reader]]
+   [clojure.edn :as edn]
+   [closh.zero.builtin] ;; defines cmds
    [closh.zero.compiler]
    [closh.zero.parser :as parser]
-   #_[closh.zero.pipeline]
-   [clojure.edn :as edn]
-   #_[closh.zero.reader :as reader]
-   #_[clojure.tools.reader.reader-types :refer [string-push-back-reader]])
+   [closh.zero.pipeline]
+   [closh.zero.platform.eval :as eval])
   (:import (java.io PushbackReader StringReader)))
 
 (defn read-all [rdr]
