@@ -7,11 +7,11 @@
   "Maps shorthand symbols of pipe functions to full name"
   {'| `pipeline/pipe
    '|> `pipeline/pipe-multi
-                                        ;  '|>> ' pipe-thread-last
-                                        ; '|| ' pipe-mapcat
    '|? `pipeline/pipe-filter
    '|& `pipeline/pipe-reduce})
-                                        ; '|! 'pipe-foreach
+   ;; '|>> ' pipe-thread-last
+   ;; '|| ' pipe-mapcat
+   ;; '|! 'pipe-foreach
 
 (defn ^:no-doc process-arg
   "Transform conformed argument."
@@ -89,8 +89,8 @@
   (or
    (special-symbol? symb)
    (#{`core/shx 'fn} symb)))
-                                        ; TODO: how to dynamically resolve and check for macro?
-                                        ; (-> symb resolve meta :macro boolean)))
+   ;; TODO: how to dynamically resolve and check for macro?
+   ;; (-> symb resolve meta :macro boolean)))
 
 (defn ^:no-doc process-pipeline
   [{:keys [cmd cmds]} redir-begin redir-end]

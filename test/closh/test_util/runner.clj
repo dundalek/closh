@@ -27,7 +27,7 @@
        'closh.common-test
        'closh.pipeline-test
        'closh.completion-test
-       'closh.core-test ;; still failing
+       'closh.core-test
        'closh.util-test
        'closh.history-test
        'closh.scripting-test))))

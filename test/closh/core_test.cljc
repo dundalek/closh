@@ -31,7 +31,7 @@
 
 (defn closh-spawn-helper [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
-     :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
+     :clj (pipeline/process-value (shx "clojure" [(if (System/getenv "__CLOSH_USE_SCI_EVAL__") "-A:test:sci" "-A:test") "-m" "closh.test-util.spawn-helper" cmd]))))
 
 (defn closh-spawn [cmd]
   (let [out (create-fake-writer)

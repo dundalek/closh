@@ -78,12 +78,12 @@
       (echo b))
     "\n\necho a\n\n\necho b\n\n")
 
-                                        ; (list (list 'ls (symbol "A Filename With Spaces")))
-                                        ; "ls A\\ Filename\\ With\\ Spaces")
+    ;; (list (list 'ls (symbol "A Filename With Spaces")))
+    ;; "ls A\\ Filename\\ With\\ Spaces")
 
-                                        ; Maybe allow trailing pipe without backslash escape?
-                                        ; '((echo a | (clojure.string/upper-case)))
-                                        ; "echo a |\n (clojure.string/upper-case)")
+    ;; Maybe allow trailing pipe without backslash escape?
+    ;; '((echo a | (clojure.string/upper-case)))
+    ;; "echo a |\n (clojure.string/upper-case)")
 
   (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
 

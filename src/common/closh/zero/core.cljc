@@ -91,8 +91,8 @@
                  (when-not (clojure.string/blank? suggestion)
                    (.print ^java.io.PrintStream *stderr* suggestion))
                  (.println ^java.io.PrintStream *stderr* (str cmd ": command not found"))
-                 (println "STACKTRACE:")
-                 (.printStackTrace e)))
+                 #_(println "STACKTRACE:")
+                 #_(.printStackTrace e)))
              (catch Exception ex
                (.println ^java.io.PrintStream *stderr* (str "Unexpected error:\n" ex)))))))
 
