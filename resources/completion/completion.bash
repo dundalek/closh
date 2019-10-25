@@ -10,7 +10,9 @@ get_completions(){
 
     # load bash-completion if necessary
     declare -F _completion_loader &>/dev/null || {
-        source /usr/share/bash-completion/bash_completion
+        [[ -r "/usr/share/bash-completion/bash_completion" ]] && source "/usr/share/bash-completion/bash_completion"
+        # macOS via homebrew
+        [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && source "/usr/local/etc/profile.d/bash_completion.sh"
     }
 
     COMP_LINE=$*

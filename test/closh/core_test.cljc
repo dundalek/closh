@@ -184,14 +184,14 @@
     "cd . && echo ok"
 
     "--help\n"
-    "scripts/completion/completion.bash \"ls --h\""
+    "resources/completion/completion.bash \"ls --h\""
 
     "--help\n"
-    "./scripts/completion/completion.bash \"ls --h\""
+    "./resources/completion/completion.bash \"ls --h\""
 
     ;; Make sure updating PATH is reflected for executable lookup
     "--help\n"
-    "setenv PATH (str (getenv \"PWD\") \"/scripts/completion:\" (getenv \"PATH\")) && completion.bash \"ls --h\"")
+    "setenv PATH (str (getenv \"PWD\") \"/resources/completion:\" (getenv \"PATH\")) && completion.bash \"ls --h\"")
 
     ; TODO: Fix input redirection to a function
     ; "{"

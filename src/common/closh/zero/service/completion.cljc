@@ -28,14 +28,14 @@
 (defn get-completions-spawn
   "Get completions by spawning a command."
   [shell cmd args]
-  (let [proc #?(:cljs (shx (str (getenv "CLOSH_SOURCES_PATH") "/scripts/" cmd) args)
+  (let [proc #?(:cljs (shx (str (getenv "CLOSH_SOURCES_PATH") "/resources/" cmd) args)
                 :clj (if (= shell "fish")
                        (shx "fish"["-c"
                                    (str "complete --do-complete=" (escape-fish-string (first args)))])
                        (if-let [resource (io/resource cmd)]
                          (pipe (slurp resource)
                                (shx shell (cons "-s" args)))
-                         (shx (str (getenv "CLOSH_SOURCES_PATH") "/scripts/" cmd) args))))
+                         (shx (str (getenv "CLOSH_SOURCES_PATH") "/resources/" cmd) args))))
         stream (out-stream proc)]
     (chain->
       #?(:cljs (stream-output stream)

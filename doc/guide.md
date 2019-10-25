@@ -251,9 +251,9 @@ Closh delegates completion to existing shells. When tab completion is triggered 
 If the completion does not work you can find out the reason by cloning the repo and trying out:
 
 ```sh
-./scripts/completion/completion.bash "ls "
-./scripts/completion/completion.zsh "ls "
-./scripts/completion/completion.fish "ls "
+./resources/completion/completion.bash "ls "
+./resources/completion/completion.zsh "ls "
+./resources/completion/completion.fish "ls "
 ```
 
 ### Custom commands
