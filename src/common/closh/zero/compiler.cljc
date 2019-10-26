@@ -7,11 +7,11 @@
   "Maps shorthand symbols of pipe functions to full name"
   {'| `pipeline/pipe
    '|> `pipeline/pipe-multi
-  ;  '|>> ' pipe-thread-last
-   ; '|| ' pipe-mapcat
    '|? `pipeline/pipe-filter
    '|& `pipeline/pipe-reduce})
-   ; '|! 'pipe-foreach
+   ;; '|>> ' pipe-thread-last
+   ;; '|| ' pipe-mapcat
+   ;; '|! 'pipe-foreach
 
 (defn ^:no-doc process-arg
   "Transform conformed argument."
@@ -51,8 +51,8 @@
                 (apply concat rest)
                 rest)
          is-function (and (= (first cmd) :arg)
-                       (list? (second cmd))
-                       (not= 'cmd (first (second cmd))))
+                          (list? (second cmd))
+                          (not= 'cmd (first (second cmd))))
          redirects (->> (concat redir args)
                         (filter #(= (first %) :redirect))
                         (mapcat (comp process-redirect second))
@@ -63,24 +63,24 @@
      (if is-function
        (if (seq parameters)
          (concat
-           (list 'do (second cmd))
-           parameters)
+          (list 'do (second cmd))
+          parameters)
          (second cmd))
        (let [name (second cmd)
              name-val (if (list? name)
                         (second name) ; when using cmd helper
                         (str name))
              parameters (map process-arg parameters)]
-           (cond
-             (@*closh-commands* name)
-             (if (empty? parameters)
-               `((@closh.zero.env/*closh-commands* (quote ~name)))
-               `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
+         (cond
+           (@*closh-commands* name)
+           (if (empty? parameters)
+             `((@closh.zero.env/*closh-commands* (quote ~name)))
+             `(apply (@closh.zero.env/*closh-commands* (quote ~name)) (concat ~@parameters)))
 
-             :else
-             `(core/shx (core/expand-command ~name-val)
-                        ~(vec parameters)
-                        ~@(when (seq redirects) [{:redir redirects}]))))))))
+           :else
+           `(core/shx (core/expand-command ~name-val)
+                      ~(vec parameters)
+                      ~@(when (seq redirects) [{:redir redirects}]))))))))
 
 (defn ^:no-doc special?
   "Predicate to detect special form so we know not to partial apply it when piping.
@@ -89,8 +89,8 @@
   (or
    (special-symbol? symb)
    (#{`core/shx 'fn} symb)))
-   ; TODO: how to dynamically resolve and check for macro?
-   ; (-> symb resolve meta :macro boolean)))
+   ;; TODO: how to dynamically resolve and check for macro?
+   ;; (-> symb resolve meta :macro boolean)))
 
 (defn ^:no-doc process-pipeline
   [{:keys [cmd cmds]} redir-begin redir-end]
@@ -127,12 +127,12 @@
   [pipeline]
   (list `pipeline/wait-for-pipeline
         (process-pipeline
-          pipeline
-          (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
-                        [:redirect {:op '>& :fd 2 :arg :stderr}]]
-                       (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
-          [[:redirect {:op '>& :fd 1 :arg :stdout}]
-           [:redirect {:op '>& :fd 2 :arg :stderr}]])))
+         pipeline
+         (vec (concat [[:redirect {:op '>& :fd 0 :arg :stdin}]
+                       [:redirect {:op '>& :fd 2 :arg :stderr}]]
+                      (when (empty? (:cmds pipeline)) [[:redirect {:op '>& :fd 1 :arg :stdout}]])))
+         [[:redirect {:op '>& :fd 1 :arg :stdout}]
+          [:redirect {:op '>& :fd 2 :arg :stderr}]])))
 
 (defn ^:no-doc process-pipeline-batch
   "Transform conformed pipeline specification in batch mode. "
@@ -145,30 +145,30 @@
   [pipeline]
   (list `pipeline/wait-for-pipeline
         (process-pipeline
-          pipeline
-          []
-          [[:redirect {:op '>& :fd 2 :arg :stderr}]])))
+         pipeline
+         []
+         [[:redirect {:op '>& :fd 2 :arg :stderr}]])))
 
 (defn ^:no-doc process-command-clause
   "Transform conformed command clause specification, handle conditional execution."
   [{:keys [pipeline pipelines]} process-pipeline]
   (let [items (reverse (conj (seq pipelines) {:pipeline pipeline}))]
     (:pipeline
-      (reduce
-        (fn [{op :op child :pipeline} pipeline]
-          (let [condition (if (= op '&&) true false)
-                neg (if (:not (:pipeline pipeline)) (not condition) condition)
-                pred (if neg 'true? 'false?)
-                tmp (gensym)]
-            (assoc pipeline :pipeline
-                   `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
-                      (if (~pred (closh.zero.pipeline/pipeline-condition ~tmp))
-                        ~child
-                        ~tmp)))))
-        (-> items
-            (first)
-            (update :pipeline process-pipeline))
-        (rest items)))))
+     (reduce
+      (fn [{op :op child :pipeline} pipeline]
+        (let [condition (if (= op '&&) true false)
+              neg (if (:not (:pipeline pipeline)) (not condition) condition)
+              pred (if neg 'true? 'false?)
+              tmp (gensym)]
+          (assoc pipeline :pipeline
+                 `(let [~tmp (closh.zero.pipeline/wait-for-pipeline ~(process-pipeline (:pipeline pipeline)))]
+                    (if (~pred (closh.zero.pipeline/pipeline-condition ~tmp))
+                      ~child
+                      ~tmp)))))
+      (-> items
+          (first)
+          (update :pipeline process-pipeline))
+      (rest items)))))
 
 ;; TODO: handle rest of commands when job control is implemented
 (defn ^:no-doc process-command-list

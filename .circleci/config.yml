@@ -51,6 +51,28 @@ jobs:
             - ~/.m2
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
+  test-linux-clj-sci:
+    docker:
+      - image: circleci/clojure:tools-deps-1.9.0.394-node
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache: # restores saved cache if checksum hasn't changed since the last run
+          key: clj-sci-dependencies-{{ checksum "deps.edn" }}
+
+      - run: sudo apt-get -y install bc
+
+      # run tests
+      - run: env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m cognitect.test-runner
+
+      - save_cache: # generate and store cache in the .m2 directory using a key template
+          paths:
+            - ~/.m2
+          key: clj-sci-dependencies-{{ checksum "deps.edn" }}
+
   test-linux-clj-jdk11:
     docker:
       - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442-node
@@ -72,6 +94,28 @@ jobs:
           paths:
             - ~/.m2
           key: clj-jdk11-dependencies-{{ checksum "deps.edn" }}
+
+  test-linux-clj-jdk11-sci:
+    docker:
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442-node
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache: # restores saved cache if checksum hasn't changed since the last run
+          key: clj-jdk11-sci-dependencies-{{ checksum "deps.edn" }}
+
+      - run: sudo apt-get -y install bc
+
+      # run tests
+      - run:  __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m cognitect.test-runner
+
+      - save_cache: # generate and store cache in the .m2 directory using a key template
+          paths:
+            - ~/.m2
+          key: clj-jdk11-sci-dependencies-{{ checksum "deps.edn" }}
 
   test-macos-cljs:
     macos:
@@ -123,6 +167,30 @@ jobs:
             - ~/.m2
           key: clj-dependencies-macos-{{ checksum "deps.edn" }}
 
+  test-macos-clj-sci:
+    macos:
+      xcode: "10.2.1"
+
+    working_directory: /Users/distiller/project
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - clj-macos-sci-dependencies-{{ checksum "deps.edn" }}
+
+      - run: brew install clojure bc
+
+      # run tests
+      - run: __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m cognitect.test-runner
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: clj-macos-sci-dependencies-{{ checksum "deps.edn" }}
+
 workflows:
   version: 2
   test:
@@ -130,5 +198,8 @@ workflows:
       - test-linux-cljs
       - test-linux-clj
       - test-linux-clj-jdk11
+      - test-linux-clj-sci
+      - test-linux-clj-jdk11-sci
       - test-macos-cljs
       - test-macos-clj
+      - test-macos-clj-sci

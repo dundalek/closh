@@ -29,6 +29,8 @@
     "dev": "nodemon --config .nodemon.json",
     "docker-build": "docker build . -t closh",
     "docker-start": "npm run docker-build && docker run --rm -it closh",
+    "compile-sci-lein": "env __CLOSH_USE_SCI_EVAL__=true lein do clean, uberjar",
+    "compile-sci-boot": "env __CLOSH_USE_SCI_EVAL__=true boot uberjar-sci",
     "pkg-lumo": "pkg-lumo -c src/common:src/lumo -m closh.main",
     "pkg-java": "boot uberjar && scripts/wrap-jar.sh target/closh-zero.jar",
     "test": "npm run test-cljs && npm run test-clj",
@@ -38,11 +40,12 @@
     "test-windows": "lumo -K -c src/common;src/lumo;test -m closh.test-util.runner",
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clojure -Atest -m closh.test-util.runner",
+    "test-clj-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m closh.test-util.runner",
     "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
-    "test-clj-ci": "clojure -Atest -m cognitect.test-runner",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
     "rebel": "clojure -m closh.zero.frontend.rebel",
+    "rebel-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -m closh.zero.frontend.rebel",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
   },
   "repository": {

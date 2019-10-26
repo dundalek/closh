@@ -8,11 +8,13 @@
 (def ^:dynamic *stdout* System/out)
 (def ^:dynamic *stderr* System/err)
 
+(set! *warn-on-reflection* true)
+
 (def ^:private relpath-regex #"^\./")
 
 (defn glob
   ([s] (glob s nil))
-  ([s cwd-file]
+  ([s ^String cwd-file]
    (let [pattern (str/replace s relpath-regex "")
          is-relative (not= s pattern)
          result (clj-glob/glob pattern (java.io.File. cwd-file))]
@@ -29,13 +31,13 @@
 
 (defn out-stream
   "Get stdout stream of a given process."
-  [proc]
+  ^java.io.InputStream [^Process proc]
   (.getInputStream proc))
 
-(defn in-stream [proc]
+(defn in-stream ^java.io.OutputStream [^Process proc]
   (.getOutputStream proc))
 
-(defn err-stream [proc]
+(defn err-stream ^java.io.InputStream [^Process proc]
   (.getErrorStream proc))
 
 (defn pipe-stream [from to]
@@ -44,7 +46,7 @@
     (io/copy from to)
     (when (and (not= to *stderr*)
                (not= to *stdout*))
-      (.close to))
+      (.close ^java.io.Closeable to))
     (catch java.io.IOException e
       (when-not (= (:cause (Throwable->map e)) "Stream closed")
         (throw e)))))
@@ -56,7 +58,7 @@
     (pipe-stream stream writer)
     (delay (str writer))))
 
-(defn stream-write [stream val]
+(defn stream-write [stream ^String val]
   (with-open [writer (java.io.OutputStreamWriter. stream)]
     (.write writer val)))
 

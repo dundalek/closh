@@ -26,8 +26,8 @@
   (if (< (count args) 2)
     (apply process/getenv args)
     (into {} (map
-               #(vector % (process/getenv %))
-               args))))
+              #(vector % (process/getenv %))
+              args))))
 
 (defcmd setenv
   "Sets environment variables. Takes args as key value pairs and returns a list of values"

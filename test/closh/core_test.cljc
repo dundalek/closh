@@ -1,7 +1,6 @@
 (ns closh.core-test
   (:require [clojure.test :refer [deftest testing is are]]
             [closh.test-util.util :refer [null-file with-tempfile with-tempfile-content create-fake-writer get-fake-writer str-fake-writer]]
-            [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [closh.zero.reader]
             [closh.zero.builtin :refer [getenv setenv]]
@@ -15,13 +14,14 @@
             [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
-            #?(:cljs [fs])))
+            #?(:cljs [fs])
+            #?(:clj [closh.zero.platform.eval :as eval])))
 
 #?(:clj
    (do
      (def user-namespace (create-ns 'user))
      (binding [*ns* user-namespace]
-       (eval closh.zero.env/*closh-environment-requires*)))
+       (eval/eval-closh-requires)))
    :cljs
    (closh.zero.platform.eval/execute-text
      (str (pr-str closh.zero.env/*closh-environment-requires*))))
@@ -31,7 +31,7 @@
 
 (defn closh-spawn-helper [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
-     :clj (pipeline/process-value (shx "clojure" ["-A:test" "-m" "closh.test-util.spawn-helper" cmd]))))
+     :clj (pipeline/process-value (shx "clojure" [(if (System/getenv "__CLOSH_USE_SCI_EVAL__") "-A:test:sci" "-A:test") "-m" "closh.test-util.spawn-helper" cmd]))))
 
 (defn closh-spawn [cmd]
   (let [out (create-fake-writer)
@@ -39,8 +39,8 @@
     (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
               closh.zero.platform.io/*stderr* (get-fake-writer err)]
       (let [code (closh.zero.reader/read (string-push-back-reader cmd))
-            proc #?(:clj (eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                  (closh.zero.pipeline/wait-for-pipeline)))
+            proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                        (closh.zero.pipeline/wait-for-pipeline)))
                     :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
         (if (process/process? proc)
           (do
@@ -58,7 +58,7 @@
      :clj (let [code (closh.zero.compiler/compile-batch
                        (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
             (binding [*ns* user-namespace]
-              (closh.zero.pipeline/process-value (eval code))))))
+              (closh.zero.pipeline/process-value (eval/eval code))))))
 
 (deftest run-test
 
@@ -409,15 +409,15 @@
   (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
                     (:stdout (closh "cmd-x abc")))))
 
-  (is (= "abcX" (do (closh (pr-str '(defcmd cmd-x [s] (str s "X"))))
-                    (:stdout (closh "(cmd-x \"abc\")")))))
+  (is (= "abcX" (:stdout (closh (pr-str '(do (defcmd cmd-x [s] (str s "X"))
+                                             (cmd-x "abc")))))))
 
   (is (= "abcY" (do (closh (pr-str '(defcmd cmd-y (fn [s] (str s "Y")))))
                     (:stdout (closh "cmd-y abc")))))
 
-  (is (= "original fn" (do (closh (pr-str '(do (defn cmd-y [_] "original fn")
-                                               (defcmd cmd-y (fn [s] (str s "Y"))))))
-                           (:stdout (closh "(cmd-y \"abc\")")))))
+  (is (= "original fn" (:stdout (closh (pr-str '(do (defn cmd-y [_] "original fn")
+                                                    (defcmd cmd-y (fn [s] (str s "Y")))
+                                                    (cmd-y "abc")))))))
 
   (is (= "abcZ" (do (closh (pr-str '(do (defn fn-z [s] (str s "Z"))
                                         (defcmd cmd-z fn-z))))

@@ -18,3 +18,14 @@
    (jar :file "closh-zero.jar" :main 'closh.zero.frontend.rebel)
    (sift :include #{#"closh-zero.jar"})
    (target)))
+
+(deftask uberjar-sci
+  "Builds an uberjar of this project that can be run with java -jar"
+  []
+  (comp
+   (deps :quick-merge true :aliases [:sci])
+   (aot :all true)
+   (uber)
+   (jar :file "closh-zero-sci.jar" :main 'closh.zero.frontend.sci)
+   (sift :include #{#"closh-zero-sci.jar"})
+   (target)))

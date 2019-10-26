@@ -2,7 +2,12 @@
   (:require [clojure.test :refer [deftest is are]]
             [closh.zero.parser]
             [closh.zero.compiler]
+            [closh.zero.builtin]
             [closh.zero.core :refer [shx expand expand-partial expand-redirect expand-command]]))
+
+#_(comment
+  `(apply ((deref closh.zero.env/*closh-commands*) (quote ~'cd)) (concat (closh.zero.core/expand "dirname")))
+  (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(cd dirname))))
 
 (deftest compiler-test
 
