@@ -49,6 +49,7 @@ jobs:
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
   test-linux-clj-sci:
@@ -71,6 +72,7 @@ jobs:
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-sci-dependencies-{{ checksum "deps.edn" }}
 
   test-linux-clj-jdk11:
@@ -93,6 +95,7 @@ jobs:
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-jdk11-dependencies-{{ checksum "deps.edn" }}
 
   test-linux-clj-jdk11-sci:
@@ -115,6 +118,7 @@ jobs:
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-jdk11-sci-dependencies-{{ checksum "deps.edn" }}
 
   test-macos-cljs:
@@ -165,6 +169,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-dependencies-macos-{{ checksum "deps.edn" }}
 
   test-macos-clj-sci:
@@ -189,6 +194,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
+            - ~/.gitlibs
           key: clj-macos-sci-dependencies-{{ checksum "deps.edn" }}
 
 workflows:
