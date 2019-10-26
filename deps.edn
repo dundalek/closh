@@ -37,7 +37,7 @@
          :extra-deps {com.cognitect/test-runner
                        {:git/url "https://github.com/cognitect-labs/test-runner.git"
                         :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}}
-  :sci {:extra-paths ["src/sci"]
+  :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {borkdude/sci
                      {:git/url "https://github.com/borkdude/sci"
                       :sha "81d2116917568f7ea8cf59a2d71d88666abdfc06"

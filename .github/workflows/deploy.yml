@@ -147,6 +147,9 @@ jobs:
           ./closh-zero-sci 'echo "hi"' ; \
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
+      - name: Run tests with binary
+        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
+
   native-image-linux:
     needs: [build-jar-sci]
     runs-on: ubuntu-latest
@@ -193,6 +196,9 @@ jobs:
           ./closh-zero-sci ; \
           ./closh-zero-sci 'echo "hi"' ; \
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+
+      - name: Run tests with binary
+        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 

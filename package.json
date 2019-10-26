@@ -41,6 +41,7 @@
     "test-docker": "npm run docker-build && docker run --rm -it closh npm run test",
     "test-clj": "clojure -Atest -m closh.test-util.runner",
     "test-clj-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci:test -m closh.test-util.runner",
+    "test-clj-sci-native": "env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner",
     "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",

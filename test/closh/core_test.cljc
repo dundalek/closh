@@ -17,6 +17,8 @@
             #?(:cljs [fs])
             #?(:clj [closh.zero.platform.eval :as eval])))
 
+(def sci? (process/getenv "__CLOSH_USE_SCI_NATIVE__"))
+
 #?(:clj
    (do
      (def user-namespace (create-ns 'user))
@@ -33,32 +35,37 @@
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
      :clj (pipeline/process-value (shx "clojure" [(if (System/getenv "__CLOSH_USE_SCI_EVAL__") "-A:test:sci" "-A:test") "-m" "closh.test-util.spawn-helper" cmd]))))
 
-(defn closh-spawn [cmd]
-  (let [out (create-fake-writer)
-        err (create-fake-writer)]
-    (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
-              closh.zero.platform.io/*stderr* (get-fake-writer err)]
-      (let [code (closh.zero.reader/read (string-push-back-reader cmd))
-            proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                        (closh.zero.pipeline/wait-for-pipeline)))
-                    :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
-        (if (process/process? proc)
-          (do
-            (process/wait proc)
-            {:stdout (str-fake-writer out)
-             :stderr (str-fake-writer err)
-             :code (process/exit-code proc)})
-          (let [{:keys [stdout stderr code]} (process-value proc)]
-            {:stdout (str (str-fake-writer out) stdout)
-             :stderr (str (str-fake-writer err) stderr)
-             :code code}))))))
+(if sci?
+  (defn closh-spawn [cmd]
+    (pipeline/process-value (shx "./closh-zero-sci" [cmd])))
+  (defn closh-spawn [cmd]
+    (let [out (create-fake-writer)
+          err (create-fake-writer)]
+      (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
+                closh.zero.platform.io/*stderr* (get-fake-writer err)]
+        (let [code (closh.zero.reader/read (string-push-back-reader cmd))
+              proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                          (closh.zero.pipeline/wait-for-pipeline)))
+                      :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
+          (if (process/process? proc)
+            (do
+              (process/wait proc)
+              {:stdout (str-fake-writer out)
+               :stderr (str-fake-writer err)
+               :code (process/exit-code proc)})
+            (let [{:keys [stdout stderr code]} (process-value proc)]
+              {:stdout (str (str-fake-writer out) stdout)
+               :stderr (str (str-fake-writer err) stderr)
+               :code code})))))))
 
-(defn closh [cmd]
-  #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
-     :clj (let [code (closh.zero.compiler/compile-batch
-                       (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
-            (binding [*ns* user-namespace]
-              (closh.zero.pipeline/process-value (eval/eval code))))))
+(if sci?
+  (def closh closh-spawn)
+  (defn closh [cmd]
+    #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
+       :clj (let [code (closh.zero.compiler/compile-batch
+                         (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
+              (binding [*ns* user-namespace]
+                (closh.zero.pipeline/process-value (eval/eval code)))))))
 
 (deftest run-test
 

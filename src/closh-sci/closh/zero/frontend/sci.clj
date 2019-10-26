@@ -8,7 +8,8 @@
    [closh.zero.parser :as parser]
    [closh.zero.pipeline]
    [closh.zero.platform.eval :as eval]
-   [closh.zero.platform.process :as process])
+   [closh.zero.platform.process :as process]
+   [closh.zero.env :as env])
   (:import (java.io PushbackReader StringReader)))
 
 (defn read-all [rdr]
@@ -19,6 +20,13 @@
         (if (= form eof)
           (seq forms)
           (recur (conj forms form)))))))
+
+(defn repl-print
+  [& args]
+  (when-not (or (nil? (first args))
+                (identical? (first args) env/success)
+                (process/process? (first args)))
+    (apply prn args)))
 
 (defn -main [& args]
   (let [cmd (or (first args) "echo hello clojure")]
@@ -39,7 +47,8 @@
               (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
             (closh.zero.pipeline/wait-for-pipeline)))
     ;; also works:
-    (eval/eval
-     `(-> ~(closh.zero.compiler/compile-interactive
-            (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-          (closh.zero.pipeline/wait-for-pipeline)))))
+    (repl-print
+      (eval/eval
+       `(-> ~(closh.zero.compiler/compile-interactive
+              (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
+            (closh.zero.pipeline/wait-for-pipeline))))))
