@@ -18,22 +18,22 @@
           (closh "-"))
 
     "bar\n"
-    (closh "resources/fixtures/script-mode-tests/bar.cljc")
+    (closh "fixtures/script-mode-tests/bar.cljc")
 
     "foo\nbar\n"
-    (closh "resources/fixtures/script-mode-tests/foo.cljc")
+    (closh "fixtures/script-mode-tests/foo.cljc")
 
     "Hi World\n"
-    (closh "-i" "resources/fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World")
+    (closh "-i" "fixtures/script-mode-tests/cmd.cljc" "-e" "my-hello World")
 
     "Hello World\n"
-    (closh "-i" "resources/fixtures/script-mode-tests/cmd2.cljc")
+    (closh "-i" "fixtures/script-mode-tests/cmd2.cljc")
 
     "(\"a\" \"b\")\n"
-    (closh "resources/fixtures/script-mode-tests/args.cljc" "a" "b")
+    (closh "fixtures/script-mode-tests/args.cljc" "a" "b")
 
     "a b\n"
-    (closh "resources/fixtures/script-mode-tests/cond.cljc")
+    (closh "fixtures/script-mode-tests/cond.cljc")
 
     "true"
     (closh "-e" "(print (:dynamic (meta ^:dynamic {})))")))
@@ -46,7 +46,7 @@
 
     "5:3"
     #"/throw1\.cljc:(\d+:\d+)"
-    (closh "resources/fixtures/script-mode-tests/throw1.cljc")
+    (closh "fixtures/script-mode-tests/throw1.cljc")
 
     "4:2"
     #"Syntax error compiling at \((\d+:\d+)\)"
@@ -54,7 +54,7 @@
 
     "5:1"
     #"/throw2\.cljc:(\d+:\d+)"
-    (closh "resources/fixtures/script-mode-tests/throw2.cljc")
+    (closh "fixtures/script-mode-tests/throw2.cljc")
 
     "3"
     #"\(NO_SOURCE_FILE:(\d+)\)"

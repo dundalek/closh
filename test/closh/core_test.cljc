@@ -184,14 +184,14 @@
     "cd . && echo ok"
 
     "ok\n"
-    "scripts/test-echo ok"
+    "fixtures/echo-tester ok"
 
     "ok\n"
-    "./scripts/test-echo ok"
+    "./fixtures/echo-tester ok"
 
     ;; Make sure updating PATH is reflected for executable lookup
     "ok\n"
-    "setenv PATH (str (getenv \"PWD\") \"/scripts:\" (getenv \"PATH\")) && test-echo ok")
+    "setenv PATH (str (getenv \"PWD\") \"/fixtures:\" (getenv \"PATH\")) && echo-tester ok")
 
     ; TODO: Fix input redirection to a function
     ; "{"
