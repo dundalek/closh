@@ -90,11 +90,9 @@ jobs:
               -jar closh-zero-sci.jar \
               closh-zero-sci
 
-      - run: tar -cvzf closh-zero-sci-macos.tgz ./closh-zero-sci
-
       - uses: actions/upload-artifact@v1
         with:
-          path: closh-zero-sci-macos.tgz
+          path: closh-zero-sci
           name: closh-zero-sci-macos
 
       - name: Test binary
@@ -139,11 +137,9 @@ jobs:
               -jar closh-zero-sci.jar \
               closh-zero-sci
 
-      - run: tar -cvzf closh-zero-sci-linux.tgz ./closh-zero-sci
-
       - uses: actions/upload-artifact@v1
         with:
-          path: closh-zero-sci-linux.tgz
+          path: closh-zero-sci
           name: closh-zero-sci-linux
 
       - name: Test binary
