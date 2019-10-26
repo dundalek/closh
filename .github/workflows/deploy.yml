@@ -114,6 +114,9 @@ jobs:
           name: closh-zero-sci-jar
           path: .
 
+      - name: Clojure (https://github.com/marketplace/actions/setup-clojure)
+        uses: DeLaGuardo/setup-clojure@2.0
+
       - name: Prepare GraalVM
         uses: DeLaGuardo/setup-graalvm@1.0
         with:
@@ -163,6 +166,9 @@ jobs:
         with:
           name: closh-zero-sci-jar
           path: .
+
+      - name: Clojure (https://github.com/marketplace/actions/setup-clojure)
+        uses: DeLaGuardo/setup-clojure@2.0
 
       - name: Prepare GraalVM
         uses: DeLaGuardo/setup-graalvm@1.0
