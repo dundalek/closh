@@ -147,6 +147,11 @@ jobs:
           ./closh-zero-sci 'echo "hi"' ; \
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
+      - name: Install clojure tools-deps
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          tools-deps: 1.10.1.469
+
       - name: Run tests with binary
         run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
 
@@ -196,6 +201,11 @@ jobs:
           ./closh-zero-sci ; \
           ./closh-zero-sci 'echo "hi"' ; \
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+
+      - name: Install clojure tools-deps
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          tools-deps: 1.10.1.469
 
       - name: Run tests with binary
         run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
