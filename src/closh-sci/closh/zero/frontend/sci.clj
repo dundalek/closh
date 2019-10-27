@@ -13,6 +13,7 @@
    [closh.zero.pipeline]
    [closh.zero.utils.sci :refer [ctx]]
    [sci.core :as sci]
+   [sci.impl.interpreter :as interpreter]
    [closh.zero.env :as env])
   (:import (java.io PushbackReader StringReader)))
 
@@ -37,16 +38,17 @@
 
 (defn -main [& args]
   (reset! process/*cwd* (System/getProperty "user.dir"))
-  (let [ctx (update ctx :bindings merge {'prn prn
-                                         'closh.zero.compiler/compile-interactive
-                                         closh.zero.compiler/compile-interactive
-                                         'closh.zero.parser/parse closh.zero.parser/parse})
-        cmd (or (first args) "echo hello clojure")
+  (let [cmd (or (first args) "echo hello clojure")
         expr (format "(let [parsed (closh.zero.parser/parse '[%s])]
                         (-> parsed
                             (closh.zero.compiler/compile-interactive)
                             (closh.zero.pipeline/wait-for-pipeline)))"
                      cmd)
+        opts (update ctx :bindings merge {'prn prn
+                                          'closh.zero.compiler/compile-interactive
+                                          closh.zero.compiler/compile-interactive
+                                          'closh.zero.parser/parse closh.zero.parser/parse})
+        ctx (interpreter/opts->ctx opts)
         expr (sci/eval-string expr ctx)
-        expr (sci/eval-string (pr-str expr) ctx)]
+        expr (interpreter/eval-edn-vals ctx [expr])]
     (repl-print expr)))
