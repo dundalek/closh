@@ -109,13 +109,27 @@ jobs:
         run: |
           echo ::set-output name=version::${GITHUB_REF#refs/tags/}
 
+      # === used for running tests, maybe extract into separate job
+
+      - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
+        uses: DeLaGuardo/setup-clojure@2.0
+        with:
+          tools-deps: '1.10.1.469'
+
+      - name: Check clojure version
+        run: clojure -Sdescribe
+
+      - name: Git checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      # ===
+
       - uses: actions/download-artifact@v1
         with:
           name: closh-zero-sci-jar
           path: .
-
-      - name: Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
 
       - name: Prepare GraalVM
         uses: DeLaGuardo/setup-graalvm@1.0
@@ -151,7 +165,7 @@ jobs:
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       - name: Run tests with binary
-        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
+        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m cognitect.test-runner
 
   native-image-linux:
     needs: [build-jar-sci]
@@ -162,13 +176,27 @@ jobs:
         run: |
           echo ::set-output name=version::${GITHUB_REF#refs/tags/}
 
+      # === used for running tests, maybe extract into separate job
+
+      - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
+        uses: DeLaGuardo/setup-clojure@2.0
+        with:
+          tools-deps: '1.10.1.469'
+
+      - name: Check clojure version
+        run: clojure -Sdescribe
+
+      - name: Git checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      # ===
+
       - uses: actions/download-artifact@v1
         with:
           name: closh-zero-sci-jar
           path: .
-
-      - name: Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
 
       - name: Prepare GraalVM
         uses: DeLaGuardo/setup-graalvm@1.0
@@ -204,7 +232,7 @@ jobs:
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       - name: Run tests with binary
-        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m closh.test-util.runner
+        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m cognitect.test-runner
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 

@@ -111,7 +111,8 @@
                'defcmd (with-meta macros-fns/defcmd {:sci/macro true})})
 
 (def ctx {:bindings bindings
-          :namespaces {'clojure.core {'println println}
+          :namespaces {'clojure.core {'println println
+                                      'print print}
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
                                              'wait-for-pipeline pipeline/wait-for-pipeline

@@ -37,7 +37,14 @@
 
 (if sci?
   (defn closh-spawn [cmd]
-    (pipeline/process-value (shx "./closh-zero-sci" [cmd])))
+    (let [result
+          (pipeline/process-value (shx "./closh-zero-sci" [cmd]))
+          #_(pipeline/process-value (shx "java" ["-jar" "target/closh-zero-sci.jar" cmd]))
+          #_(pipeline/process-value (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" cmd]))]
+      (when-not (str/blank? (:stderr result))
+        (println "STDERR:")
+        (println (:stderr result)))
+      result))
   (defn closh-spawn [cmd]
     (let [out (create-fake-writer)
           err (create-fake-writer)]
