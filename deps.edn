@@ -40,7 +40,7 @@
   :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {borkdude/sci
                      {:git/url "https://github.com/borkdude/sci"
-                      :sha "f7487133fb6ba44be8f9cb38416550a2923b6217"
+                      :sha "6c0bfe65ab14432fe7c6c565405e254bc9e84bcd"
                       :exclusions [org.clojure/tools.reader]}
                      borkdude/edamame
                      {:git/url "https://github.com/borkdude/edamame"
