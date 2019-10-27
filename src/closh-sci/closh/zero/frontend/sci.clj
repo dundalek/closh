@@ -11,6 +11,8 @@
    [closh.zero.platform.eval :as eval]
    [closh.zero.platform.process :as process]
    [closh.zero.pipeline]
+   [closh.zero.utils.sci :refer [ctx]]
+   [sci.core :as sci]
    [closh.zero.env :as env])
   (:import (java.io PushbackReader StringReader)))
 
@@ -34,28 +36,17 @@
     (flush)))
 
 (defn -main [& args]
-  (let [cmd (or (first args) "echo hello clojure")]
-    (reset! process/*cwd* (System/getProperty "user.dir"))
-    ;; works:
-    #_(println (read-all (PushbackReader. (StringReader. cmd))))
-    ;; works:
-    #_(println (parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-    ;; works:
-    #_(clojure.core/->
-       (closh.zero.core/shx (closh.zero.core/expand-command "echo")
-                            [(closh.zero.core/expand "hello")
-                             (closh.zero.core/expand "clojure")]
-                            {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}))
-    ;; works:
-    #_(println
-       `(-> ~(closh.zero.compiler/compile-interactive
-              (closh.zero.parser/parse (read-all (PushbackReader. (StringReader. cmd)))))
-            (closh.zero.pipeline/wait-for-pipeline)))
-    ;; also works:
-    (repl-print
-      (eval/eval
-        `(-> ~(closh.zero.compiler/compile-interactive
-               (closh.zero.parser/parse
-                (edamame/parse-string-all cmd)
-                #_(read-all (PushbackReader. (StringReader. cmd)))))
-             (closh.zero.pipeline/wait-for-pipeline))))))
+  (reset! process/*cwd* (System/getProperty "user.dir"))
+  (let [ctx (update ctx :bindings merge {'prn prn
+                                         'closh.zero.compiler/compile-interactive
+                                         closh.zero.compiler/compile-interactive
+                                         'closh.zero.parser/parse closh.zero.parser/parse})
+        cmd (or (first args) "echo hello clojure")
+        expr (format "(let [parsed (closh.zero.parser/parse '[%s])]
+                        (-> parsed
+                            (closh.zero.compiler/compile-interactive)
+                            (closh.zero.pipeline/wait-for-pipeline)))"
+                     cmd)
+        expr (sci/eval-string expr ctx)
+        expr (sci/eval-string (pr-str expr) ctx)]
+    (repl-print expr)))

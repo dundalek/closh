@@ -1,5 +1,5 @@
 {:deps
- {org.clojure/clojure {:mvn/version "1.10.0"}
+ {org.clojure/clojure {:mvn/version "1.10.1"}
   org.clojure/tools.reader
     {:git/url "https://github.com/dundalek/tools.reader"
      :sha "64a792b8ab6f774cab01c64d143c306ea81c84ff"
@@ -40,11 +40,11 @@
   :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {borkdude/sci
                      {:git/url "https://github.com/borkdude/sci"
-                      :sha "81d2116917568f7ea8cf59a2d71d88666abdfc06"
+                      :sha "f7487133fb6ba44be8f9cb38416550a2923b6217"
                       :exclusions [org.clojure/tools.reader]}
                      borkdude/edamame
                      {:git/url "https://github.com/borkdude/edamame"
-                      :sha "53e219d8c8099305a6f7f7f01173ab586aa647b6"
+                      :sha "4fda4d4d48a096aac3aff2b586c4174c5e50d024"
                       :exclusions [org.clojure/tools.reader]}}}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
