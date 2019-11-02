@@ -1,5 +1,6 @@
 (ns closh.zero.utils.sci
   (:require [sci.core :as sci]
+            [sci.impl.interpreter :as interpreter]
             [closh.zero.pipeline :as pipeline]
             [closh.zero.core :as closh-core]
             [closh.zero.platform.process :as process]
@@ -136,4 +137,6 @@
 
 (defn sci-eval [form]
   ;; (prn "EVAL FORM" form)
-  (sci/eval-string (pr-str form) ctx))
+  ;; (sci/eval-string (pr-str form) ctx)
+  (let [ctx (interpreter/opts->ctx ctx)]
+    (interpreter/eval-edn-vals ctx [form])))
