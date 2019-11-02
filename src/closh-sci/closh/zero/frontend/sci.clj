@@ -28,6 +28,6 @@
       (eval/eval
         `(-> ~(closh.zero.compiler/compile-interactive
                (closh.zero.parser/parse
-                (edamame/parse-string-all cmd)
+                (edamame/parse-string-all cmd {:all true})
                 #_(read-all (PushbackReader. (StringReader. cmd)))))
              (closh.zero.pipeline/wait-for-pipeline))))))
