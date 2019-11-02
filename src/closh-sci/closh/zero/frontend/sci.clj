@@ -8,8 +8,8 @@
    [closh.zero.platform.eval :as eval]
    [closh.zero.platform.process :as process]
    [closh.zero.pipeline]
-   [closh.zero.env :as env])
-  (:import (java.io PushbackReader StringReader)))
+   [closh.zero.env :as env]
+   [closh.zero.sci-reader :as reader]))
 
 (defn repl-print
   [result]
@@ -28,6 +28,6 @@
       (eval/eval
         `(-> ~(closh.zero.compiler/compile-interactive
                (closh.zero.parser/parse
-                (edamame/parse-string-all cmd {:all true})
-                #_(read-all (PushbackReader. (StringReader. cmd)))))
+                (reader/read-string cmd)
+                #_(edamame/parse-string-all cmd {:all true})))
              (closh.zero.pipeline/wait-for-pipeline))))))

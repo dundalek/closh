@@ -1,11 +1,12 @@
 (ns closh.reader-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
-            [closh.zero.reader]))
+            [closh.zero.reader]
+            [closh.zero.sci-reader :as reader]))
 
 (deftest test-reader
 
-  (are [x y] (= x (closh.zero.reader/read (string-push-back-reader y)))
+  (are [x y] (= x (reader/read-string y))
 
     (list 'ping (symbol "8.8.8.8"))
     "ping 8.8.8.8"
@@ -31,10 +32,22 @@
     '(echo 2 > tmp)
     "echo 2 > tmp"
 
+    '(echo "a\nb")
+    "echo \"a\nb\""
+
+    '(echo 3)
+    "echo 3"
+
+    ; (list 'echo false)
+    ; "echo false"
+    ;
+    ; (list 'echo nil)
+    ; "echo nil"
+
     '((+ 1 2))
     "(+ 1 2)")
 
-  (are [x y] (= x (closh.zero.reader/read-all (string-push-back-reader y)))
+  (are [x y] (= x (reader/read-string-all y))
 
     '((ls)
       (echo x)
