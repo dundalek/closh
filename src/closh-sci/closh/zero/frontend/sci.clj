@@ -30,7 +30,9 @@
   (when-not (or (nil? result)
                 (identical? result env/success)
                 (process/process? result))
-    (print result)
+    (if (string? result)
+      (print result)
+      (pr result))
     (flush)))
 
 (defn -main [& args]
