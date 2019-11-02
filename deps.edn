@@ -40,11 +40,11 @@
   :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {borkdude/sci
                      {:git/url "https://github.com/borkdude/sci"
-                      :sha "81d2116917568f7ea8cf59a2d71d88666abdfc06"
+                      :sha "4546b4ab1db7d4af6326fe8c09eaac900bae6b9b"
                       :exclusions [org.clojure/tools.reader]}
                      borkdude/edamame
                      {:git/url "https://github.com/borkdude/edamame"
-                      :sha "53e219d8c8099305a6f7f7f01173ab586aa647b6"
+                      :sha "d45acfcb067e45afabe427d478d38be4ca6c326c"
                       :exclusions [org.clojure/tools.reader]}}}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}

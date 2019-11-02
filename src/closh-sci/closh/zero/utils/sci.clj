@@ -97,18 +97,18 @@
                'getenv builtin/getenv
                'setenv builtin/setenv
                'unsetenv builtin/unsetenv
-               'sh (with-meta macros-fns/sh {:sci/macro true})
-               'sh-value (with-meta macros-fns/sh-value {:sci/macro true})
-               'sh-val (with-meta macros-fns/sh-val {:sci/macro true})
-               'sh-str (with-meta macros-fns/sh-str {:sci/macro true})
-               'sh-seq (with-meta macros-fns/sh-seq {:sci/macro true})
-               'sh-lines (with-meta macros-fns/sh-lines {:sci/macro true})
-               'sh-code (with-meta macros-fns/sh-code {:sci/macro true})
-               'sh-ok (with-meta macros-fns/sh-ok {:sci/macro true})
-               'sh-wrapper (with-meta macros-fns/sh-wrapper {:sci/macro true})
-               'defalias (with-meta macros-fns/defalias {:sci/macro true})
-               'defabbr (with-meta macros-fns/defabbr {:sci/macro true})
-               'defcmd (with-meta macros-fns/defcmd {:sci/macro true})})
+               'sh (with-meta (fn [_ _ & args] (apply macros-fns/sh args)) {:sci/macro true})
+               'sh-value (with-meta (fn [_ _ & args] (apply macros-fns/sh-value args)) {:sci/macro true})
+               'sh-val (with-meta (fn [_ _ & args] (apply macros-fns/sh-val args)) {:sci/macro true})
+               'sh-str (with-meta (fn [_ _ & args] (apply macros-fns/sh-str args)) {:sci/macro true})
+               'sh-seq (with-meta (fn [_ _ & args] (apply macros-fns/sh-seq args)) {:sci/macro true})
+               'sh-lines (with-meta (fn [_ _ & args] (apply macros-fns/sh-lines args)) {:sci/macro true})
+               'sh-code (with-meta (fn [_ _ & args] (apply macros-fns/sh-code args)) {:sci/macro true})
+               'sh-ok (with-meta (fn [_ _ & args] (apply macros-fns/sh-ok args)) {:sci/macro true})
+               'sh-wrapper (with-meta (fn [_ _ & args] (apply macros-fns/sh-wrapper args)) {:sci/macro true})
+               'defalias (with-meta (fn [_ _ & args] (apply macros-fns/defalias args)) {:sci/macro true})
+               'defabbr (with-meta (fn [_ _ & args] (apply macros-fns/defabbr args)) {:sci/macro true})
+               'defcmd (with-meta (fn [_ _ & args] (apply macros-fns/defcmd args)) {:sci/macro true})})
 
 (def ctx {:bindings bindings
           :namespaces {'clojure.core {'println println
