@@ -97,7 +97,7 @@
     ;; '((echo a | (clojure.string/upper-case)))
     ;; "echo a |\n (clojure.string/upper-case)")
 
-  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (closh.zero.reader/read (string-push-back-reader x)))
+  (are [x] (thrown? #?(:clj Exception :cljs js/Error) (reader/read-string x))
 
     "echo (str 8.8.8)"
 
