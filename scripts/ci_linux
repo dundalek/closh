@@ -8,6 +8,7 @@ pacman -S --noconfirm git npm python2 make gcc bc awk
 pacman -Scc --noconfirm
 ln -s /usr/sbin/python2 /usr/sbin/python
 ln -s /usr/sbin/python2-config /usr/sbin/python-config
+ln -s /usr/sbin/node /usr/sbin/nodejs
 npm install -g lumo-cljs@$LUMO_VERSION --unsafe-perm
 curl "https://raw.githubusercontent.com/creationix/nvm/${NVM_VERSION}/install.sh" | bash
 . "$HOME/.nvm/nvm.sh" && nvm install $(lumo -e '(println process.version)') && npm install
