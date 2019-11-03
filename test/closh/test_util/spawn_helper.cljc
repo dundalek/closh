@@ -4,8 +4,7 @@
             [closh.zero.compiler]
             [closh.zero.builtin]
             [closh.zero.env]
-            #?(:clj [clojure.tools.reader.reader-types :refer [string-push-back-reader]])
-            #?(:clj [closh.zero.reader :refer [read-sh]])
+            #?(:clj [closh.zero.reader :as reader])
             #?(:clj [closh.zero.pipeline :refer [wait-for-pipeline]])
             #?(:clj [closh.zero.platform.eval :as eval])
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
@@ -18,7 +17,7 @@
              (str (pr-str closh.zero.env/*closh-environment-requires*)))
      :clj (eval/eval-closh-requires))
   (let [result #?(:cljs (execute-command-text cmd)
-                  :clj (eval/eval (read-sh (string-push-back-reader cmd))))]
+                  :clj (eval/eval (reader/read-sh (reader/string-reader cmd))))]
     (cond
       (process/process? result)
       (process/exit (process/exit-code result))

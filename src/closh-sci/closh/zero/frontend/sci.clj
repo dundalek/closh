@@ -1,7 +1,7 @@
 (ns closh.zero.frontend.sci
   (:gen-class)
   (:require
-   [edamame.core :as edamame]
+   #_[edamame.core :as edamame]
    [closh.zero.compiler]
    [closh.zero.parser :as parser]
    [closh.zero.pipeline]
@@ -9,7 +9,7 @@
    [closh.zero.platform.process :as process]
    [closh.zero.pipeline]
    [closh.zero.env :as env]
-   [closh.zero.sci-reader :as reader]))
+   [closh.zero.reader :as reader]))
 
 (defn repl-print
   [result]

@@ -8,8 +8,9 @@
             [closh.zero.env :as env]
             [closh.zero.util :refer [thread-stop]]
             [closh.zero.macros-fns :as macros-fns]
-            [clojure.repl :as repl])
-  (:import (java.io PushbackReader)))
+            [clojure.repl :as repl]))
+
+(set! *warn-on-reflection* true)
 
 (comment
   (defmacro closh-requires []

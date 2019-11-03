@@ -4,6 +4,8 @@
             [clojure.tools.reader.edn :as edn]
             [clojure.tools.reader.reader-types :as r]))
 
+(set! *warn-on-reflection* true)
+
 (defn whitespace?-custom
   "Customizes `clojure.tools.reader.impl.utils/whitespace?` so that read-token splits token only on whitespace and does not split on comma."
   [ch]
@@ -59,7 +61,7 @@
               obj))))
     (:eof ctx)))
 
-(defn read [opts reader]
+(defn read* [opts reader]
   (loop [coll (transient [])]
     (let [ch (r/read-char reader)]
       (cond
@@ -95,50 +97,21 @@
                       token)
                     (recur (conj! coll token)))))))))
 
-(defn read-one
-  ([r] (read-one r {:all true :features #{:clj} :eof ::parser/eof}))
-  ([r opts]
+(defn read
+  ([r] (read {:all true :features #{:clj} :eof ::parser/eof} r))
+  ([opts r]
    (let [opts (parser/normalize-opts opts)
          ctx (assoc opts ::expected-delimiter nil)
-         v (read ctx r)]
+         v (read* ctx r)]
      (if (identical? ::eof v) nil v))))
 
-(defn read-string [s]
-  (read-one (parser/string-reader s)))
-
-(defn read-sh [rdr]
-  (cons 'closh.zero.macros/sh (read-one rdr)))
-
-(defn read-string-all
-  ([s] (read-string-all s {:all true :features #{:clj} :eof ::parser/eof}))
-  ([s opts]
+(defn read-all
+  ([r] (read-all {:all true :features #{:clj} :eof ::parser/eof} r))
+  ([opts r]
    (let [opts (parser/normalize-opts opts)
-         ^Closeable r (parser/string-reader s)
          ctx (assoc opts ::parser/expected-delimiter nil)]
      (loop [ret (transient [])]
        (let [next-val (read ctx r)]
          (if (identical? ::parser/eof next-val)
            (seq (persistent! ret))
            (recur (conj! ret next-val))))))))
-
-(defn string-reader
-  "Create reader for strings."
-  [s]
-  (r/indexing-push-back-reader
-   (r/string-push-back-reader s)))
-
-(comment
-  (defn read-all
-   ([rdr]
-    (let [;;eof (Object.)
-          ;;opts {:eof eof :read-cond :allow :features #{:clj}}
-          eof ::parser/eof
-          opts {:all true :features #{:clj} :eof eof}]
-     (loop [forms (transient! [])]
-        (let [form (read opts rdr (fn []))]
-          (if (identical? form eof)
-            (persistent! forms)
-            (recur (conj! forms form))))))))
-
-  (defn read-string-all [s]
-    (read-all (string-reader s))))

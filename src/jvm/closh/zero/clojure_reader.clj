@@ -1,4 +1,4 @@
-(ns closh.zero.reader
+(ns closh.zero.clojure-reader
   (:refer-clojure :exclude [read read-line read-string char
                             default-data-readers *default-data-reader-fn*
                             *read-eval* *data-readers* *suppress-read*])
@@ -123,20 +123,6 @@
                          (transform result)
                          (recur (transient [])))
                        (recur (conj! coll token)))))))))))
-
-(defn read-sh
-  "Read input in command mode, wrap it in `sh` symbol."
-  ([reader]
-   (read-sh {} reader))
-  ([opts reader]
-   (read opts reader #(conj % 'closh.zero.macros/sh))))
-
-(defn read-sh-value
-  "Read input in command mode, wrap it in `sh-value` symbol."
-  ([reader]
-   (read-sh {} reader))
-  ([opts reader]
-   (read opts reader #(conj % 'closh.zero.macros/sh-value))))
 
 (defn read-all [rdr]
  (let [eof (Object.)

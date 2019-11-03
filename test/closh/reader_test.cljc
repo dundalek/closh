@@ -1,7 +1,6 @@
 (ns closh.reader-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
-            [closh.zero.reader]
-            [closh.zero.sci-reader :as reader]))
+            [closh.zero.reader :as reader]))
 
 (deftest test-reader
 

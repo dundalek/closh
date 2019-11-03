@@ -2,13 +2,12 @@
   (:require [clojure.test :refer [deftest testing is are]]
             [closh.test-util.util :refer [null-file with-tempfile with-tempfile-content create-fake-writer get-fake-writer str-fake-writer]]
             [clojure.string :as str]
-            [closh.zero.reader]
+            [closh.zero.reader :as reader]
             [closh.zero.builtin :refer [getenv setenv]]
             [closh.zero.env]
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [closh.zero.platform.io]
             [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
             [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
@@ -50,7 +49,7 @@
           err (create-fake-writer)]
       (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
                 closh.zero.platform.io/*stderr* (get-fake-writer err)]
-        (let [code (closh.zero.reader/read (string-push-back-reader cmd))
+        (let [code (reader/read (reader/string-reader cmd))
               proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
                                           (closh.zero.pipeline/wait-for-pipeline)))
                       :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
@@ -70,7 +69,7 @@
   (defn closh [cmd]
     #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
        :clj (let [code (closh.zero.compiler/compile-batch
-                         (closh.zero.parser/parse (closh.zero.reader/read (string-push-back-reader cmd))))]
+                         (closh.zero.parser/parse (reader/read (reader/string-reader cmd))))]
               (binding [*ns* user-namespace]
                 (closh.zero.pipeline/process-value (eval/eval code)))))))
 
