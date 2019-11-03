@@ -49,7 +49,7 @@
     (closh "fixtures/script-mode-tests/throw1.cljc")
 
     "4:2"
-    #"Syntax error compiling at \((\d+:\d+)\)"
+    #"Syntax error compiling at \(REPL:(\d+:\d+)\)"
     (pipe "\n\n\n (throw (Exception. \"my exception message\"))" (closh "-"))
 
     "5:1"
@@ -57,5 +57,5 @@
     (closh "fixtures/script-mode-tests/throw2.cljc")
 
     "3"
-    #"\(NO_SOURCE_FILE:(\d+)\)"
+    #"Execution error at .* \(REPL:(\d+)\)"
     (closh "-e" "\n\n(throw (Exception. \"my exception message\"))")))
