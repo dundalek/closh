@@ -1,4 +1,4 @@
-(ns closh.zero.reader
+(ns closh.zero.cljs-reader
   (:require [cljs.tools.reader.reader-types :refer [string-push-back-reader unread read-char log-source]]
             [cljs.tools.reader :refer [READ_FINISHED macros]]
             [cljs.tools.reader.impl.errors :as err]
@@ -99,20 +99,6 @@
                          (transform result)
                          (recur (transient [])))
                        (recur (conj! coll token)))))))))))
-
-(defn read-sh
-  "Read input in command mode, wrap it in `sh` symbol."
-  ([reader]
-   (read-sh {} reader))
-  ([opts reader]
-   (read opts reader #(conj % 'closh.zero.macros/sh))))
-
-(defn read-sh-value
-  "Read input in command mode, wrap it in `sh-value` symbol."
-  ([reader]
-   (read-sh {} reader))
-  ([opts reader]
-   (read opts reader #(conj % 'sh-value))))
 
 (defn read-all [rdr]
  (let [eof #()

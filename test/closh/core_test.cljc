@@ -419,7 +419,12 @@
                       "/out/1")))
 
 (deftest commands
-  (are [x y] (= x (:stdout (closh (pr-str y))))
+  (are [x y] (= x
+                #?(:clj (:stdout (closh (pr-str y)))
+                   ;; Workaround for cljs version: It is broken because macro expansion kicks in before the commands get defined.
+                   ;; So we run it twice, first pass commands get defined, then in second pass they get correctly expanded.
+                   :cljs (do (closh (pr-str y))
+                             (:stdout (closh (pr-str y))))))
 
     "abcX" '(do (defcmd cmd-x [s] (str s "X"))
                 (sh cmd-x "abc"))
