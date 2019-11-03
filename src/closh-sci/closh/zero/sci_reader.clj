@@ -95,14 +95,19 @@
                       token)
                     (recur (conj! coll token)))))))))
 
-(defn read-string
-  ([s] (read-string s {:all true :features #{:clj} :eof ::parser/eof}))
-  ([s opts]
+(defn read-one
+  ([r] (read-one r {:all true :features #{:clj} :eof ::parser/eof}))
+  ([r opts]
    (let [opts (parser/normalize-opts opts)
-         ^Closeable r (parser/string-reader s)
          ctx (assoc opts ::expected-delimiter nil)
          v (read ctx r)]
      (if (identical? ::eof v) nil v))))
+
+(defn read-string [s]
+  (read-one (parser/string-reader s)))
+
+(defn read-sh [rdr]
+  (cons 'closh.zero.macros/sh (read-one rdr)))
 
 (defn read-string-all
   ([s] (read-string-all s {:all true :features #{:clj} :eof ::parser/eof}))
@@ -116,6 +121,12 @@
            (seq (persistent! ret))
            (recur (conj! ret next-val))))))))
 
+(defn string-reader
+  "Create reader for strings."
+  [s]
+  (r/indexing-push-back-reader
+   (r/string-push-back-reader s)))
+
 (comment
   (defn read-all
    ([rdr]
@@ -128,12 +139,6 @@
           (if (identical? form eof)
             (persistent! forms)
             (recur (conj! forms form))))))))
-
-  (defn string-reader
-    "Create reader for strings."
-    [s]
-    (r/indexing-push-back-reader
-     (r/string-push-back-reader s)))
 
   (defn read-string-all [s]
     (read-all (string-reader s))))

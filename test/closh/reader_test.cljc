@@ -1,6 +1,5 @@
 (ns closh.reader-test
   (:require [clojure.test :refer [deftest testing is are run-tests]]
-            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [closh.zero.reader]
             [closh.zero.sci-reader :as reader]))
 
@@ -109,20 +108,20 @@
 (deftest test-reader-forms
   (is (= '[(closh.zero.macros/sh (+ 1 2))
            (closh.zero.macros/sh (* 3 4))]
-         (let [in (string-push-back-reader "(+ 1 2)\n(* 3 4)")]
-           [(closh.zero.reader/read-sh {:read-cond :allow} in)
-            (closh.zero.reader/read-sh {:read-cond :allow} in)])))
+         (let [in (reader/string-reader "(+ 1 2)\n(* 3 4)")]
+           [(reader/read-sh in)
+            (reader/read-sh in)])))
 
   (is (= '[(closh.zero.macros/sh echo a b)
            (closh.zero.macros/sh ls)]
-         (let [in (string-push-back-reader "echo a b\nls")]
-           [(closh.zero.reader/read-sh {:read-cond :allow} in)
-            (closh.zero.reader/read-sh {:read-cond :allow} in)])))
+         (let [in (reader/string-reader "echo a b\nls")]
+           [(reader/read-sh in)
+            (reader/read-sh in)])))
 
   (is (= '[(closh.zero.macros/sh (+ 1 2))]
-         (let [in (string-push-back-reader "(+ 1 2)\n")]
-           [(closh.zero.reader/read-sh {:read-cond :allow} in)])))
+         (let [in (reader/string-reader "(+ 1 2)\n")]
+           [(reader/read-sh in)])))
 
   (is (= '[(closh.zero.macros/sh (+ 1 2))]
-         (let [in (string-push-back-reader "(+ 1 2)")]
-           [(closh.zero.reader/read-sh {:read-cond :allow} in)]))))
+         (let [in (reader/string-reader "(+ 1 2)")]
+           [(reader/read-sh in)]))))
