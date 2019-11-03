@@ -5,6 +5,7 @@ LUMO_VERSION="1.9.0-alpha"
 
 brew upgrade node
 HOMEBREW_NO_AUTO_UPDATE=1 brew install wget bc
+ln -s `which node` /usr/local/bin/nodejs
 npm install -g lumo-cljs@$LUMO_VERSION --unsafe-perm
 wget -qO- "https://raw.githubusercontent.com/creationix/nvm/${NVM_VERSION}/install.sh" | bash
 . "$HOME/.nvm/nvm.sh" && nvm install $(lumo -e '(println process.version)') && npm install
