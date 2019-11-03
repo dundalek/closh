@@ -80,6 +80,20 @@
 
 (def sci-env (atom {}))
 
+(def macro-bindings
+  {'sh (with-meta (fn [_ _ & args] (apply macros-fns/sh args)) {:sci/macro true})
+   'sh-value (with-meta (fn [_ _ & args] (apply macros-fns/sh-value args)) {:sci/macro true})
+   'sh-val (with-meta (fn [_ _ & args] (apply macros-fns/sh-val args)) {:sci/macro true})
+   'sh-str (with-meta (fn [_ _ & args] (apply macros-fns/sh-str args)) {:sci/macro true})
+   'sh-seq (with-meta (fn [_ _ & args] (apply macros-fns/sh-seq args)) {:sci/macro true})
+   'sh-lines (with-meta (fn [_ _ & args] (apply macros-fns/sh-lines args)) {:sci/macro true})
+   'sh-code (with-meta (fn [_ _ & args] (apply macros-fns/sh-code args)) {:sci/macro true})
+   'sh-ok (with-meta (fn [_ _ & args] (apply macros-fns/sh-ok args)) {:sci/macro true})
+   'sh-wrapper (with-meta (fn [_ _ & args] (apply macros-fns/sh-wrapper args)) {:sci/macro true})
+   'defalias (with-meta (fn [_ _ & args] (apply macros-fns/defalias args)) {:sci/macro true})
+   'defabbr (with-meta (fn [_ _ & args] (apply macros-fns/defabbr args)) {:sci/macro true})
+   'defcmd (with-meta (fn [_ _ & args] (apply macros-fns/defcmd args)) {:sci/macro true})})
+
 (def bindings {'deref deref
                'clojure.core/deref deref
                'swap! swap!
@@ -97,22 +111,11 @@
                'quit builtin/quit
                'getenv builtin/getenv
                'setenv builtin/setenv
-               'unsetenv builtin/unsetenv
-               'sh (with-meta (fn [_ _ & args] (apply macros-fns/sh args)) {:sci/macro true})
-               'sh-value (with-meta (fn [_ _ & args] (apply macros-fns/sh-value args)) {:sci/macro true})
-               'sh-val (with-meta (fn [_ _ & args] (apply macros-fns/sh-val args)) {:sci/macro true})
-               'sh-str (with-meta (fn [_ _ & args] (apply macros-fns/sh-str args)) {:sci/macro true})
-               'sh-seq (with-meta (fn [_ _ & args] (apply macros-fns/sh-seq args)) {:sci/macro true})
-               'sh-lines (with-meta (fn [_ _ & args] (apply macros-fns/sh-lines args)) {:sci/macro true})
-               'sh-code (with-meta (fn [_ _ & args] (apply macros-fns/sh-code args)) {:sci/macro true})
-               'sh-ok (with-meta (fn [_ _ & args] (apply macros-fns/sh-ok args)) {:sci/macro true})
-               'sh-wrapper (with-meta (fn [_ _ & args] (apply macros-fns/sh-wrapper args)) {:sci/macro true})
-               'defalias (with-meta (fn [_ _ & args] (apply macros-fns/defalias args)) {:sci/macro true})
-               'defabbr (with-meta (fn [_ _ & args] (apply macros-fns/defabbr args)) {:sci/macro true})
-               'defcmd (with-meta (fn [_ _ & args] (apply macros-fns/defcmd args)) {:sci/macro true})})
+               'unsetenv builtin/unsetenv})
 
-(def ctx {:bindings bindings
-          :namespaces {'clojure.core {'println println
+(def ctx {:bindings (merge bindings macro-bindings)
+          :namespaces {'closh.zero.macros macro-bindings
+                       'clojure.core {'println println
                                       'print print}
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
