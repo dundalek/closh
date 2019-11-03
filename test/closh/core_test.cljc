@@ -461,5 +461,9 @@
     "HI" '(do (defcmd cmd-hello [] "hi")
               (sh-str cmd-hello | tr "[:lower:]" "[:upper:]")))
 
-  (is (= "ABC" (do (closh (pr-str '(defcmd cmd-upper clojure.string/upper-case)))
-                   (with-tempfile-content (fn [f] (closh (str "echo -n abc | cmd-upper > " f))))))))
+  (is (= "ABC" (with-tempfile-content
+                 (fn [f] (closh (str
+                                 "(do"
+                                 (pr-str '(defcmd cmd-upper clojure.string/upper-case))
+                                 "(sh echo -n abc | cmd-upper > \"" f "\")"
+                                 ")")))))))
