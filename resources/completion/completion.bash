@@ -13,6 +13,9 @@ get_completions(){
         [[ -r "/usr/share/bash-completion/bash_completion" ]] && source "/usr/share/bash-completion/bash_completion"
         # macOS via homebrew
         [[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && source "/usr/local/etc/profile.d/bash_completion.sh"
+        # nixos
+        command -v nix && FILE="$(nix eval --raw '(import <nixpkgs> {}).bash-completion.outPath')/share/bash-completion/bash_completion" \
+                       && [[ -r $FILE ]] && source $FILE
     }
 
     COMP_LINE=$*
