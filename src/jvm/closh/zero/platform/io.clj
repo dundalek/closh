@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [org.satta.glob :as clj-glob])
-  (:refer-clojure :exclude [line-seq]))
+  (:refer-clojure :exclude [line-seq])
+  (:import [java.nio.file Files Paths Path]))
 
 (def ^:dynamic *stdin* System/in)
 (def ^:dynamic *stdout* System/out)
@@ -10,7 +11,7 @@
 
 (set! *warn-on-reflection* true)
 
-(def ^:private relpath-regex #"^\./")
+#_(def ^:private relpath-regex #"^\./")
 
 #_(defn glob
   ([s] (glob s nil))
@@ -32,12 +33,19 @@
 (defn- directory? [path]
   (java.nio.file.Files/isDirectory path (into-array java.nio.file.LinkOption [])))
 
+(defn- ^Path to-path [s]
+  (Paths/get s (into-array String [])))
+
 (defn glob
   ([pattern] (glob pattern nil))
   ([pattern ^String cwd]
-   (let [cwd       (java.nio.file.Paths/get cwd (into-array String []))
+   (let [absolute? (.isAbsolute (to-path pattern))
+         cwd       (if absolute?
+                     (.getRoot (to-path pattern))
+                     (to-path cwd))
          separator (java.io.File/separator)
          result    (->> (str/split pattern (re-pattern separator))
+                        (remove str/blank?)
                         (reduce
                          (fn [acc ^String segment]
                            (case segment
@@ -50,7 +58,7 @@
                                             (directory? path)))
                                   (map (fn [entry]
                                          (-> entry
-                                             (update :path #(.getParent ^java.nio.file.Path %))
+                                             (update :path #(.getParent ^Path %))
                                              (update :parts conj ".."))))
                                   (filter (fn [{:keys [path parts]}]
                                             (some? path))))
@@ -58,23 +66,25 @@
                              (->> acc
                                   (filter (fn [{:keys [path parts]}]
                                             (directory? path)))
-                                  (mapcat (fn [{:keys [^java.nio.file.Path path parts]}]
-                                            (map (fn [^java.nio.file.Path nested-path]
+                                  (mapcat (fn [{:keys [^Path path parts]}]
+                                            (map (fn [^Path nested-path]
                                                    {:path  nested-path
                                                     :parts (conj parts (str (.getFileName nested-path)))})
-                                                 (java.nio.file.Files/newDirectoryStream path segment))))
-                                  (filter (fn [{:keys [^java.nio.file.Path path parts]}]
+                                                 (Files/newDirectoryStream path segment))))
+                                  (filter (fn [{:keys [^Path path parts]}]
                                             (and (some? path)
                                                  (or (str/starts-with? segment ".")
                                                      (not (str/starts-with? (.getFileName path) ".")))))))))
                          [{:path cwd, :parts []}])
                         (map (fn [{:keys [parts]}]
-                               (str/join separator parts)))
+                               (if absolute?
+                                 ;; cwd is root in this case
+                                 (str cwd (str/join separator parts))
+                                 (str/join separator parts))))
                         sort)]
      (if (seq result)
        result
        (list pattern)))))
-
 
 (defn out-stream
   "Get stdout stream of a given process."
