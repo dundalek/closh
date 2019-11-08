@@ -28,6 +28,23 @@
 
   (is (= "./package.json" (first (expand "./package.js*")))))
 
+
+(deftest test-glob
+  (is (= "./src/../package.json"
+         (first (expand "./s*c/../package.js*"))))
+
+  (is (= ["./test/../package.json" "./bin/../package.json" "./resources/../package.json"
+          "./scripts/../package.json" "./.github/../package.json" "./fixtures/../package.json"
+          "./doc/../package.json" "./.cpcache/../package.json" "./.git/../package.json"
+          "./.circleci/../package.json" "./src/../package.json"]
+         (expand "./*/../package.js*")))
+
+  (is (= "./package.json"
+         (first (expand "./package.js*"))))
+
+  (is (= "package.json"
+         (first (expand "package.js*")))))
+
 (deftest aliases
   (is (= "ls --color=auto" (expand-alias {"ls" "ls --color=auto"} "ls")))
   (is (= " ls --color=auto" (expand-alias {"ls" "ls --color=auto"} " ls")))

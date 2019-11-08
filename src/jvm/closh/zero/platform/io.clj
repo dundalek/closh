@@ -12,7 +12,7 @@
 
 (def ^:private relpath-regex #"^\./")
 
-(defn glob
+#_(defn glob
   ([s] (glob s nil))
   ([s ^String cwd-file]
    (let [pattern (str/replace s relpath-regex "")
@@ -28,6 +28,47 @@
              (str "./" path)
              path)))
        (list s)))))
+
+(defn- directory? [path]
+  (java.nio.file.Files/isDirectory path (into-array java.nio.file.LinkOption [])))
+
+(defn glob
+  ([pattern] (glob pattern nil))
+  ([pattern ^String cwd]
+   (let [cwd       (java.nio.file.Paths/get cwd (into-array String []))
+         separator (java.io.File/separator)]
+     (->> (str/split pattern (re-pattern separator))
+          (reduce
+           (fn [acc ^String segment]
+             (case segment
+               "."
+               (map #(update % :parts conj ".") acc)
+
+               ".."
+               (->> acc
+                    (filter (fn [{:keys [path parts]}]
+                              (directory? path)))
+                    (map (fn [entry]
+                           (-> entry
+                               (update :path #(.getParent ^java.nio.file.Path %))
+                               (update :parts conj ".."))))
+                    (filter (fn [{:keys [path parts]}]
+                              (some? path))))
+
+               (->> acc
+                    (filter (fn [{:keys [path parts]}]
+                              (directory? path)))
+                    (mapcat (fn [{:keys [^java.nio.file.Path path parts]}]
+                              (map (fn [^java.nio.file.Path nested-path]
+                                     {:path  nested-path
+                                      :parts (conj parts (str (.getFileName nested-path)))})
+                                   (java.nio.file.Files/newDirectoryStream path segment))))
+                    (filter (fn [{:keys [path parts]}]
+                              (some? path))))))
+           [{:path cwd, :parts []}])
+          (map
+           (fn [{:keys [parts]}]
+             (str/join separator parts)))))))
 
 (defn out-stream
   "Get stdout stream of a given process."
