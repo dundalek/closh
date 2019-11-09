@@ -26,9 +26,9 @@
   (is (= "abc\n" (process-output (shx "echo" ["abc"]))))
 
   (is (= "a\nb\n" (let [f (get-tmpfile)]
-                   (process-output (shx "echo" ["a"] {:redir [[:out 1 f]]}))
-                   (process-output (shx "echo" ["b"] {:redir [[:append 1 f]]}))
-                   (process-output (shx "cat" [f])))))
+                    (process-output (shx "echo" ["a"] {:redir [[:out 1 f]]}))
+                    (process-output (shx "echo" ["b"] {:redir [[:append 1 f]]}))
+                    (process-output (shx "cat" [f])))))
 
   (is (= "x\n" (let [f (get-tmpfile)]
                  (process-output (shx "echo" ["x"] {:redir [[:out 1 f]]}))

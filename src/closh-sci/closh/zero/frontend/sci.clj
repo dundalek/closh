@@ -26,9 +26,9 @@
   (reset! process/*cwd* (System/getProperty "user.dir"))
   (let [cmd (or (first args) "echo hello clojure")]
     (repl-print
-      (eval/eval
-        `(-> ~(closh.zero.compiler/compile-interactive
-               (closh.zero.parser/parse
-                (reader/read-string cmd)
-                #_(edamame/parse-string-all cmd {:all true})))
-             (closh.zero.pipeline/wait-for-pipeline))))))
+     (eval/eval
+      `(-> ~(closh.zero.compiler/compile-interactive
+             (closh.zero.parser/parse
+              (reader/read-string cmd)
+              #_(edamame/parse-string-all cmd {:all true})))
+           (closh.zero.pipeline/wait-for-pipeline))))))

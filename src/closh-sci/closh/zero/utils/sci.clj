@@ -63,14 +63,13 @@
   (closh-requires)
 
   #_(def bindings
-     (merge
-      (closh-bindings)
-      (closh-macro-bindings)
-      {})))
+      (merge
+       (closh-bindings)
+       (closh-macro-bindings)
+       {})))
        ;; 'thread-stop thread-stop
        ;; 'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
        ;; 'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*
-
 
 
 (declare ctx)

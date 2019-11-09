@@ -36,30 +36,30 @@
   "Customizes `cljs.tools.reader/read*-internal` with our reader enhancements."
   [^not-native reader ^boolean eof-error? sentinel return-on opts pending-forms]
   (with-redefs [cljs.tools.reader/read*-internal read-internal-orig]
-   (loop []
-     (let [ret (log-source reader
-                 (if-not ^boolean (garray/isEmpty pending-forms)
-                   (let [form (aget pending-forms 0)]
-                     (garray/removeAt pending-forms 0)
-                     form)
-                   (let [ch (read-char reader)]
-                     (if-let [skip (when (= ch \\)
-                                     (when-let [ch (read-char reader)]
-                                       (if (= ch \newline)
-                                         reader
-                                         (do (unread reader ch)
-                                           nil))))]
-                       skip
-                       (cond
-                         (= ch \newline) \newline
-                         (whitespace? ch) reader
-                         (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
-                         (identical? ch return-on) READ_FINISHED
+    (loop []
+      (let [ret (log-source reader
+                            (if-not ^boolean (garray/isEmpty pending-forms)
+                              (let [form (aget pending-forms 0)]
+                                (garray/removeAt pending-forms 0)
+                                form)
+                              (let [ch (read-char reader)]
+                                (if-let [skip (when (= ch \\)
+                                                (when-let [ch (read-char reader)]
+                                                  (if (= ch \newline)
+                                                    reader
+                                                    (do (unread reader ch)
+                                                        nil))))]
+                                  skip
+                                  (cond
+                                    (= ch \newline) \newline
+                                    (whitespace? ch) reader
+                                    (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
+                                    (identical? ch return-on) READ_FINISHED
                          ; (number-literal? reader ch) (read-number reader ch)
-                         (= \~ ch) (read-token reader ch)
-                         :else (if-let [f (macros ch)]
-                                 (f reader ch opts pending-forms)
-                                 (read-token reader ch)))))))]
+                                    (= \~ ch) (read-token reader ch)
+                                    :else (if-let [f (macros ch)]
+                                            (f reader ch opts pending-forms)
+                                            (read-token reader ch)))))))]
         (if (identical? ret reader)
           (recur)
           ret)))))
@@ -101,9 +101,9 @@
                        (recur (conj! coll token)))))))))))
 
 (defn read-all [rdr]
- (let [eof #()
-       opts {:eof eof :read-cond :allow :features #{:cljs}}]
-   (loop [forms []]
+  (let [eof #()
+        opts {:eof eof :read-cond :allow :features #{:cljs}}]
+    (loop [forms []]
       (let [form (read opts rdr)]
         (if (= form eof)
           (seq forms)

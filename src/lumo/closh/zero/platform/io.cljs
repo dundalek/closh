@@ -16,14 +16,14 @@
   ([stream]
    (let [buf #js[]
          done (atom false)]
-      (doto stream
-        (.on "end" #(reset! done true))
-        (.on "data" #(.push buf %)))
-      (line-seq (fn []
-                  (when-not @done
-                    (deasync/loopWhile #(and (not @done) (empty? buf)))
-                    (.shift buf)))
-        nil)))
+     (doto stream
+       (.on "end" #(reset! done true))
+       (.on "data" #(.push buf %)))
+     (line-seq (fn []
+                 (when-not @done
+                   (deasync/loopWhile #(and (not @done) (empty? buf)))
+                   (.shift buf)))
+               nil)))
   ([read-chunk line]
    (if-let [chunk (read-chunk)]
      (if (re-find #"\n" (str line chunk))
@@ -66,20 +66,20 @@
   "Opens a stream based on operation and target, returns a promise."
   [op target]
   (js/Promise.
-    (fn [resolve reject]
-      (if (= op :set)
-        (resolve target)
-        (let [[create-stream flags]
-              (case op
-                :in [#(fs/createReadStream %1 %2) "r"]
-                :out [#(fs/createWriteStream %1 %2) "w"]
-                :append [#(fs/createWriteStream %1 %2) "a"]
-                :rw [#(fs/createWriteStream %1 %2) "w+"])]
-           (fs/open target flags
-             (fn [err f]
-               (if err
-                 (reject err)
-                 (resolve (create-stream nil #js{:fd f}))))))))))
+   (fn [resolve reject]
+     (if (= op :set)
+       (resolve target)
+       (let [[create-stream flags]
+             (case op
+               :in [#(fs/createReadStream %1 %2) "r"]
+               :out [#(fs/createWriteStream %1 %2) "w"]
+               :append [#(fs/createWriteStream %1 %2) "a"]
+               :rw [#(fs/createWriteStream %1 %2) "w+"])]
+         (fs/open target flags
+                  (fn [err f]
+                    (if err
+                      (reject err)
+                      (resolve (create-stream nil #js{:fd f}))))))))))
 
 (defn open-io-streams
   "Opens io streams based on redirection specification. Returns an array that can be passed as stdio option to spawn."
@@ -92,16 +92,16 @@
                          (.then (fn [stream] [fd stream]))))
                    (apply array)
                    (js/Promise.all))]
-           (.then p #(reset! result %))
-           (deasync/loopWhile #(not @result))
-           (doseq [[fd target] @result]
-             (aset arr fd (if (number? target)
-                            (aget arr target)
-                            (case target
-                              :stdin *stdin*
-                              :stdout *stdout*
-                              :stderr *stderr*
-                              target))))))
+        (.then p #(reset! result %))
+        (deasync/loopWhile #(not @result))
+        (doseq [[fd target] @result]
+          (aset arr fd (if (number? target)
+                         (aget arr target)
+                         (case target
+                           :stdin *stdin*
+                           :stdout *stdout*
+                           :stderr *stderr*
+                           target))))))
     arr))
 
 (defn input-stream? [s]

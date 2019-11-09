@@ -4,15 +4,15 @@
 
 (def ^:no-doc redirect-op
   "Set of symbols of redirection operators"
-   #{'> '< '>> '&> '&>> '<> '>&})
+  #{'> '< '>> '&> '&>> '<> '>&})
 
 (def ^:no-doc pipe-op
   "Set of symbols of pipe operators"
-   #{'| '|> '|? '|&})
+  #{'| '|> '|? '|&})
 
 (def ^:no-doc clause-op
   "Set of symbols of command clause operators (conditional execution with `&&` and `||`)"
-   #{'|| '&&})
+  #{'|| '&&})
 
 (def ^:no-doc cmd-op
   "Set of symbols of operators separating commands"
@@ -26,7 +26,6 @@
 (s/def ::pipe-op pipe-op)
 (s/def ::clause-op clause-op)
 (s/def ::cmd-op cmd-op)
-
 
 (s/def ::cmd-list (s/cat :cmd ::cmd-clause
                          :cmds (s/* (s/cat :op ::cmd-op

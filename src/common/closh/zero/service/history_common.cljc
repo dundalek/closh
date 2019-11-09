@@ -23,8 +23,8 @@
   "Return path to the db file, defaults to ~/.closh/closh.sqlite"
   (let [parts [(process/getenv "HOME") ".closh" "closh.sqlite"]]
     #?(:cljs (apply path/join parts)
-        :clj (-> (apply io/file parts)
-                 (.getCanonicalPath)))))
+       :clj (-> (apply io/file parts)
+                (.getCanonicalPath)))))
 
 (defn check-history-line [s]
   (when (and (not (str/blank? s))

@@ -38,8 +38,8 @@
         writer (PipedWriter.)
         reader (PipedReader. writer)]
     (doseq [c (str
-                custom-environment
-                (prn-str *closh-environment-requires*))]
+               custom-environment
+               (prn-str *closh-environment-requires*))]
       (.write writer (int c)))
     (let [custom-reader
           (proxy [LineNumberingPushbackReader] [reader]
@@ -103,9 +103,9 @@
         rdr (make-custom-reader (PushbackReader. (InputStreamReader. f RT/UTF8)))]
     (try
       (Compiler/load
-        rdr
-        (.getAbsolutePath (File. file))
-        (.getName (File. file)))
+       rdr
+       (.getAbsolutePath (File. file))
+       (.getName (File. file)))
       (finally
         (.close f)))))
 
@@ -136,12 +136,12 @@
   [str]
   (let [eof (Object.)
         reader (make-custom-reader (java.io.StringReader. str))]
-      (loop [input (with-read-known (read reader false eof))]
-        (when-not (= input eof)
-          (let [value (eval/eval input)]
-            (when-not (nil? value)
-              (prn value))
-            (recur (with-read-known (read reader false eof))))))))
+    (loop [input (with-read-known (read reader false eof))]
+      (when-not (= input eof)
+        (let [value (eval/eval input)]
+          (when-not (nil? value)
+            (prn value))
+          (recur (with-read-known (read reader false eof))))))))
 
 (defn help-opt
   "Print help text for main"

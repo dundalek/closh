@@ -14,7 +14,7 @@
 
 (defn -main [cmd]
   #?(:cljs (closh.zero.platform.eval/execute-text
-             (str (pr-str closh.zero.env/*closh-environment-requires*)))
+            (str (pr-str closh.zero.env/*closh-environment-requires*)))
      :clj (eval/eval-closh-requires))
   (let [result #?(:cljs (execute-command-text cmd)
                   :clj (eval/eval (reader/read-sh (reader/string-reader cmd))))]

@@ -49,8 +49,8 @@
   [s]
   (if-let [x (expand-variable s)]
     (-> x
-      expand-tilde
-      expand-filename)
+        expand-tilde
+        expand-filename)
     (list)))
 
 (defn expand-command
@@ -63,10 +63,10 @@
   [cmdname]
   (try
     (->
-      (process/shx command-not-found-bin ["--no-failure-msg" cmdname])
-      #?(:cljs (.on "error" (fn [])))
-      (process-value)
-      (:stderr))
+     (process/shx command-not-found-bin ["--no-failure-msg" cmdname])
+     #?(:cljs (.on "error" (fn [])))
+     (process-value)
+     (:stderr))
     (catch #?(:cljs :default :clj Exception) _)))
 
 (defn shx
@@ -75,15 +75,15 @@
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
    #?(:cljs (doto
-              (process/shx cmd args opts)
+             (process/shx cmd args opts)
               (.on "error"
-                (fn [err]
-                  (case (.-errno err)
-                    "ENOENT" (let [suggestion (get-command-suggestion cmd)]
-                               (when-not (clojure.string/blank? suggestion)
-                                 (.write *stderr* suggestion))
-                               (.write *stderr* (str cmd ": command not found\n")))
-                    (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
+                   (fn [err]
+                     (case (.-errno err)
+                       "ENOENT" (let [suggestion (get-command-suggestion cmd)]
+                                  (when-not (clojure.string/blank? suggestion)
+                                    (.write *stderr* suggestion))
+                                  (.write *stderr* (str cmd ": command not found\n")))
+                       (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
       :clj (try
              (process/shx cmd args opts)
              (catch java.io.IOException e

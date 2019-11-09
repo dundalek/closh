@@ -45,49 +45,49 @@
    (try
      (loop []
        (let [ret (log-source reader
-                   (if (seq pending-forms)
-                     (.remove ^List pending-forms 0)
-                     (let [ch (read-char reader)]
-                       (if-let [skip (when (= ch \\)
-                                       (when-let [ch (read-char reader)]
-                                         (if (= ch \newline)
-                                           reader
-                                           (do (unread reader ch)
-                                             nil))))]
-                         skip
-                         (cond
-                           (= ch \newline) \newline
-                           (whitespace?-custom ch) reader
-                           (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
-                           (= ch return-on) #'clojure.tools.reader/READ_FINISHED ;; private?
+                             (if (seq pending-forms)
+                               (.remove ^List pending-forms 0)
+                               (let [ch (read-char reader)]
+                                 (if-let [skip (when (= ch \\)
+                                                 (when-let [ch (read-char reader)]
+                                                   (if (= ch \newline)
+                                                     reader
+                                                     (do (unread reader ch)
+                                                         nil))))]
+                                   skip
+                                   (cond
+                                     (= ch \newline) \newline
+                                     (whitespace?-custom ch) reader
+                                     (nil? ch) (if eof-error? (err/throw-eof-error reader nil) sentinel)
+                                     (= ch return-on) #'clojure.tools.reader/READ_FINISHED ;; private?
                            ; (number-literal? reader ch) (read-number reader ch)
-                           (= \~ ch) (read-token reader ch)
-                           :else (if-let [f (#'clojure.tools.reader/macros ch)]
-                                   (with-redefs [clojure.tools.reader/read* read*-orig]
-                                     (f reader ch opts pending-forms))
-                                   (read-token reader ch)))))))]
+                                     (= \~ ch) (read-token reader ch)
+                                     :else (if-let [f (#'clojure.tools.reader/macros ch)]
+                                             (with-redefs [clojure.tools.reader/read* read*-orig]
+                                               (f reader ch opts pending-forms))
+                                             (read-token reader ch)))))))]
          (if (identical? ret reader)
            (recur)
            ret)))
-    (catch Exception e
-      (if (rutils/ex-info? e)
-        (let [d (ex-data e)]
-          (if (= :reader-exception (:type d))
-            (throw e)
-            (throw (ex-info (.getMessage e)
-                            (merge {:type :reader-exception}
-                                   d
-                                   (if (indexing-reader? reader)
-                                     {:line   (get-line-number reader)
-                                      :column (get-column-number reader)
-                                      :file   (get-file-name reader)}))
-                            e))))
-        (throw (ex-info (.getMessage e)
-                        (merge {:type :reader-exception}
-                               (if (indexing-reader? reader)
-                                 {:line   (get-line-number reader)
-                                  :column (get-column-number reader)
-                                  :file   (get-file-name reader)})))))))))
+     (catch Exception e
+       (if (rutils/ex-info? e)
+         (let [d (ex-data e)]
+           (if (= :reader-exception (:type d))
+             (throw e)
+             (throw (ex-info (.getMessage e)
+                             (merge {:type :reader-exception}
+                                    d
+                                    (if (indexing-reader? reader)
+                                      {:line   (get-line-number reader)
+                                       :column (get-column-number reader)
+                                       :file   (get-file-name reader)}))
+                             e))))
+         (throw (ex-info (.getMessage e)
+                         (merge {:type :reader-exception}
+                                (if (indexing-reader? reader)
+                                  {:line   (get-line-number reader)
+                                   :column (get-column-number reader)
+                                   :file   (get-file-name reader)})))))))))
 
 (defn- ^:no-doc read-orig
   "This is a verbatim copy `clojure.tools.reader/read`. We need a copy otherwise re-binding ends up in infinite loop."
@@ -125,9 +125,9 @@
                        (recur (conj! coll token)))))))))))
 
 (defn read-all [rdr]
- (let [eof (Object.)
-       opts {:eof eof :read-cond :allow :features #{:clj}}]
-   (loop [forms []]
+  (let [eof (Object.)
+        opts {:eof eof :read-cond :allow :features #{:clj}}]
+    (loop [forms []]
       (let [form (read opts rdr)]
         (if (= form eof)
           (seq forms)

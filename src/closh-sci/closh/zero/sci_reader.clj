@@ -21,9 +21,9 @@
 
 (defn token-start? [c]
   (case c
-        ;; \~ is considered as token start
-        (nil \# \@ \' \` \( \[ \{ \} \] \) \;) false
-        true))
+    ;; \~ is considered as token start
+    (nil \# \@ \' \` \( \[ \{ \} \] \) \;) false
+    true))
 
 (defn ^String read-token*
   "Read in a single logical token from the reader"
@@ -41,10 +41,10 @@
   (if (= \" (r/peek-char rdr))
     (edn/read rdr)
     (let [token (read-token* rdr)]
-        (try
-          (Integer/parseInt token)
-          (catch Exception _
-            (symbol token))))))
+      (try
+        (Integer/parseInt token)
+        (catch Exception _
+          (symbol token))))))
 
 (defn parse-next-custom [ctx reader]
   (parser/parse-whitespace ctx reader) ;; skip leading whitespace
@@ -54,11 +54,11 @@
       (read-token reader)
       (let [loc (parser/location reader)
             obj (parser/dispatch ctx reader c)]
-          (if (identical? reader obj)
-            (parser/parse-next ctx reader)
-            (if (instance? clojure.lang.IObj obj)
-              (vary-meta obj merge loc)
-              obj))))
+        (if (identical? reader obj)
+          (parser/parse-next ctx reader)
+          (if (instance? clojure.lang.IObj obj)
+            (vary-meta obj merge loc)
+            obj))))
     (:eof ctx)))
 
 (defn read* [opts reader]

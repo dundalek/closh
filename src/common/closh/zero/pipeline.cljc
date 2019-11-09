@@ -154,21 +154,21 @@
 (defn redir [val redirects]
   (let [redirects
         (reduce
-          (fn [redirects [op fd target]]
-            (case op
-              :rw (throw (new #?(:clj Exception :cljs js/Error) "Read/Write redirection is not supported"))
-              (let [redirect (case op
-                               :in (input-stream  target)
-                               :out (output-stream target)
-                               :append (output-stream target :append true)
-                               :set (if (#{:stdin :stdout :stderr} target)
-                                      target
-                                      (get redirects target)))]
-                (if redirect
-                  (assoc redirects fd redirect)
-                  redirects))))
-          {0 :stdin 1 :stdout 2 :stderr}
-          redirects)
+         (fn [redirects [op fd target]]
+           (case op
+             :rw (throw (new #?(:clj Exception :cljs js/Error) "Read/Write redirection is not supported"))
+             (let [redirect (case op
+                              :in (input-stream  target)
+                              :out (output-stream target)
+                              :append (output-stream target :append true)
+                              :set (if (#{:stdin :stdout :stderr} target)
+                                     target
+                                     (get redirects target)))]
+               (if redirect
+                 (assoc redirects fd redirect)
+                 redirects))))
+         {0 :stdin 1 :stdout 2 :stderr}
+         redirects)
         stdout (get redirects 1)]
     (if (not= stdout :stdout)
       (do

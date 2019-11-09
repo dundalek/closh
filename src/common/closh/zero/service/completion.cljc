@@ -13,7 +13,7 @@
      "Helper function to get output from a node stream as a string."
      [stream]
      (js/Promise.
-       (fn [resolve _]
+      (fn [resolve _]
         (let [out (closh.zero.platform.io/stream-output stream)]
           (doto stream
             (.on "end" #(resolve @out))
@@ -21,29 +21,29 @@
 
 (defn escape-fish-string [s]
   (-> s
-    (clojure.string/replace #"\\" "\\\\\\\\")
-    (clojure.string/replace #"'" "\\\\'")
-    (#(str "'" % "'"))))
+      (clojure.string/replace #"\\" "\\\\\\\\")
+      (clojure.string/replace #"'" "\\\\'")
+      (#(str "'" % "'"))))
 
 (defn get-completions-spawn
   "Get completions by spawning a command."
   [shell cmd args]
   (let [proc #?(:cljs (shx (str (getenv "CLOSH_SOURCES_PATH") "/resources/" cmd) args)
                 :clj (if (= shell "fish")
-                       (shx "fish"["-c"
-                                   (str "complete --do-complete=" (escape-fish-string (first args)))])
+                       (shx "fish" ["-c"
+                                    (str "complete --do-complete=" (escape-fish-string (first args)))])
                        (if-let [resource (io/resource cmd)]
                          (pipe (slurp resource)
                                (shx shell (cons "-s" args)))
                          (shx (str (getenv "CLOSH_SOURCES_PATH") "/resources/" cmd) args))))
         stream (out-stream proc)]
     (chain->
-      #?(:cljs (stream-output stream)
-         :clj @(closh.zero.platform.io/stream-output stream))
-      (fn [stdout]
-        (if (clojure.string/blank? stdout)
-          []
-          (clojure.string/split (clojure.string/trim stdout) #"\n"))))))
+     #?(:cljs (stream-output stream)
+        :clj @(closh.zero.platform.io/stream-output stream))
+     (fn [stdout]
+       (if (clojure.string/blank? stdout)
+         []
+         (clojure.string/split (clojure.string/trim stdout) #"\n"))))))
 
 (defn complete-fish
   "Get completions from a fish shell. Spawns a process."
@@ -75,15 +75,15 @@
      "Get completions from Lumo."
      [line]
      (js/Promise.
-       (fn [resolve reject]
-         (try
-           (lumo.repl/get-completions line resolve)
-           (catch :default e (reject e)))))))
+      (fn [resolve reject]
+        (try
+          (lumo.repl/get-completions line resolve)
+          (catch :default e (reject e)))))))
 
 (defn sanitize-completion [s]
   (-> s
-    (clojure.string/trim)
-    (clojure.string/replace #"\\ " " ")))
+      (clojure.string/trim)
+      (clojure.string/replace #"\\ " " ")))
 
 (defn append-completion
   "Appends completion to a line, discards the common part from in between."
@@ -102,30 +102,30 @@
   "Processes completions for a given line, cleans up results by removing duplicates."
   [line completions]
   (->> completions
-    (map #(append-completion line %))
-    (filter #(not= line %))
-    (distinct))) ; bash seems to return duplicates sometimes
+       (map #(append-completion line %))
+       (filter #(not= line %))
+       (distinct))) ; bash seems to return duplicates sometimes
 
 (defn complete-shell [line]
   (chain-> (complete-fish line)
-      #(if (seq %) % (complete-zsh line))
-      #(if (seq %) % (complete-bash line))
-      #(map sanitize-completion %)))
+           #(if (seq %) % (complete-zsh line))
+           #(if (seq %) % (complete-bash line))
+           #(map sanitize-completion %)))
 
 #?(:cljs
    (defn complete
      "Gets completions for a given line. Delegates to existing shells and Lumo. Callback style compatible with node's builtin readline completer function."
      [line cb]
      (->
-       (chain-> (js/Promise.all
-                 #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
-                       (complete-lumo line))
-                     (complete-shell line)])
-         (fn [completions]
-           (->> completions
-             (map #(process-completions line %))
-             (interpose [""])
-             (apply concat)
-             (apply array)))
-         #(cb nil #js[% line]))
-       (.catch #(cb %)))))
+      (chain-> (js/Promise.all
+                #js[(when (re-find #"\([^)]*$" line) ; only send exprs with unmatched paren to lumo
+                      (complete-lumo line))
+                    (complete-shell line)])
+               (fn [completions]
+                 (->> completions
+                      (map #(process-completions line %))
+                      (interpose [""])
+                      (apply concat)
+                      (apply array)))
+               #(cb nil #js[% line]))
+      (.catch #(cb %)))))

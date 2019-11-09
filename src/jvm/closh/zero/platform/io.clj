@@ -18,16 +18,16 @@
    (let [pattern (str/replace s relpath-regex "")
          is-relative (not= s pattern)
          result (clj-glob/glob pattern (java.io.File. cwd-file))]
-      (if (seq result)
-        (for [item result]
-          (let [s (str item)
-                path (if (str/starts-with? s cwd-file)
-                       (subs s (inc (count cwd-file)))
-                       s)]
-            (if is-relative
-              (str "./" path)
-              path)))
-        (list s)))))
+     (if (seq result)
+       (for [item result]
+         (let [s (str item)
+               path (if (str/starts-with? s cwd-file)
+                      (subs s (inc (count cwd-file)))
+                      s)]
+           (if is-relative
+             (str "./" path)
+             path)))
+       (list s)))))
 
 (defn out-stream
   "Get stdout stream of a given process."
@@ -64,9 +64,9 @@
 
 (defn line-seq [stream]
   (-> stream
-    (java.io.InputStreamReader.)
-    (java.io.BufferedReader.)
-    (clojure.core/line-seq)))
+      (java.io.InputStreamReader.)
+      (java.io.BufferedReader.)
+      (clojure.core/line-seq)))
 
 (defn input-stream? [stream]
   (instance? java.io.InputStream stream))

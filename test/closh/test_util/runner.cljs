@@ -19,12 +19,12 @@
 (defn -main []
   (time
    (run-tests
-     'closh.reader-test
-     'closh.compiler-test
-     'closh.process-test
-     'closh.common-test
-     'closh.pipeline-test
-     'closh.completion-test
-     'closh.core-test
-     'closh.util-test
-     'closh.history-test)))
+    'closh.reader-test
+    'closh.compiler-test
+    'closh.process-test
+    'closh.common-test
+    'closh.pipeline-test
+    'closh.completion-test
+    'closh.core-test
+    'closh.util-test
+    'closh.history-test)))

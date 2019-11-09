@@ -7,17 +7,17 @@
 #?(:cljs (tmp/setGracefulCleanup))
 
 (defn with-tempfile [cb]
- #?(:cljs
-    (let [file (tmp/fileSync)
-             f (.-name file)
-             result (cb f)]
-         (.removeCallback file)
-         result)
-    :clj
-    (let [file (java.io.File/createTempFile "closh-test-" ".txt")
-          f (.getAbsolutePath file)
-          _ (.deleteOnExit file)]
-      (cb f))))
+  #?(:cljs
+     (let [file (tmp/fileSync)
+           f (.-name file)
+           result (cb f)]
+       (.removeCallback file)
+       result)
+     :clj
+     (let [file (java.io.File/createTempFile "closh-test-" ".txt")
+           f (.getAbsolutePath file)
+           _ (.deleteOnExit file)]
+       (cb f))))
 
 (defn with-tempfile-content [cb]
   (with-tempfile
@@ -28,24 +28,24 @@
 
 (def null-file
   (if
-    #?(:cljs (= js/process.platform "win32")
-       :clj (-> (System/getProperty "os.name")
-                (.toLowerCase)
-                (.indexOf "win")
-                (pos?)))
+   #?(:cljs (= js/process.platform "win32")
+      :clj (-> (System/getProperty "os.name")
+               (.toLowerCase)
+               (.indexOf "win")
+               (pos?)))
     "nul"
     "/dev/null"))
 
 (defn create-fake-writer []
   #?(:clj (java.io.ByteArrayOutputStream.)
      :cljs
-      (let [file (tmp/fileSync)
-            name (.-name file)
-            stream (fs/createWriteStream name)]
-        (wait-for-event stream "open")
-        {:file file
-         :name name
-         :stream stream})))
+     (let [file (tmp/fileSync)
+           name (.-name file)
+           stream (fs/createWriteStream name)]
+       (wait-for-event stream "open")
+       {:file file
+        :name name
+        :stream stream})))
 
 (defn get-fake-writer [writer]
   #?(:clj (java.io.PrintStream. writer)
@@ -59,7 +59,7 @@
 
 (defmacro with-async [& body]
   `(clojure.test/async done#
-     (->
-       ~@body
-       (.catch (fn [err#] (clojure.test/is (nil? err#))))
-       (.then done#))))
+                       (->
+                        ~@body
+                        (.catch (fn [err#] (clojure.test/is (nil? err#))))
+                        (.then done#))))

@@ -71,11 +71,11 @@
             (->>
              (if paren-begin
                (concat
-                 clj-completions
-                 shell-completions)
+                clj-completions
+                shell-completions)
                (concat
-                 shell-completions
-                 clj-completions))
+                shell-completions
+                clj-completions))
              (map #(clj-line-reader/candidate %))
              (take 10)
              (.addAll candidates))))))))
@@ -92,43 +92,43 @@
 
 (defn repl [[_ & args] inits]
   (core/ensure-terminal
-    (core/with-line-reader
-      (let [line-reader (clj-line-reader/create
-                          (clj-service/create
-                            (when api/*line-reader* @api/*line-reader*))
-                          {:completer (clojure-completer)})]
-        (.setVariable line-reader LineReader/HISTORY_FILE (str (jio/file (System/getProperty "user.home") ".closh" "history")))
-        (try
-          (.setHistory line-reader (doto (jline-history/sqlite-history)
-                                         (.moveToEnd)))
-          (catch Exception e
-            (binding [*out* *err*]
-              (println "Error while initializing history file ~/.closh/closh.sqlite:\n" e))))
-        line-reader)
-      (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
-        (when-let [prompt-fn (:prompt opts)]
-          (swap! api/*line-reader* assoc :prompt prompt-fn))
+   (core/with-line-reader
+     (let [line-reader (clj-line-reader/create
+                        (clj-service/create
+                         (when api/*line-reader* @api/*line-reader*))
+                        {:completer (clojure-completer)})]
+       (.setVariable line-reader LineReader/HISTORY_FILE (str (jio/file (System/getProperty "user.home") ".closh" "history")))
+       (try
+         (.setHistory line-reader (doto (jline-history/sqlite-history)
+                                    (.moveToEnd)))
+         (catch Exception e
+           (binding [*out* *err*]
+             (println "Error while initializing history file ~/.closh/closh.sqlite:\n" e))))
+       line-reader)
+     (binding [*out* (api/safe-terminal-writer api/*line-reader*)]
+       (when-let [prompt-fn (:prompt opts)]
+         (swap! api/*line-reader* assoc :prompt prompt-fn))
         ; (println (core/help-message))
-        (apply
-          clojure.main/repl
-          (-> {:init (fn []
-                        (clojure-main/initialize args inits)
-                        (in-ns 'user)
-                        (apply require repl-requires)
-                        (in-ns 'user)
-                        (eval/eval-closh-requires)
-                        (eval/eval *closh-environment-init*)
-                        (try
-                          (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
-                          (catch Exception e
-                            (binding [*out* *err*]
-                              (println "Error while loading init file ~/.closhrc:\n" e)))))
-               :print repl-print
-               :read (create-repl-read)
-               :eval (fn [form] (eval/eval `(do ~(handle-sigint-form) ~form)))}
-              (merge opts {:prompt (fn [])})
-              seq
-              flatten))))))
+       (apply
+        clojure.main/repl
+        (-> {:init (fn []
+                     (clojure-main/initialize args inits)
+                     (in-ns 'user)
+                     (apply require repl-requires)
+                     (in-ns 'user)
+                     (eval/eval-closh-requires)
+                     (eval/eval *closh-environment-init*)
+                     (try
+                       (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
+                       (catch Exception e
+                         (binding [*out* *err*]
+                           (println "Error while loading init file ~/.closhrc:\n" e)))))
+             :print repl-print
+             :read (create-repl-read)
+             :eval (fn [form] (eval/eval `(do ~(handle-sigint-form) ~form)))}
+            (merge opts {:prompt (fn [])})
+            seq
+            flatten))))))
 
 (defn -main [& args]
   (with-redefs [clojure-main/load-script main/load-script

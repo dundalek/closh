@@ -6,8 +6,8 @@
             [closh.zero.core :refer [shx expand expand-partial expand-redirect expand-command]]))
 
 #_(comment
-  `(apply ((deref closh.zero.env/*closh-commands*) (quote ~'cd)) (concat (closh.zero.core/expand "dirname")))
-  (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(cd dirname))))
+    `(apply ((deref closh.zero.env/*closh-commands*) (quote ~'cd)) (concat (closh.zero.core/expand "dirname")))
+    (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(cd dirname))))
 
 (deftest compiler-test
 
@@ -78,6 +78,6 @@
     '(exit 1 "abc"))
 
   (is (=
-        `(do (closh.zero.pipeline/wait-when-process (shx (expand-command "echo") [(expand "a")]))
-             (shx (expand-command "echo") [(expand "b")]))
-        (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(echo a \; echo b))))))
+       `(do (closh.zero.pipeline/wait-when-process (shx (expand-command "echo") [(expand "a")]))
+            (shx (expand-command "echo") [(expand "b")]))
+       (closh.zero.compiler/compile-batch (closh.zero.parser/parse '(echo a \; echo b))))))

@@ -25,7 +25,7 @@
        (eval/eval-closh-requires)))
    :cljs
    (closh.zero.platform.eval/execute-text
-     (str (pr-str closh.zero.env/*closh-environment-requires*))))
+    (str (pr-str closh.zero.env/*closh-environment-requires*))))
 
 (defn bash [cmd]
   (pipeline/process-value (shx "bash" ["-c" cmd])))
@@ -51,7 +51,7 @@
                 closh.zero.platform.io/*stderr* (get-fake-writer err)]
         (let [code (reader/read (reader/string-reader cmd))
               proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                          (closh.zero.pipeline/wait-for-pipeline)))
+                                           (closh.zero.pipeline/wait-for-pipeline)))
                       :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
           (if (process/process? proc)
             (do
@@ -69,7 +69,7 @@
   (defn closh [cmd]
     #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
        :clj (let [code (closh.zero.compiler/compile-batch
-                         (closh.zero.parser/parse (reader/read (reader/string-reader cmd))))]
+                        (closh.zero.parser/parse (reader/read (reader/string-reader cmd))))]
               (binding [*ns* user-namespace]
                 (closh.zero.pipeline/process-value (eval/eval code)))))))
 
@@ -82,9 +82,9 @@
 
   (is (= (process-output (shx "ls" ["scripts"]))
          (do (process/chdir "scripts")
-           (let [out (process-output (shx "ls" ["-d" (expand "*")]))]
-             (process/chdir "..")
-             out))))
+             (let [out (process-output (shx "ls" ["-d" (expand "*")]))]
+               (process/chdir "..")
+               out))))
 
   (is (= (-> (slurp "package.json")
              (clojure.string/trimr)

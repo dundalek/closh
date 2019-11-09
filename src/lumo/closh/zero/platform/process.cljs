@@ -33,9 +33,9 @@
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
    (child_process/spawn
-     cmd
-     (apply array (flatten args))
-     #js{:stdio (open-io-streams (:redir opts))})))
+    cmd
+    (apply array (flatten args))
+    #js{:stdio (open-io-streams (:redir opts))})))
 
 (defn setenv [k v]
   (do (gobj/set js/process.env k v)

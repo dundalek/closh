@@ -8,18 +8,18 @@
 (def ignore-env-vars #{"_" "OLDPWD" "PWD" "SHELLOPTS" "SHLVL"})
 
 (defn with-tempfile [cb]
- #?(:cljs
-    (let [file (tmp/fileSync)
-          f (.-name file)
-          result (cb f)]
-      (.removeCallback file)
-      result)
-    :clj
-    (let [file (java.io.File/createTempFile "closh-tmp-" ".txt")
-          f (.getAbsolutePath file)
-          result (cb f)]
-      (.delete file)
-      result)))
+  #?(:cljs
+     (let [file (tmp/fileSync)
+           f (.-name file)
+           result (cb f)]
+       (.removeCallback file)
+       result)
+     :clj
+     (let [file (java.io.File/createTempFile "closh-tmp-" ".txt")
+           f (.getAbsolutePath file)
+           result (cb f)]
+       (.delete file)
+       result)))
 
 (defn spawn-shell
   [shell exp]
@@ -52,4 +52,4 @@
 
 #?(:clj
    (defn thread-stop [^Thread thread]
-        (.stop thread)))
+     (.stop thread)))

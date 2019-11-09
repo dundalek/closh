@@ -5,9 +5,9 @@
 
 #?(:clj
    (defmacro require-reader []
-        (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
-          (list 'require ''[closh.zero.sci-reader :as reader])
-          (list 'require ''[closh.zero.clojure-reader :as reader]))))
+     (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+       (list 'require ''[closh.zero.sci-reader :as reader])
+       (list 'require ''[closh.zero.clojure-reader :as reader]))))
 
 #?(:clj (require-reader))
 

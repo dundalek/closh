@@ -9,8 +9,8 @@
 ;; Originally contributed by Stephen C. Gilardi
 
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
-       :author "Stephen C. Gilardi and Rich Hickey"}
-  closh.zero.utils.clojure-main
+      :author "Stephen C. Gilardi and Rich Hickey"}
+ closh.zero.utils.clojure-main
   (:refer-clojure :exclude [with-bindings])
   (:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader)
@@ -113,9 +113,9 @@
   [s]
   (let [c (.read s)]
     (cond
-     (= c (int \newline)) :line-start
-     (= c -1) :stream-end
-     :else (do (.unread s c) :body))))
+      (= c (int \newline)) :line-start
+      (= c -1) :stream-end
+      :else (do (.unread s c) :body))))
 
 (defn skip-whitespace
   "Skips whitespace characters on stream s. Returns :line-start, :stream-end,
@@ -129,11 +129,11 @@
   [s]
   (loop [c (.read s)]
     (cond
-     (= c (int \newline)) :line-start
-     (= c -1) :stream-end
-     (= c (int \;)) (do (.readLine s) :line-start)
-     (or (Character/isWhitespace (char c)) (= c (int \,))) (recur (.read s))
-     :else (do (.unread s c) :body))))
+      (= c (int \newline)) :line-start
+      (= c -1) :stream-end
+      (= c (int \;)) (do (.readLine s) :line-start)
+      (or (Character/isWhitespace (char c)) (= c (int \,))) (recur (.read s))
+      :else (do (.unread s c) :body))))
 
 (defn renumbering-read
   "Reads from reader, which must be a LineNumberingPushbackReader, while capturing
@@ -211,42 +211,42 @@
         {:clojure.spec.alpha/keys [problems fn], :clojure.spec.test.alpha/keys [caller]} data
         {:clojure.error/keys [source] :as top-data} (:data (first via))]
     (assoc
-      (case phase
-        :read-source
-        (let [{:clojure.error/keys [line column]} data]
-          (cond-> (merge (-> via second :data) top-data)
-            source (assoc :clojure.error/source (file-name source))
-            (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source)
-            message (assoc :clojure.error/cause message)))
+     (case phase
+       :read-source
+       (let [{:clojure.error/keys [line column]} data]
+         (cond-> (merge (-> via second :data) top-data)
+           source (assoc :clojure.error/source (file-name source))
+           (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source)
+           message (assoc :clojure.error/cause message)))
 
-        (:compile-syntax-check :compilation :macro-syntax-check :macroexpansion)
-        (cond-> top-data
-          source (assoc :clojure.error/source (file-name source))
-          (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source)
-          type (assoc :clojure.error/class type)
-          message (assoc :clojure.error/cause message)
-          problems (assoc :clojure.error/spec data))
+       (:compile-syntax-check :compilation :macro-syntax-check :macroexpansion)
+       (cond-> top-data
+         source (assoc :clojure.error/source (file-name source))
+         (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source)
+         type (assoc :clojure.error/class type)
+         message (assoc :clojure.error/cause message)
+         problems (assoc :clojure.error/spec data))
 
-        (:read-eval-result :print-eval-result)
-        (let [[source method file line] (-> trace first)]
-          (cond-> top-data
-            line (assoc :clojure.error/line line)
-            file (assoc :clojure.error/source file)
-            (and source method) (assoc :clojure.error/symbol (java-loc->source source method))
-            type (assoc :clojure.error/class type)
-            message (assoc :clojure.error/cause message)))
+       (:read-eval-result :print-eval-result)
+       (let [[source method file line] (-> trace first)]
+         (cond-> top-data
+           line (assoc :clojure.error/line line)
+           file (assoc :clojure.error/source file)
+           (and source method) (assoc :clojure.error/symbol (java-loc->source source method))
+           type (assoc :clojure.error/class type)
+           message (assoc :clojure.error/cause message)))
 
-        :execution
-        (let [[source method file line] (->> trace (drop-while #(core-class? (name (first %)))) first)
-              file (first (remove #(or (nil? %) (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} %)) [(:file caller) file]))
-              err-line (or (:line caller) line)]
-          (cond-> {:clojure.error/class type}
-            err-line (assoc :clojure.error/line err-line)
-            message (assoc :clojure.error/cause message)
-            (or fn (and source method)) (assoc :clojure.error/symbol (or fn (java-loc->source source method)))
-            file (assoc :clojure.error/source file)
-            problems (assoc :clojure.error/spec data))))
-      :clojure.error/phase phase)))
+       :execution
+       (let [[source method file line] (->> trace (drop-while #(core-class? (name (first %)))) first)
+             file (first (remove #(or (nil? %) (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} %)) [(:file caller) file]))
+             err-line (or (:line caller) line)]
+         (cond-> {:clojure.error/class type}
+           err-line (assoc :clojure.error/line err-line)
+           message (assoc :clojure.error/cause message)
+           (or fn (and source method)) (assoc :clojure.error/symbol (or fn (java-loc->source source method)))
+           file (assoc :clojure.error/source file)
+           problems (assoc :clojure.error/spec data))))
+     :clojure.error/phase phase)))
 
 (defn ex-str
   "Returns a string from exception data, as produced by ex-triage.
@@ -272,10 +272,10 @@
               (if spec
                 (with-out-str
                   (spec/explain-out
-                    (if (= spec/*explain-out* spec/explain-printer)
-                      (update spec :clojure.spec.alpha/problems
-                              (fn [probs] (map #(dissoc % :in) probs)))
-                      spec)))
+                   (if (= spec/*explain-out* spec/explain-printer)
+                     (update spec :clojure.spec.alpha/problems
+                             (fn [probs] (map #(dissoc % :in) probs)))
+                     spec)))
                 (format "%s%n" cause)))
 
       :macroexpansion
@@ -312,10 +312,10 @@
                 loc
                 (with-out-str
                   (spec/explain-out
-                    (if (= spec/*explain-out* spec/explain-printer)
-                      (update spec :clojure.spec.alpha/problems
-                              (fn [probs] (map #(dissoc % :in) probs)))
-                      spec))))
+                   (if (= spec/*explain-out* spec/explain-printer)
+                     (update spec :clojure.spec.alpha/problems
+                             (fn [probs] (map #(dissoc % :in) probs)))
+                     spec))))
         (format "Execution error%s at %s(%s).%n%s%n"
                 cause-type
                 (if symbol (str symbol " ") "")
@@ -410,37 +410,37 @@ by default when a new command-line REPL is started."} repl-requires
                           (with-read-known (read request-prompt request-exit))
                           (catch LispReader$ReaderException e
                             (throw (ex-info nil {:clojure.error/phase :read-source} e))))]
-             (or (#{request-prompt request-exit} input)
-                 (let [value (binding [*read-eval* read-eval] (eval input))]
-                   (set! *3 *2)
-                   (set! *2 *1)
-                   (set! *1 value)
-                   (try
-                     (print value)
-                     (catch Throwable e
-                       (throw (ex-info nil {:clojure.error/phase :print-eval-result} e)))))))
-           (catch Throwable e
-             (caught e)
-             (set! *e e))))]
+              (or (#{request-prompt request-exit} input)
+                  (let [value (binding [*read-eval* read-eval] (eval input))]
+                    (set! *3 *2)
+                    (set! *2 *1)
+                    (set! *1 value)
+                    (try
+                      (print value)
+                      (catch Throwable e
+                        (throw (ex-info nil {:clojure.error/phase :print-eval-result} e)))))))
+            (catch Throwable e
+              (caught e)
+              (set! *e e))))]
     (with-bindings
-     (try
-      (init)
-      (catch Throwable e
-        (caught e)
-        (set! *e e)))
-     (prompt)
-     (flush)
-     (loop []
-       (when-not
-          (try (identical? (read-eval-print) request-exit)
-           (catch Throwable e
-             (caught e)
-             (set! *e e)
-             nil))
-         (when (need-prompt)
-           (prompt)
-           (flush))
-         (recur))))))
+      (try
+        (init)
+        (catch Throwable e
+          (caught e)
+          (set! *e e)))
+      (prompt)
+      (flush)
+      (loop []
+        (when-not
+         (try (identical? (read-eval-print) request-exit)
+              (catch Throwable e
+                (caught e)
+                (set! *e e)
+                nil))
+          (when (need-prompt)
+            (prompt)
+            (flush))
+          (recur))))))
 
 (defn load-script
   "Loads Clojure source from a file or resource given its path. Paths
@@ -461,12 +461,12 @@ by default when a new command-line REPL is started."} repl-requires
   [str]
   (let [eof (Object.)
         reader (LineNumberingPushbackReader. (java.io.StringReader. str))]
-      (loop [input (with-read-known (read reader false eof))]
-        (when-not (= input eof)
-          (let [value (eval input)]
-            (when-not (nil? value)
-              (prn value))
-            (recur (with-read-known (read reader false eof))))))))
+    (loop [input (with-read-known (read reader false eof))]
+      (when-not (= input eof)
+        (let [value (eval input)]
+          (when-not (nil? value)
+            (prn value))
+          (recur (with-read-known (read reader false eof))))))))
 
 (defn- init-dispatch
   "Returns the handler associated with an init opt"
@@ -591,11 +591,11 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
   classpath. Classpath-relative paths have prefix of @ or @/"
   [& args]
   (try
-   (if args
-     (loop [[opt arg & more :as args] args inits []]
-       (if (init-dispatch opt)
-         (recur more (conj inits [opt arg]))
-         ((main-dispatch opt) args inits)))
-     (repl-opt nil nil))
-   (finally
-     (flush))))
+    (if args
+      (loop [[opt arg & more :as args] args inits []]
+        (if (init-dispatch opt)
+          (recur more (conj inits [opt arg]))
+          ((main-dispatch opt) args inits)))
+      (repl-opt nil nil))
+    (finally
+      (flush))))
