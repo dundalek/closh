@@ -1,5 +1,5 @@
 (ns closh.core-test
-  (:require [clojure.test :refer [deftest testing is are]]
+  (:require [clojure.test :refer [deftest is are]]
             [closh.test-util.util :refer [null-file with-tempfile with-tempfile-content create-fake-writer get-fake-writer str-fake-writer]]
             [clojure.string :as str]
             [closh.zero.reader :as reader]
@@ -8,10 +8,9 @@
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            [closh.zero.platform.io]
-            [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline pipe pipe-multi pipe-map pipe-filter pipeline-value pipeline-condition]]
-            [closh.zero.core :refer [shx expand expand-partial expand-alias expand-abbreviation]]
-            [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
+            [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline]]
+            [closh.zero.core :refer [shx expand]]
+            ;;[closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
             #?(:cljs [fs])
             #?(:clj [closh.zero.platform.eval :as eval])))

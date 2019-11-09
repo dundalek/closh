@@ -1,6 +1,5 @@
 (ns closh.zero.frontend.jline-history
-  (:require [clojure.string :as str]
-            [clojure.java.jdbc :as jdbc]
+  (:require [clojure.java.jdbc :as jdbc]
             [clojure.java.io :as io]
             [closh.zero.service.history-common :refer [table-history table-session get-db-filename check-history-line]]
             [closh.zero.platform.process :as process])

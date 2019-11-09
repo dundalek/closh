@@ -1,5 +1,5 @@
 (ns closh.process-test
-  (:require [clojure.test :refer [deftest is are]]
+  (:require [clojure.test :refer [deftest is]]
             [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :as process :refer [shx process? cwd chdir]]
             [closh.zero.pipeline :refer [process-output]]

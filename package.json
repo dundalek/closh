@@ -35,6 +35,7 @@
     "pkg-java": "boot uberjar && scripts/wrap-jar.sh target/closh-zero.jar",
     "lint": "clojure -A:lint",
     "lint-fix": "clojure -A:lint:lint/fix",
+    "lint-kondo": "clj-kondo --lint src:test",
     "test": "npm run test-cljs && npm run test-clj",
     "test-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs; npm run test-clj\"",
     "test-cljs": "lumo -K -c src/common:src/lumo:test -m closh.test-util.runner",

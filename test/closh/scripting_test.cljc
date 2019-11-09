@@ -1,5 +1,5 @@
 (ns closh.scripting-test
-  (:require [clojure.test :refer [deftest testing is are]]
+  (:require [clojure.test :refer [deftest are]]
             [closh.zero.core :refer [shx]]
             [closh.zero.pipeline :refer [process-output process-value pipe]]))
 

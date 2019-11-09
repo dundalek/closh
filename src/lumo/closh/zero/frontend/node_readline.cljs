@@ -10,7 +10,8 @@
             [closh.zero.service.completion]
             [closh.zero.service.history :as history]
             [closh.zero.service.history-common :refer [check-history-line]]
-            #?@(:cljs [[readline] [child_process]])))
+            #?(:cljs [readline])
+            #?(:cljs [child_process])))
 
 (def ^:no-doc readline-tty-write readline/Interface.prototype._ttyWrite)
 

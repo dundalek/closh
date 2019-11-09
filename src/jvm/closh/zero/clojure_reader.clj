@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [read read-line read-string char
                             default-data-readers *default-data-reader-fn*
                             *read-eval* *data-readers* *suppress-read*])
-  (:require [clojure.tools.reader.reader-types :refer [log-source string-push-back-reader unread read-char indexing-reader? get-line-number get-column-number get-file-name source-logging-reader?]]
+  (:require [clojure.tools.reader.reader-types :refer [log-source unread read-char indexing-reader? get-line-number get-column-number get-file-name]]
             [clojure.tools.reader :refer [*read-eval*]]
             [clojure.tools.reader.impl.utils :as rutils]
             [clojure.tools.reader.impl.errors :as err])
@@ -77,14 +77,14 @@
              (throw (ex-info (.getMessage e)
                              (merge {:type :reader-exception}
                                     d
-                                    (if (indexing-reader? reader)
+                                    (when (indexing-reader? reader)
                                       {:line   (get-line-number reader)
                                        :column (get-column-number reader)
                                        :file   (get-file-name reader)}))
                              e))))
          (throw (ex-info (.getMessage e)
                          (merge {:type :reader-exception}
-                                (if (indexing-reader? reader)
+                                (when (indexing-reader? reader)
                                   {:line   (get-line-number reader)
                                    :column (get-column-number reader)
                                    :file   (get-file-name reader)})))))))))

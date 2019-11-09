@@ -5,12 +5,10 @@
             [closh.zero.builtin]
             [closh.zero.env]
             #?(:clj [closh.zero.reader :as reader])
-            #?(:clj [closh.zero.pipeline :refer [wait-for-pipeline]])
             #?(:clj [closh.zero.platform.eval :as eval])
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
             #?(:cljs [closh.zero.core])
-            [closh.zero.platform.process :as process]
-            [closh.zero.macros #?(:cljs :refer-macros :clj :refer) [sh]]))
+            [closh.zero.platform.process :as process]))
 
 (defn -main [cmd]
   #?(:cljs (closh.zero.platform.eval/execute-text

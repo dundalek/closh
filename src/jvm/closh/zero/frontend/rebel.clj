@@ -7,7 +7,7 @@
             [rebel-readline.clojure.service.local :as clj-service]
             [clojure.string :as string]
             [clojure.java.io :as jio]
-            [closh.zero.env :refer [*closh-environment-requires* *closh-environment-init*] :as env]
+            [closh.zero.env :as env]
             [closh.zero.reader]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.platform.eval :as eval]
@@ -117,7 +117,7 @@
                      (apply require repl-requires)
                      (in-ns 'user)
                      (eval/eval-closh-requires)
-                     (eval/eval *closh-environment-init*)
+                     (eval/eval env/*closh-environment-init*)
                      (try
                        (load-init-file (.getCanonicalPath (jio/file (System/getProperty "user.home") ".closhrc")))
                        (catch Exception e

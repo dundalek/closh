@@ -1,5 +1,5 @@
 (ns closh.util-test
-  (:require [clojure.test :refer [deftest testing is are run-tests]]
+  (:require [clojure.test :refer [deftest is]]
             [closh.zero.platform.process :refer [getenv setenv unsetenv shx]]
             [closh.zero.pipeline :refer [pipeline-value]]
             [closh.zero.util :refer [source-shell]]))

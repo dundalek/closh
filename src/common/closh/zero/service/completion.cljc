@@ -2,8 +2,8 @@
   (:require [clojure.string]
             #?(:cljs [lumo.repl])
             #?(:clj [clojure.java.io :as io])
+            #?(:clj [closh.zero.pipeline :as pipeline])
             [closh.zero.builtin :refer [getenv]]
-            [closh.zero.pipeline :refer [pipe]]
             [closh.zero.platform.io :refer [out-stream]]
             [closh.zero.platform.process :refer [shx]]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [chain->]]))
@@ -33,8 +33,8 @@
                        (shx "fish" ["-c"
                                     (str "complete --do-complete=" (escape-fish-string (first args)))])
                        (if-let [resource (io/resource cmd)]
-                         (pipe (slurp resource)
-                               (shx shell (cons "-s" args)))
+                         (pipeline/pipe (slurp resource)
+                                        (shx shell (cons "-s" args)))
                          (shx (str (getenv "CLOSH_SOURCES_PATH") "/resources/" cmd) args))))
         stream (out-stream proc)]
     (chain->

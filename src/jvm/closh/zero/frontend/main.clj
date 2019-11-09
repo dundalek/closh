@@ -1,6 +1,6 @@
 (ns closh.zero.frontend.main
   (:gen-class)
-  (:require [clojure.tools.reader.reader-types :refer [string-push-back-reader push-back-reader read-char unread]]
+  (:require [clojure.tools.reader.reader-types :refer [read-char unread]]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.core :as core]
             [closh.zero.platform.process :refer [process?]]

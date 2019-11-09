@@ -27,13 +27,15 @@
                           [x (symbol (str namespace) (str x))])
                         (->>
                          (ns-publics namespace)
-                         (map (fn [[k v]]
+                         (keys)
+                         (map (fn [k]
                                 [(symbol (str namespace) (str k))
                                  (symbol (str namespace) (str k))])))
                         (when as
                           (->>
                            (ns-publics namespace)
-                           (map (fn [[k v]]
+                           (keys)
+                           (map (fn [k]
                                   [(symbol (str as) (str k))
                                    (symbol (str as) (str k))])))))))))
          (map (fn [[k v]]

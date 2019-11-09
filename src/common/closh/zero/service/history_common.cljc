@@ -19,8 +19,9 @@
  time INTEGER NOT NULL
 );")
 
-(defn get-db-filename []
+(defn get-db-filename
   "Return path to the db file, defaults to ~/.closh/closh.sqlite"
+  []
   (let [parts [(process/getenv "HOME") ".closh" "closh.sqlite"]]
     #?(:cljs (apply path/join parts)
        :clj (-> (apply io/file parts)

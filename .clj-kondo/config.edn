@@ -1,0 +1,2 @@
+{:lint-as {closh.zero.macros/defcmd clojure.core/def
+           squarepeg.core/defrule clojure.core/def}}

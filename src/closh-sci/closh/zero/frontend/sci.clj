@@ -7,7 +7,6 @@
    [closh.zero.pipeline]
    [closh.zero.platform.eval :as eval]
    [closh.zero.platform.process :as process]
-   [closh.zero.pipeline]
    [closh.zero.env :as env]
    [closh.zero.reader :as reader]))
 

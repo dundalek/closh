@@ -106,9 +106,6 @@
                             (filter #(= (first %) :redirect))
                             (mapcat (comp process-redirect second))
                             (vec))
-             parameters (->> args
-                             (filter #(= (first %) :arg))
-                             (map second))
              cmd (process-command cmd redir)
              fn (pipes op)
              cmd (if (not (special? (first cmd)))
