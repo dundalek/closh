@@ -33,6 +33,8 @@
     "compile-sci-boot": "env __CLOSH_USE_SCI_EVAL__=true boot uberjar-sci",
     "pkg-lumo": "pkg-lumo -c src/common:src/lumo -m closh.main",
     "pkg-java": "boot uberjar && scripts/wrap-jar.sh target/closh-zero.jar",
+    "lint": "clojure -A:lint",
+    "lint-fix": "clojure -A:lint:lint/fix",
     "test": "npm run test-cljs && npm run test-clj",
     "test-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-cljs; npm run test-clj\"",
     "test-cljs": "lumo -K -c src/common:src/lumo:test -m closh.test-util.runner",

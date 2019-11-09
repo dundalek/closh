@@ -46,5 +46,10 @@
                      {:git/url "https://github.com/borkdude/edamame"
                       :sha "d45acfcb067e45afabe427d478d38be4ca6c326c"
                       :exclusions [org.clojure/tools.reader]}}}
+  :lint {:extra-deps {com.jameslaverack/cljfmt-runner
+                      {:git/url "https://github.com/JamesLaverack/cljfmt-runner"
+                       :sha "97960e9a6464935534b5a6bab529e063d0027128"}}
+         :main-opts ["-m" "cljfmt-runner.check"]}
+  :lint/fix {:main-opts ["-m" "cljfmt-runner.fix"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
