@@ -3,6 +3,26 @@
 version: 2
 jobs:
 
+  lint:
+    docker:
+      - image: circleci/clojure:tools-deps-1.9.0.394-node
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache: # restores saved cache if checksum hasn't changed since the last run
+          key: clj-dependencies-{{ checksum "deps.edn" }}
+
+      - run: clojure -Alint
+
+      - save_cache: # generate and store cache in the .m2 directory using a key template
+          paths:
+            - ~/.m2
+            - ~/.gitlibs
+          key: clj-dependencies-{{ checksum "deps.edn" }}
+
   test-linux-cljs:
     docker:
       - image: archlinux/base
@@ -201,6 +221,7 @@ workflows:
   version: 2
   test:
     jobs:
+      - lint
       - test-linux-cljs
       - test-linux-clj
       - test-linux-clj-jdk11
