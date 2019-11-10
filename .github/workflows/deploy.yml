@@ -165,7 +165,7 @@ jobs:
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       - name: Run tests with binary
-        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m cognitect.test-runner
+        run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
 
   native-image-linux:
     needs: [build-jar-sci]
@@ -232,7 +232,7 @@ jobs:
           ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       - name: Run tests with binary
-        run: env __CLOSH_USE_SCI_NATIVE__=true clojure -A:sci:test -m cognitect.test-runner
+        run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 

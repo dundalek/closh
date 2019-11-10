@@ -15,8 +15,6 @@
             #?(:cljs [fs])
             #?(:clj [closh.zero.platform.eval :as eval])))
 
-(def sci? (process/getenv "__CLOSH_USE_SCI_NATIVE__"))
-
 #?(:clj
    (do
      (def user-namespace (create-ns 'user))
@@ -31,46 +29,56 @@
 
 (defn closh-spawn-helper [cmd]
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
-     :clj (pipeline/process-value (shx "clojure" [(if (System/getenv "__CLOSH_USE_SCI_EVAL__") "-A:test:sci" "-A:test") "-m" "closh.test-util.spawn-helper" cmd]))))
+     :clj (pipeline/process-value
+           (cond (and (process/getenv "__CLOSH_USE_SCI_NATIVE__") (process/getenv "CI_ENV"))
+                 (shx "./closh-zero-sci" [cmd])
 
-(if sci?
-  (defn closh-spawn [cmd]
-    (let [result
-          (pipeline/process-value (shx "./closh-zero-sci" [cmd]))
-          #_(pipeline/process-value (shx "java" ["-jar" "target/closh-zero-sci.jar" cmd]))
-          #_(pipeline/process-value (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" cmd]))]
-      (when-not (str/blank? (:stderr result))
-        (println "STDERR:")
-        (println (:stderr result)))
-      result))
-  (defn closh-spawn [cmd]
-    (let [out (create-fake-writer)
-          err (create-fake-writer)]
-      (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
-                closh.zero.platform.io/*stderr* (get-fake-writer err)]
-        (let [code (reader/read (reader/string-reader cmd))
-              proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
-                                           (closh.zero.pipeline/wait-for-pipeline)))
-                      :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
-          (if (process/process? proc)
-            (do
-              (process/wait proc)
-              {:stdout (str-fake-writer out)
-               :stderr (str-fake-writer err)
-               :code (process/exit-code proc)})
-            (let [{:keys [stdout stderr code]} (process-value proc)]
-              {:stdout (str (str-fake-writer out) stdout)
-               :stderr (str (str-fake-writer err) stderr)
-               :code code})))))))
+                 (process/getenv "__CLOSH_USE_SCI_NATIVE__")
+                 (shx "java" ["-jar" "target/closh-zero-sci.jar" cmd])
 
-(if sci?
-  (def closh closh-spawn)
-  (defn closh [cmd]
-    #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
-       :clj (let [code (closh.zero.compiler/compile-batch
-                        (closh.zero.parser/parse (reader/read (reader/string-reader cmd))))]
-              (binding [*ns* user-namespace]
-                (closh.zero.pipeline/process-value (eval/eval code)))))))
+                 (process/getenv "__CLOSH_USE_SCI_EVAL__")
+                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" cmd])
+
+                 :else
+                 (shx "clojure" ["-m" "closh.zero.frontend.rebel" "-e" cmd])))))
+
+(defn closh-spawn-in-process [cmd]
+  (let [out (create-fake-writer)
+        err (create-fake-writer)]
+    (binding [closh.zero.platform.io/*stdout* (get-fake-writer out)
+              closh.zero.platform.io/*stderr* (get-fake-writer err)]
+      (let [code (reader/read (reader/string-reader cmd))
+            proc #?(:clj (eval/eval `(-> ~(closh.zero.compiler/compile-batch (closh.zero.parser/parse code))
+                                         (closh.zero.pipeline/wait-for-pipeline)))
+                    :cljs (execute-command-text (pr-str (conj code 'closh.zero.macros/sh))))]
+        (if (process/process? proc)
+          (do
+            (process/wait proc)
+            {:stdout (str-fake-writer out)
+             :stderr (str-fake-writer err)
+             :code (process/exit-code proc)})
+          (let [{:keys [stdout stderr code]} (process-value proc)]
+            {:stdout (str (str-fake-writer out) stdout)
+             :stderr (str (str-fake-writer err) stderr)
+             :code code}))))))
+
+(defn closh-run [cmd]
+  #?(:cljs (execute-command-text cmd closh.zero.reader/read-sh-value)
+     :clj (let [code (closh.zero.compiler/compile-batch
+                      (closh.zero.parser/parse (reader/read (reader/string-reader cmd))))]
+            (binding [*ns* user-namespace]
+              (closh.zero.pipeline/process-value (eval/eval code))))))
+
+(def closh-spawn
+  ;; Run proper spawn helper on CI, for local machine use in-process runner for faster iteration
+  (if (or (process/getenv "__CLOSH_USE_SCI_NATIVE__") (process/getenv "CI_ENV"))
+    closh-spawn-helper
+    closh-spawn-in-process))
+
+(def closh
+  (if (process/getenv "__CLOSH_USE_SCI_NATIVE__")
+    closh-spawn
+    closh-run))
 
 (deftest run-test
 
@@ -352,17 +360,7 @@
     "(if (sh-ok test -f package.json) (sh echo file exists) (sh echo no file))"
 
     "ls; echo hi"
-    "(sh ls) (sh echo hi)"
-
-    "echo x 1>&2"
-    "echo x 1 >& 2"
-
-    "bash -c \"echo err 1>&2; echo out\" 2>&1"
-    "bash -c \"echo err 1>&2; echo out\" 2 >& 1")
-
-    ; TODO: fix stderr redirects
-    ; (bash"bash -c \"echo err 1>&2; echo out\" 2>&1 | cat")
-    ; "bash -c \"echo err 1>&2; echo out\" 2 >& 1 | cat")
+    "(sh ls) (sh echo hi)")
 
   (is (= "2\n1\ngo\n"
          (-> '(do (sh bash -c "sleep 0.2 && echo 2")
@@ -401,7 +399,7 @@
     "mkdir x/y/z || echo FAILED"
 
     "for f in test/closh/*.cljc; do echo $f; cat $f; done"
-    "ls test/closh/*.cljc |> (map #(do (sh echo (str %)) (sh cat (str %))))"))
+    "ls test/closh/*.cljc |> #(doseq [f %] (sh echo (str f)) (sh cat (str f)))"))
 
 (deftest test-builtin-getenv-setenv
 
