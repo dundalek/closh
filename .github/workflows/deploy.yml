@@ -102,7 +102,7 @@ jobs:
   # Use GraalVM on macOS to convert JAR to a native macOS binary
   native-image-mac:
     needs: [build-jar-sci]
-    runs-on: macOS-10.14
+    runs-on: macOS-latest
     steps:
       - name: Parse Ref
         id: parse-ref
