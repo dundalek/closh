@@ -1,7 +1,6 @@
 (ns closh.zero.platform.io
   (:require [clojure.string :as str]
-            [clojure.java.io :as io]
-            [org.satta.glob :as clj-glob])
+            [clojure.java.io :as io])
   (:refer-clojure :exclude [line-seq])
   (:import [java.nio.file Files Paths Path]))
 
@@ -10,25 +9,6 @@
 (def ^:dynamic *stderr* System/err)
 
 (set! *warn-on-reflection* true)
-
-#_(def ^:private relpath-regex #"^\./")
-
-#_(defn glob
-  ([s] (glob s nil))
-  ([s ^String cwd-file]
-   (let [pattern (str/replace s relpath-regex "")
-         is-relative (not= s pattern)
-         result (clj-glob/glob pattern (java.io.File. cwd-file))]
-     (if (seq result)
-       (for [item result]
-         (let [s (str item)
-               path (if (str/starts-with? s cwd-file)
-                      (subs s (inc (count cwd-file)))
-                      s)]
-           (if is-relative
-             (str "./" path)
-             path)))
-       (list s)))))
 
 (defn- directory? [path]
   (java.nio.file.Files/isDirectory path (into-array java.nio.file.LinkOption [])))
@@ -85,6 +65,7 @@
      (if (seq result)
        result
        (list pattern)))))
+
 
 (defn out-stream
   "Get stdout stream of a given process."
