@@ -4,7 +4,6 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [borkdude/sci "0.0.10"]
                  [org.clojure/tools.reader "1.3.2"]
-                 [clj-glob "1.0.0"]
                  [squarepeg "0.6.1"]
                  [org.clojure/java.jdbc "0.7.9"]
                  [com.bhauman/rebel-readline "0.1.4"]
