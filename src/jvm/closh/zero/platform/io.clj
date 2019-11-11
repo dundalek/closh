@@ -66,7 +66,6 @@
        result
        (list pattern)))))
 
-
 (defn out-stream
   "Get stdout stream of a given process."
   ^java.io.InputStream [^Process proc]
