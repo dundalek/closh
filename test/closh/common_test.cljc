@@ -1,5 +1,5 @@
 (ns closh.common-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.test :refer [deftest testing is are]]
             [closh.zero.builtin :refer [getenv setenv]]
             [closh.zero.env]
             [closh.zero.core :refer [expand expand-alias expand-abbreviation]]
@@ -28,19 +28,32 @@
 
   (is (= "./package.json" (first (expand "./package.js*")))))
 
+(deftest test-expansion-glob
+  (testing "general matching"
+    (are [pattern matches] (= matches (expand pattern))
+      "./test/resources/foo.?ar"     ["./test/resources/foo.bar"]
+      "./test/resources/foo.*r"      ["./test/resources/foo.bar"]
+      "./test/resources/foo.*"       ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]
+      "./test/resources/foo*"        ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]
+      "./test/resources/*.{bar,baz}" ["./test/resources/foo.bar","./test/resources/foo.baz"]
+      "./test/resources/*.b?[rs]"    ["./test/resources/foo.bar","./test/resources/foo.bas"]
+      "./test/resources/*.b?[a-z]"   ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]
+      "./test/resources/*"           ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]
+      "./test/re*/*"                 ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]
+      "./t*?[rt]/re*/*"              ["./test/resources/foo.bar","./test/resources/foo.bas","./test/resources/foo.baz"]))
 
-(deftest est-glob
-  (is (= "./src/../package.json"
-         (first (expand "./s*c/../package.js*"))))
+  (testing "dotfiles specified explicitly"
+    (are [pattern matches] (= matches (expand pattern))
+      "./test/resources/.f*"        ["./test/resources/.foo.bar"]
+      "./test/resources/.?oo.bar"   ["./test/resources/.foo.bar"]
+      "./test/resources/.foo.bar"   ["./test/resources/.foo.bar"]))
+
+  (testing "does not match any"
+    (are [pattern matches] (= matches (expand pattern))
+      "./test/resources/boo!*" ["./test/resources/boo!*"]))
 
   (is (= ["./doc/*/../package.js*"]
-         (expand "./doc/*/../package.js*")))
-
-  (is (= "./package.json"
-         (first (expand "./package.js*"))))
-
-  (is (= "package.json"
-         (first (expand "package.js*")))))
+         (expand "./doc/*/../package.js*"))))
 
 (deftest aliases
   (is (= "ls --color=auto" (expand-alias {"ls" "ls --color=auto"} "ls")))
