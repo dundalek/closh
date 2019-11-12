@@ -1,6 +1,7 @@
 (ns closh.zero.builtin
   (:require [clojure.string]
             [closh.zero.platform.process :as process]
+            [closh.zero.core :as core]
             [closh.zero.env :as env]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [defcmd]]))
 
@@ -45,8 +46,15 @@
   "Changes current working directory to a path of a first given argument."
   [& args]
   ;; flatten is used because we can get arguments from expand which are collections
-  (let [dir (or (first args)
-                (getenv "HOME"))]
+  (let [arg      (first args)
+        go-back? (= "-" arg)
+        dir      (or (if go-back?
+                       (getenv "OLDPWD")
+                       arg)
+                     (getenv "HOME"))]
+    (setenv "OLDPWD" (process/cwd))
     (process/chdir (str dir)) ; Extra (str ..) to handle case when directory name is a number
     (setenv "PWD" (process/cwd))
+    (when go-back?
+      (core/shx "pwd" [] {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}))
     env/success))

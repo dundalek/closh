@@ -409,6 +409,8 @@
   (is (= (getenv "ONE") (:stdout (closh "getenv \"ONE\"")))))
 
 (deftest test-builtin-cd
+  (is (= (str/trim (:stdout (closh "pwd")))
+         (str/trim (:stdout (closh "mkdir -p out && cd out && cd - && pwd")))))
 
   (is (str/ends-with? (let [result (str/trim (:stdout (closh "mkdir -p \"out/1\" && cd out && cd 1 && pwd")))]
                         (closh "cd ../..")
