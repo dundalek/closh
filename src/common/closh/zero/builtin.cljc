@@ -55,6 +55,6 @@
     (setenv "OLDPWD" (process/cwd))
     (process/chdir (str dir)) ; Extra (str ..) to handle case when directory name is a number
     (setenv "PWD" (process/cwd))
-    (when go-back?
-      (core/shx "pwd" [] {:redir [[:set 0 :stdin] [:set 2 :stderr] [:set 1 :stdout]]}))
-    env/success))
+    (if go-back?
+      (process/cwd)
+      env/success)))
