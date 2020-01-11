@@ -11,7 +11,7 @@
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
        :author "Stephen C. Gilardi and Rich Hickey"}
   closh.zero.frontend.clojure-mainx
-  (:refer-clojure :exclude [with-bindings eval read])
+  (:refer-clojure :exclude [with-bindings eval read load-reader])
   #_(:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader BufferedWriter FileWriter)
            (java.nio.file Files)
@@ -22,12 +22,16 @@
 
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
+(require '[closh.zero.frontend.clojure-compiler :as compiler])
 (def read reader/read-compat)
 
 (defn eval [form]
   (eval/eval
     (closh.zero.compiler/compile-interactive
       (closh.zero.parser/parse form))))
+
+(defn load-reader [rdr]
+  (println "load-reader stubbed"))
 
 (declare main)
 
@@ -485,14 +489,19 @@ by default when a new command-line REPL is started."} repl-requires
        (.substring path (if (.startsWith path "@/") 2 1)))
       (Compiler/loadFile path)))
 
-#_(defn- init-opt
-    "Load a script"
-    [path]
-    (load-script path))
+(defn load-script
+  "Loads Clojure source from a file or resource given its path. Paths
+  beginning with @ or @/ are considered relative to classpath."
+  [^String path]
+  (if (.startsWith path "@")
+    (RT/loadResourceScript
+     (.substring path (if (.startsWith path "@/") 2 1)))
+    (compiler/load-file path)))
 
-(defn init-opt [& args]
-  (println "init-opt stubbed:" args))
-
+(defn- init-opt
+  "Load a script"
+  [path]
+  (load-script path))
 
 #_(defn- eval-opt
     "Evals expressions in str, prints each non-nil result using prn"
@@ -575,17 +584,14 @@ by default when a new command-line REPL is started."} repl-requires
 (defn repl-opt [& args]
   (println "repl-opt stubbed:" args))
 
-#_(defn- script-opt
-    "Run a script from a file, resource, or standard in with args and inits"
-    [[path & args] inits]
-    (with-bindings
-      (initialize args inits)
-      (if (= path "-")
-        (load-reader *in*)
-        (load-script path))))
-
-(defn script-opt [& args]
-  (println "script-opt stubbed:" args))
+(defn- script-opt
+  "Run a script from a file, resource, or standard in with args and inits"
+  [[path & args] inits]
+  (with-bindings
+    (initialize args inits)
+    (if (= path "-")
+      (load-reader *in*)
+      (load-script path))))
 
 (defn- null-opt
   "No repl or script opt present, just bind args and run inits"

@@ -185,11 +185,7 @@ jobs:
           name: closh-zero-sci-macos
 
       - name: Test binary
-        run: |
-          ./closh-zero-sci -e "(+ 1 2)" ; \
-          ./closh-zero-sci -e "date" ; \
-          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ; \
-          ./closh-zero-sci fixtures/script-mode-tests/bar.cljc ;
+        run: ./scripts/test-sci-binary.sh
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
@@ -262,11 +258,7 @@ jobs:
           name: closh-zero-sci-linux
 
       - name: Test binary
-        run: |
-          ./closh-zero-sci -e "(+ 1 2)" ; \
-          ./closh-zero-sci -e "date" ; \
-          ./closh-zero-sci -e 'echo "hi" | (clojure.string/upper-case)' ; \
-          ./closh-zero-sci fixtures/script-mode-tests/bar.cljc ;
+        run: ./scripts/test-sci-binary.sh
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
