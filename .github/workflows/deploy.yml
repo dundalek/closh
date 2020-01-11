@@ -76,6 +76,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deps-
 
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/Boot
+          key: ${{ runner.os }}-boot-2.8.3
+          restore-keys: |
+            ${{ runner.os }}-boot-
+
       - name: Parse Ref
         id: parse-ref
         run: |
