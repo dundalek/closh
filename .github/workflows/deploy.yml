@@ -95,7 +95,7 @@ jobs:
         run: boot -V
 
       - run: |
-          which native-image
+          which boot
 
       # - name: Install shadow-cljs
       #   run: |
