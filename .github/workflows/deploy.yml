@@ -69,6 +69,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gitlibs
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
       - name: Parse Ref
         id: parse-ref
         run: |
