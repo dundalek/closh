@@ -128,6 +128,13 @@ jobs:
 
       # === used for running tests, maybe extract into separate job
 
+      - uses: actions/cache@v1
+        with:
+          path: /Users/runner/hostedtoolcache/GraalVM
+          key: ${{ runner.os }}-graal-19.2.1
+          restore-keys: |
+            ${{ runner.os }}-graal-
+
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
@@ -196,6 +203,13 @@ jobs:
           echo ::set-output name=version::${GITHUB_REF#refs/tags/}
 
       # === used for running tests, maybe extract into separate job
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/GraalVM
+          key: ${{ runner.os }}-graal-19.2.1
+          restore-keys: |
+            ${{ runner.os }}-graal-
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
