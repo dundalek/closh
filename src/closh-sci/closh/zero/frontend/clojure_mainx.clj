@@ -101,7 +101,7 @@
        ~@body))
 
 (defmacro with-bindings [& body]
-  ~@body)
+  `(do ~@body))
 
 #_(defn repl-prompt
     "Default :prompt hook for repl"
