@@ -179,11 +179,9 @@ jobs:
 
       - name: Test binary
         run: |
-          ./closh-zero-sci -e "(+ 1 2)"
-        # ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
-        # ./closh-zero-sci ; \
-        # ./closh-zero-sci 'echo "hi"' ; \
-        # ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+          ./closh-zero-sci -e "(+ 1 2)" ; \
+          ./closh-zero-sci -e "date" ; \
+          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
@@ -250,11 +248,9 @@ jobs:
 
       - name: Test binary
         run: |
-          ./closh-zero-sci -e "(+ 1 2)"
-        # ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
-        # ./closh-zero-sci ; \
-        # ./closh-zero-sci 'echo "hi"' ; \
-        # ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+          ./closh-zero-sci -e "(+ 1 2)" ; \
+          ./closh-zero-sci -e "date" ; \
+          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner

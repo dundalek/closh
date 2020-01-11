@@ -20,9 +20,14 @@
                          LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
 
-(require '[closh.zero.platform.eval :refer [eval]])
+(require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
 (def read reader/read-compat)
+
+(defn eval [form]
+  (eval/eval
+    (closh.zero.compiler/compile-interactive
+      (closh.zero.parser/parse form))))
 
 (declare main)
 
