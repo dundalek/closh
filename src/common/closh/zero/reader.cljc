@@ -12,6 +12,7 @@
 #?(:clj (require-reader))
 
 (def read reader/read)
+(def read-compat reader/read-compat)
 (def read-all reader/read-all)
 
 (defn string-reader

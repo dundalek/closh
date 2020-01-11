@@ -11,7 +11,7 @@
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
        :author "Stephen C. Gilardi and Rich Hickey"}
   closh.zero.frontend.clojure-mainx
-  (:refer-clojure :exclude [with-bindings])
+  (:refer-clojure :exclude [with-bindings eval read])
   #_(:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader BufferedWriter FileWriter)
            (java.nio.file Files)
@@ -20,6 +20,9 @@
                          LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
 
+(require '[closh.zero.platform.eval :refer [eval]])
+(require '[closh.zero.reader :as reader])
+(def read reader/read-compat)
 
 (declare main)
 
@@ -361,12 +364,12 @@ by default when a new command-line REPL is started."} repl-requires
       [clojure.java.javadoc :refer (javadoc)]
       [clojure.pprint :refer (pp pprint)]])
 
-#_(defmacro with-read-known
-    "Evaluates body with *read-eval* set to a \"known\" value,
+(defmacro with-read-known
+  "Evaluates body with *read-eval* set to a \"known\" value,
    i.e. substituting true for :unknown if necessary."
-    [& body]
-    `(binding [*read-eval* (if (= :unknown *read-eval*) true *read-eval*)]
-       ~@body))
+  [& body]
+  `(binding [*read-eval* (if (= :unknown *read-eval*) true *read-eval*)]
+     ~@body))
 
 #_(defn repl
     "Generic, reusable, read-eval-print loop. By default, reads from *in*,
@@ -498,9 +501,21 @@ by default when a new command-line REPL is started."} repl-requires
                 (prn value))
               (recur (with-read-known (read reader false eof))))))))
 
-(defn eval-opt
+(defn- eval-opt
+  "Evals expressions in str, prints each non-nil result using prn"
   [str]
-  (println "eval-opt stubbed:" str))
+  (let [eof (Object.)
+        reader (reader/string-reader str)]
+      (loop [input (with-read-known (read reader false eof))]
+        (when-not (= input eof)
+          (let [value (eval input)]
+            (when-not (nil? value)
+              (prn value))
+            (recur (with-read-known (read reader false eof))))))))
+
+#_(defn eval-opt
+    [str]
+    (println "eval-opt stubbed:" str))
 
 (defn- init-dispatch
   "Returns the handler associated with an init opt"

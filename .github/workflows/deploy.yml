@@ -94,6 +94,9 @@ jobs:
       - name: Check boot version
         run: boot -V
 
+      - run: |
+          which native-image
+
       # - name: Install shadow-cljs
       #   run: |
       #     npm install shadow-cljs
@@ -146,12 +149,15 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@1.0
+        uses: DeLaGuardo/setup-graalvm@2.0
         with:
           graalvm-version: "19.2.1"
 
       - name: Install native-image
         run: gu install native-image
+
+      - run: |
+          which native-image
 
       - name: Build macOS native image
         run: |
@@ -214,12 +220,15 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@1.0
+        uses: DeLaGuardo/setup-graalvm@2.0
         with:
           graalvm-version: "19.2.1"
 
       - name: Install native-image
         run: gu install native-image
+
+      - run: |
+          which native-image
 
       - name: Build Linux native image
         run: |

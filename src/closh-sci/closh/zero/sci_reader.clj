@@ -101,9 +101,24 @@
   ([r] (read {:all true :features #{:clj} :eof ::parser/eof} r))
   ([opts r]
    (let [opts (parser/normalize-opts opts)
-         ctx (assoc opts ::expected-delimiter nil)
+         ctx (assoc opts ::parser/expected-delimiter nil)
          v (read* ctx r)]
-     (if (identical? ::eof v) nil v))))
+     (if (identical? ::parser/eof v) nil v))))
+
+(defn read-compat
+  ([]
+   (read-compat *in*))
+  ([stream]
+   (read-compat stream true nil))
+  ([stream eof-error? eof-value]
+   (read-compat stream eof-error? eof-value false))
+  ([stream eof-error? eof-value recursive?]
+   (let [opts (parser/normalize-opts {:all true :features #{:clj}})
+         ctx (assoc opts ::parser/expected-delimiter nil)
+         v (parser/parse-next ctx stream)]
+     (if (identical? ::parser/eof v) eof-value v))))
+  ; ([opts stream]
+  ;  (. clojure.lang.LispReader (read stream opts))))
 
 (defn read-all
   ([r] (read-all {:all true :features #{:clj} :eof ::parser/eof} r))
