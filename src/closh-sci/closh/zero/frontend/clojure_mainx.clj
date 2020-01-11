@@ -510,11 +510,19 @@ by default when a new command-line REPL is started."} repl-requires
     "-e"     eval-opt
     "--eval" eval-opt} opt))
 
+#_(defn- initialize
+    "Common initialize routine for repl, script, and null opts"
+    [args inits]
+    (in-ns 'user)
+    (set! *command-line-args* args)
+    (doseq [[opt arg] inits]
+      ((init-dispatch opt) arg)))
+
 (defn- initialize
   "Common initialize routine for repl, script, and null opts"
   [args inits]
-  (in-ns 'user)
-  (set! *command-line-args* args)
+  ; (in-ns 'user)
+  ; (set! *command-line-args* args)
   (doseq [[opt arg] inits]
     ((init-dispatch opt) arg)))
 
