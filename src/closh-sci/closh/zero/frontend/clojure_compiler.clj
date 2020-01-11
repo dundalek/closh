@@ -4,7 +4,8 @@
            (java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader BufferedReader)))
 
 (defn load [rdr source-path source-name]
-  (Compiler/load rdr source-path source-name))
+  (println "stubbed compiler load" source-path source-name)
+  #_(Compiler/load rdr source-path source-name))
 
 ;; Reimplementation of Compiler.loadFile
 (defn load-file [file]
