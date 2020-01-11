@@ -62,6 +62,13 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Parse Ref
         id: parse-ref
         run: |
