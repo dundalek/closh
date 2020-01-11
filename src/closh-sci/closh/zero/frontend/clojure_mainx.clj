@@ -22,7 +22,7 @@
 
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
-(require '[closh.zero.frontend.clojure-compiler :as compiler])
+; (require '[closh.zero.frontend.clojure-compiler :as compiler])
 (def read reader/read-compat)
 
 (defn eval [form]
@@ -32,6 +32,12 @@
 
 (defn load-reader [rdr]
   (println "load-reader stubbed"))
+
+(defn rt-load-resource-script [path]
+  (println "rt-load-resource-script stubbed:" path))
+
+(defn compiler-load-file [path]
+  (println "compiler load-file stubbed:" path))
 
 (declare main)
 
@@ -494,9 +500,9 @@ by default when a new command-line REPL is started."} repl-requires
   beginning with @ or @/ are considered relative to classpath."
   [^String path]
   (if (.startsWith path "@")
-    (RT/loadResourceScript
+    (rt-load-resource-script
      (.substring path (if (.startsWith path "@/") 2 1)))
-    (compiler/load-file path)))
+    (compiler-load-file path)))
 
 (defn- init-opt
   "Load a script"
