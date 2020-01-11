@@ -149,7 +149,7 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@2.0
+        uses: DeLaGuardo/setup-graalvm@1.0
         with:
           graalvm-version: "19.2.1"
 
@@ -220,7 +220,7 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@2.0
+        uses: DeLaGuardo/setup-graalvm@1.0
         with:
           graalvm-version: "19.2.1"
 
