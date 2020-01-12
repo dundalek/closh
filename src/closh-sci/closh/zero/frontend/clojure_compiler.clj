@@ -47,9 +47,9 @@
   #_(Compiler/load rdr source-path source-name))
 
 ;; Reimplementation of Compiler.loadFile
-(defn load-file [file]
+(defn load-file [^String file]
   (let [f ^FileInputStream (FileInputStream. file)
-        rdr ^InputStreamReader (InputStreamReader. f RT/UTF8)]
+        rdr ^InputStreamReader (InputStreamReader. f "UTF-8")]
         ;; rdr (make-custom-reader (PushbackReader. (InputStreamReader. f RT/UTF8)))]
     (try
       (load

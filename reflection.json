@@ -12,7 +12,10 @@
   },
   {
     "name":"java.io.FileInputStream",
-    "allPublicMethods":true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name":"java.lang.Process",
