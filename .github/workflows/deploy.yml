@@ -15,6 +15,27 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gitlibs
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/Boot
+          key: ${{ runner.os }}-boot-2.8.3
+          restore-keys: |
+            ${{ runner.os }}-boot-
+
       - name: Parse Ref
         id: parse-ref
         run: |
