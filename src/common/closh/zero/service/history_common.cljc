@@ -2,7 +2,8 @@
   (:require #?(:cljs [path]
                :clj [clojure.java.io :as io])
             [clojure.string :as str]
-            [closh.zero.platform.process :as process]))
+            [closh.zero.platform.process :as process])
+  #?(:clj (:import (java.io File))))
 
 (def ^:no-doc table-history
   "CREATE TABLE IF NOT EXISTS history (
@@ -24,8 +25,8 @@
   []
   (let [parts [(process/getenv "HOME") ".closh" "closh.sqlite"]]
     #?(:cljs (apply path/join parts)
-       :clj (-> (apply io/file parts)
-                (.getCanonicalPath)))))
+       :clj (let [f ^File (apply io/file parts)]
+              (.getCanonicalPath f)))))
 
 (defn check-history-line [s]
   (when (and (not (str/blank? s))

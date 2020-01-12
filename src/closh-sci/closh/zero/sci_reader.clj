@@ -47,7 +47,7 @@
           (symbol token))))))
 
 (defn parse-next-custom [ctx reader]
-  (parser/parse-whitespace ctx reader) ;; skip leading whitespace
+  (parser/skip-whitespace ctx reader) ;; skip leading whitespace
   (if-let [c (r/peek-char reader)]
     ;; if not special then read-token otherwise pass it to custom
     (if (token-start? c)

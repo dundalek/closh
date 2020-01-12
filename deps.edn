@@ -36,12 +36,15 @@
                        :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}}
   :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {borkdude/sci
-                     {:git/url "https://github.com/borkdude/sci"
-                      :sha "4546b4ab1db7d4af6326fe8c09eaac900bae6b9b"
+                     {:mvn/version "0.0.11"
+                      ;; :git/url "https://github.com/borkdude/sci"
+                      ;; :tag "v0.0.10"
+                      ;; :sha "da91beb83e55c1783b97b8434c5197791c8b6b08"
                       :exclusions [org.clojure/tools.reader]}
                      borkdude/edamame
                      {:git/url "https://github.com/borkdude/edamame"
-                      :sha "d45acfcb067e45afabe427d478d38be4ca6c326c"
+                      :tag "v0.0.9"
+                      :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"
                       :exclusions [org.clojure/tools.reader]}}}
   :lint {:extra-deps {com.jameslaverack/cljfmt-runner
                       {:git/url "https://github.com/JamesLaverack/cljfmt-runner"
