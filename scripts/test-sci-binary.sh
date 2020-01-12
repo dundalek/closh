@@ -9,3 +9,4 @@ set -x
 ./closh-zero-sci fixtures/script-mode-tests/bar.cljc
 echo "(+ 1 2)" | ./closh-zero-sci -
 echo date | ./closh-zero-sci -
+./closh-zero-sci -h

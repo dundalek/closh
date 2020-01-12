@@ -605,10 +605,10 @@ by default when a new command-line REPL is started."} repl-requires
   (with-bindings
     (initialize args inits)))
 
-#_(defn- help-opt
-    "Print help text for main"
-    [_ _]
-    (println (:doc (meta (var main)))))
+(defn- help-opt
+  "Print help text for main"
+  [_ _]
+  (println (:doc (meta (var main)))))
 
 (defn help-opt [& args]
   (println "help-opt stubbed:" args))
