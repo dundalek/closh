@@ -603,8 +603,8 @@ by default when a new command-line REPL is started."} repl-requires
   [_ _]
   (println (:doc (meta (var main)))))
 
-(defn help-opt [& args]
-  (println "help-opt stubbed:" args))
+#_(defn help-opt [& args]
+    (println "help-opt stubbed:" args))
 
 (defn- main-dispatch
   "Returns the handler associated with a main option"

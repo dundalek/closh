@@ -3,7 +3,8 @@
   (:require [closh.zero.reader :as reader]
             [closh.zero.parser]
             [closh.zero.compiler]
-            [closh.zero.platform.eval :as eval])
+            [closh.zero.platform.eval :as eval]
+            [clojure.tools.reader.reader-types :as r])
   (:import (clojure.lang Compiler RT LineNumberingPushbackReader LispReader$ReaderException Compiler$CompilerException)
            (java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader BufferedReader)))
 
@@ -21,7 +22,8 @@
   ([rdr] (load rdr nil "NO_SOURCE_FILE"))
   ([rdr source-path source-name]
    (let [eof (Object.)
-         rdr ^LineNumberingPushbackReader (if (instance? LineNumberingPushbackReader rdr) rdr (LineNumberingPushbackReader. rdr))]
+         rdr (r/indexing-push-back-reader rdr)]
+         ;;rdr ^LineNumberingPushbackReader (if (instance? LineNumberingPushbackReader rdr) rdr (LineNumberingPushbackReader. rdr))]
          ;;Object readerOpts = readerOpts(sourceName);
      ;; consumeWhitespaces(pushbackReader)
      ;; Var.pushThreadBindings(
