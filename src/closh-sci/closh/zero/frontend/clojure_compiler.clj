@@ -18,7 +18,7 @@
 
 ;; Reimplementation of Compiler.load
 (defn load
-  ([rdr] (load nil "NO_SOURCE_FILE"))
+  ([rdr] (load rdr nil "NO_SOURCE_FILE"))
   ([rdr source-path source-name]
    (let [eof (Object.)
          rdr ^LineNumberingPushbackReader (if (instance? LineNumberingPushbackReader rdr) rdr (LineNumberingPushbackReader. rdr))]
