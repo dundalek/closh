@@ -48,8 +48,8 @@
 
 ;; Reimplementation of Compiler.loadFile
 (defn load-file [file]
-  (let [f (FileInputStream. file)
-        rdr (InputStreamReader. f RT/UTF8)]
+  (let [f ^FileInputStream (FileInputStream. file)
+        rdr ^InputStreamReader (InputStreamReader. f RT/UTF8)]
         ;; rdr (make-custom-reader (PushbackReader. (InputStreamReader. f RT/UTF8)))]
     (try
       (load
