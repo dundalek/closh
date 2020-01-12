@@ -11,6 +11,10 @@
     "allPublicMethods":true
   },
   {
+    "name":"java.io.FileInputStream",
+    "allPublicMethods":true
+  },
+  {
     "name":"java.lang.Process",
     "allPublicMethods":true
   },
