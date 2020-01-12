@@ -533,10 +533,6 @@ by default when a new command-line REPL is started."} repl-requires
               (prn value))
             (recur (with-read-known (read reader false eof))))))))
 
-#_(defn eval-opt
-    [str]
-    (println "eval-opt stubbed:" str))
-
 (defn- init-dispatch
   "Returns the handler associated with an init opt"
   [opt]
@@ -560,9 +556,6 @@ by default when a new command-line REPL is started."} repl-requires
   ; (set! *command-line-args* args)
   (doseq [[opt arg] inits]
     ((init-dispatch opt) arg)))
-
-#_(defn initialize [& args]
-    (println "initialize stubbed:" args))
 
 #_(defn- main-opt
     "Call the -main function from a namespace with string arguments from
