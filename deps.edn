@@ -46,10 +46,9 @@
                       :tag "v0.0.9"
                       :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"
                       :exclusions [org.clojure/tools.reader]}}}
-  :lint {:extra-deps {com.jameslaverack/cljfmt-runner
-                      {:git/url "https://github.com/JamesLaverack/cljfmt-runner"
-                       :sha "97960e9a6464935534b5a6bab529e063d0027128"}}
-         :main-opts ["-m" "cljfmt-runner.check"]}
-  :lint/fix {:main-opts ["-m" "cljfmt-runner.fix"]}
+  :lint {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
+         :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_mainx)\\.clj[csx]?$" "check"]}
+  :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
+             :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_mainx)\\.clj[csx]?$" "fix"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}

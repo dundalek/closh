@@ -10,12 +10,12 @@
 
 (defn eval [form]
   (eval/eval
-    (closh.zero.compiler/compile-interactive
-      (closh.zero.parser/parse form))))
+   (closh.zero.compiler/compile-interactive
+    (closh.zero.parser/parse form))))
 
 (defn reader-opts [source-name]
   #_(when (str/ends-with source-name ".cljc")
-      RT.mapUniqueKeys(LispReader.OPT_READ_COND, LispReader.COND_ALLOW)))
+      RT.mapUniqueKeys (LispReader.OPT_READ_COND, LispReader.COND_ALLOW)))
 
 ;; Reimplementation of Compiler.load
 (defn load
