@@ -31,7 +31,7 @@
       (closh.zero.parser/parse form))))
 
 (defn load-reader [rdr]
-  (println "load-reader stubbed"))
+  (compiler/load rdr))
 
 (defn rt-load-resource-script [path]
   (println "rt-load-resource-script stubbed:" path))
