@@ -22,7 +22,7 @@
 
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
-; (require '[closh.zero.frontend.clojure-compiler :as compiler])
+(require '[closh.zero.frontend.clojure-compiler :as compiler])
 (def read reader/read-compat)
 
 (defn eval [form]
@@ -37,7 +37,7 @@
   (println "rt-load-resource-script stubbed:" path))
 
 (defn compiler-load-file [path]
-  (println "compiler load-file stubbed:" path))
+  (compiler/load-file path))
 
 (declare main)
 

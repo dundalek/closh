@@ -113,7 +113,7 @@
   ([stream eof-error? eof-value]
    (read-compat stream eof-error? eof-value false))
   ([stream eof-error? eof-value recursive?]
-   (let [opts (parser/normalize-opts {:all true :features #{:clj}})
+   (let [opts (parser/normalize-opts {:all true :features #{:clj} :read-cond :allow})
          ctx (assoc opts ::parser/expected-delimiter nil :eof eof-value)
          v (read* ctx stream)]
      (if (identical? ::parser/eof v) eof-value v))))

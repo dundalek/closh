@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 ./closh-zero-sci -e "(+ 1 2)"
 ./closh-zero-sci -e "date"
 ./closh-zero-sci -e 'echo "hi" | (clojure.string/upper-case)'
