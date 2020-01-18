@@ -593,7 +593,7 @@ by default when a new command-line REPL is started."} repl-requires
     (println "Clojure" (clojure-version)))
   (repl :init (fn []
                 (initialize args inits)
-                (apply require repl-requires)))
+                #_(apply require repl-requires)))
   (prn)
   (System/exit 0))
 
