@@ -10,3 +10,4 @@ set -x
 echo "(+ 1 2)" | ./closh-zero-sci -
 echo date | ./closh-zero-sci -
 ./closh-zero-sci -h
+echo '(println "Hello REPL!")' | ./closh-zero-sci

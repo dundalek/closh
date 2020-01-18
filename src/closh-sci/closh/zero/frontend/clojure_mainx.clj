@@ -379,6 +379,8 @@ by default when a new command-line REPL is started."} repl-requires
       [clojure.java.javadoc :refer (javadoc)]
       [clojure.pprint :refer (pp pprint)]])
 
+(def repl-requires [])
+
 (defmacro with-read-known
   "Evaluates body with *read-eval* set to a \"known\" value,
    i.e. substituting true for :unknown if necessary."
@@ -486,6 +488,9 @@ by default when a new command-line REPL is started."} repl-requires
              (flush))
            (recur))))))
 
+(defn repl [& args]
+  (println "repl stubbed:" args))
+
 #_(defn load-script
     "Loads Clojure source from a file or resource given its path. Paths
   beginning with @ or @/ are considered relative to classpath."
@@ -580,8 +585,20 @@ by default when a new command-line REPL is started."} repl-requires
     (prn)
     (System/exit 0))
 
-(defn repl-opt [& args]
-  (println "repl-opt stubbed:" args))
+(defn- repl-opt
+  "Start a repl with args and inits. Print greeting if no eval options were
+  present"
+  [[_ & args] inits]
+  (when-not (some #(= eval-opt (init-dispatch (first %))) inits)
+    (println "Clojure" (clojure-version)))
+  (repl :init (fn []
+                (initialize args inits)
+                (apply require repl-requires)))
+  (prn)
+  (System/exit 0))
+
+#_(defn repl-opt [& args]
+    (println "repl-opt stubbed:" args))
 
 (defn- script-opt
   "Run a script from a file, resource, or standard in with args and inits"
@@ -602,9 +619,6 @@ by default when a new command-line REPL is started."} repl-requires
   "Print help text for main"
   [_ _]
   (println (:doc (meta (var main)))))
-
-#_(defn help-opt [& args]
-    (println "help-opt stubbed:" args))
 
 (defn- main-dispatch
   "Returns the handler associated with a main option"
