@@ -126,22 +126,25 @@
     []
     (printf "%s=> " (ns-name *ns*)))
 
-#_(defn skip-if-eol
-    "If the next character on stream s is a newline, skips it, otherwise
+(defn repl-prompt []
+  (print "=> "))
+
+(defn skip-if-eol
+  "If the next character on stream s is a newline, skips it, otherwise
   leaves the stream untouched. Returns :line-start, :stream-end, or :body
   to indicate the relative location of the next character on s. The stream
   must either be an instance of LineNumberingPushbackReader or duplicate
   its behavior of both supporting .unread and collapsing all of CR, LF, and
   CRLF to a single \\newline."
-    [s]
-    (let [c (.read s)]
-      (cond
-       (= c (int \newline)) :line-start
-       (= c -1) :stream-end
-       :else (do (.unread s c) :body))))
+  [s]
+  (let [c (.read s)]
+    (cond
+     (= c (int \newline)) :line-start
+     (= c -1) :stream-end
+     :else (do (.unread s c) :body))))
 
-#_(defn skip-whitespace
-    "Skips whitespace characters on stream s. Returns :line-start, :stream-end,
+(defn skip-whitespace
+  "Skips whitespace characters on stream s. Returns :line-start, :stream-end,
   or :body to indicate the relative location of the next character on s.
   Interprets comma as whitespace and semicolon as comment to end of line.
   Does not interpret #! as comment to end of line because only one
@@ -149,31 +152,35 @@
   instance of LineNumberingPushbackReader or duplicate its behavior of both
   supporting .unread and collapsing all of CR, LF, and CRLF to a single
   \\newline."
-    [s]
-    (loop [c (.read s)]
-      (cond
-       (= c (int \newline)) :line-start
-       (= c -1) :stream-end
-       (= c (int \;)) (do (.readLine s) :line-start)
-       (or (Character/isWhitespace (char c)) (= c (int \,))) (recur (.read s))
-       :else (do (.unread s c) :body))))
+  [s]
+  (loop [c (.read s)]
+    (cond
+     (= c (int \newline)) :line-start
+     (= c -1) :stream-end
+     (= c (int \;)) (do (.readLine s) :line-start)
+     (or (Character/isWhitespace (char c)) (= c (int \,))) (recur (.read s))
+     :else (do (.unread s c) :body))))
 
-#_(defn renumbering-read
-    "Reads from reader, which must be a LineNumberingPushbackReader, while capturing
+(defn renumbering-read
+  "Reads from reader, which must be a LineNumberingPushbackReader, while capturing
   the read string. If the read is successful, reset the line number and re-read.
   The line number on re-read is the passed line-number unless :line or
   :clojure.core/eval-file meta are explicitly set on the read value."
-    {:added "1.10"}
-    ([opts ^LineNumberingPushbackReader reader line-number]
-     (let [pre-line (.getLineNumber reader)
-           [pre-read s] (read+string opts reader)
-           {:keys [clojure.core/eval-file line]} (meta pre-read)
-           re-reader (doto (LineNumberingPushbackReader. (StringReader. s))
-                       (.setLineNumber (if (and line (or eval-file (not= pre-line line))) line line-number)))]
-       (read opts re-reader))))
+  {:added "1.10"}
+  ([opts ^LineNumberingPushbackReader reader line-number]
+   (let [pre-line (.getLineNumber reader)
+         [pre-read s] (read+string opts reader)
+         {:keys [clojure.core/eval-file line]} (meta pre-read)
+         re-reader (doto (LineNumberingPushbackReader. (StringReader. s))
+                     (.setLineNumber (if (and line (or eval-file (not= pre-line line))) line line-number)))]
+     (read opts re-reader))))
 
-#_(defn repl-read
-    "Default :read hook for repl. Reads from *in* which must either be an
+(defn renumbering-read [opts reader line-number]
+  (println "renumbering-read" opts)
+  (read reader))
+
+(defn repl-read
+  "Default :read hook for repl. Reads from *in* which must either be an
   instance of LineNumberingPushbackReader or duplicate its behavior of both
   supporting .unread and collapsing all of CR, LF, and CRLF into a single
   \\newline. repl-read:
@@ -183,12 +190,12 @@
       - reads an object from the input stream, then
         - skips the next input character if it's end of line, then
         - returns the object."
-    [request-prompt request-exit]
-    (or ({:line-start request-prompt :stream-end request-exit}
-         (skip-whitespace *in*))
-        (let [input (renumbering-read {:read-cond :allow} *in* 1)]
-          (skip-if-eol *in*)
-          input)))
+  [request-prompt request-exit]
+  (or ({:line-start request-prompt :stream-end request-exit}
+       (skip-whitespace *in*))
+      (let [input (renumbering-read {:read-cond :allow} *in* 1)]
+        (skip-if-eol *in*)
+        input)))
 
 #_(defn repl-exception
     "Returns the root cause of throwables"
@@ -366,12 +373,15 @@
     [^Throwable e]
     (-> e Throwable->map ex-triage ex-str))
 
-#_(defn repl-caught
-    "Default :caught hook for repl"
-    [e]
-    (binding [*out* *err*]
-      (print (err->msg e))
-      (flush)))
+(defn err->msg [^Throwable e]
+  (str "err->msg stubbed:" e))
+
+(defn repl-caught
+  "Default :caught hook for repl"
+  [e]
+  (binding [*out* *err*]
+    (print (err->msg e))
+    (flush)))
 
 #_(def ^{:doc "A sequence of lib specs that are applied to `require`
 by default when a new command-line REPL is started."} repl-requires
@@ -488,8 +498,108 @@ by default when a new command-line REPL is started."} repl-requires
              (flush))
            (recur))))))
 
-(defn repl [& args]
-  (println "repl stubbed:" args))
+(defn repl
+  "Generic, reusable, read-eval-print loop. By default, reads from *in*,
+  writes to *out*, and prints exception summaries to *err*. If you use the
+  default :read hook, *in* must either be an instance of
+  LineNumberingPushbackReader or duplicate its behavior of both supporting
+  .unread and collapsing CR, LF, and CRLF into a single \\newline. Options
+  are sequential keyword-value pairs. Available options and their defaults:
+
+     - :init, function of no arguments, initialization hook called with
+       bindings for set!-able vars in place.
+       default: #()
+
+     - :need-prompt, function of no arguments, called before each
+       read-eval-print except the first, the user will be prompted if it
+       returns true.
+       default: (if (instance? LineNumberingPushbackReader *in*)
+                  #(.atLineStart *in*)
+                  #(identity true))
+
+     - :prompt, function of no arguments, prompts for more input.
+       default: repl-prompt
+
+     - :flush, function of no arguments, flushes output
+       default: flush
+
+     - :read, function of two arguments, reads from *in*:
+         - returns its first argument to request a fresh prompt
+           - depending on need-prompt, this may cause the repl to prompt
+             before reading again
+         - returns its second argument to request an exit from the repl
+         - else returns the next object read from the input stream
+       default: repl-read
+
+     - :eval, function of one argument, returns the evaluation of its
+       argument
+       default: eval
+
+     - :print, function of one argument, prints its argument to the output
+       default: prn
+
+     - :caught, function of one argument, a throwable, called when
+       read, eval, or print throws an exception or error
+       default: repl-caught"
+  [& options]
+  #_(let [cl (.getContextClassLoader (Thread/currentThread))]
+      (.setContextClassLoader (Thread/currentThread) (clojure.lang.DynamicClassLoader. cl)))
+  (let [{:keys [init need-prompt prompt flush read eval print caught]
+         :or {init        #()
+              need-prompt (if (instance? LineNumberingPushbackReader *in*)
+                            #(.atLineStart ^LineNumberingPushbackReader *in*)
+                            #(identity true))
+              prompt      repl-prompt
+              flush       flush
+              read        repl-read
+              eval        eval
+              print       prn
+              caught      repl-caught}}
+        (apply hash-map options)
+        request-prompt (Object.)
+        request-exit (Object.)
+        read-eval-print
+        (fn []
+          (try
+            (let [read-eval *read-eval*
+                  input (try
+                          (with-read-known (read request-prompt request-exit))
+                          (catch LispReader$ReaderException e
+                            (throw (ex-info nil {:clojure.error/phase :read-source} e))))]
+             (or (#{request-prompt request-exit} input)
+                 (let [value (binding [*read-eval* read-eval] (eval input))]
+                   (set! *3 *2)
+                   (set! *2 *1)
+                   (set! *1 value)
+                   (try
+                     (print value)
+                     (catch Throwable e
+                       (throw (ex-info nil {:clojure.error/phase :print-eval-result} e)))))))
+           (catch Throwable e
+             (caught e)
+             (set! *e e))))]
+    (with-bindings
+     (try
+      (init)
+      (catch Throwable e
+        (caught e)
+        (set! *e e)))
+     (prompt)
+     (flush)
+     (loop []
+       (when-not
+          (try (identical? (read-eval-print) request-exit)
+           (catch Throwable e
+             (caught e)
+             (set! *e e)
+             nil))
+         (when (need-prompt)
+           (prompt)
+           (flush))
+         (recur))))))
+
+#_(defn repl [& args]
+    (println "repl stubbed:" args))
 
 #_(defn load-script
     "Loads Clojure source from a file or resource given its path. Paths
