@@ -213,7 +213,9 @@ jobs:
           name: closh-zero-sci-macos
 
       - name: Test binary
-        run: ./scripts/test-sci-binary.sh
+        run: |
+          brew install expect; \
+          ./scripts/test-sci-binary.sh
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
@@ -286,7 +288,9 @@ jobs:
           name: closh-zero-sci-linux
 
       - name: Test binary
-        run: ./scripts/test-sci-binary.sh
+        run: |
+          apt-get install -y expect; \
+          ./scripts/test-sci-binary.sh
 
       # - name: Run tests with binary
       #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
