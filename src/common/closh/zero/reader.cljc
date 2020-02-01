@@ -22,28 +22,25 @@
   (r/indexing-push-back-reader
    (r/string-push-back-reader s)))
 
-#?(:clj
-   (do
-     (defn read-sh [& args]
-       (cons 'closh.zero.macros/sh (apply read args)))
+(defn read-sh
+  "Read input in command mode, wrap it in `sh` symbol."
+  ([reader]
+   (read-sh {} reader))
+  ([opts reader]
+   (let [value (read opts reader)]
+     (if (and (:eof opts) (= value (:eof opts)))
+       value
+       (cons 'closh.zero.macros/sh value)))))
 
-     (defn read-sh-value [& args]
-       (cons 'closh.zero.macros/sh-value (apply read args))))
-   :cljs
-   (do
-     (defn read-sh
-       "Read input in command mode, wrap it in `sh` symbol."
-       ([reader]
-        (read-sh {} reader))
-       ([opts reader]
-        (read opts reader #(conj % 'closh.zero.macros/sh))))
-
-     (defn read-sh-value
-       "Read input in command mode, wrap it in `sh-value` symbol."
-       ([reader]
-        (read-sh {} reader))
-       ([opts reader]
-        (read opts reader #(conj % 'sh-value))))))
+(defn read-sh-value
+  "Read input in command mode, wrap it in `sh-value` symbol."
+  ([reader]
+   (read-sh {} reader))
+  ([opts reader]
+   (let [value (read opts reader)]
+     (if (and (:eof opts) (= value (:eof opts)))
+       value
+       (cons 'closh.zero.macros/sh-value value)))))
 
 (defn read-string [s]
   (read (string-reader s)))

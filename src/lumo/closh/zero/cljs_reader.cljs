@@ -72,19 +72,17 @@
   ([reader eof-error? sentinel] (cljs.tools.reader/read* reader eof-error? sentinel nil {} (to-array []))))
 
 (defn read
-  "Replacement for a `cljs.tools.reader/read` which allows reading the command mode. It tries to read all input on the line and returns a list of forms. Optionally takes a `transform` function which is called on the valid result."
+  "Replacement for a `cljs.tools.reader/read` which allows reading the command mode. It tries to read all input on the line and returns a list of forms."
   ([reader]
    (read {} reader))
   ([opts reader]
-   (read opts reader identity))
-  ([opts reader transform]
    (with-redefs [cljs.tools.reader/read*-internal read-internal-custom]
      (loop [coll (transient [])]
        (let [ch (read-char reader)]
          (cond
            (nil? ch)
            (if-let [result (seq (persistent! coll))]
-             (transform result)
+             result
              (read-orig opts reader))
 
            (and (not= ch \newline) (whitespace? ch)) (recur coll)
@@ -96,7 +94,7 @@
                              (= token \newline)
                              (and (:eof opts) (= token (:eof opts))))
                        (if-let [result (seq (persistent! coll))]
-                         (transform result)
+                         result
                          (recur (transient [])))
                        (recur (conj! coll token)))))))))))
 
