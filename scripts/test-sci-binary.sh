@@ -14,9 +14,9 @@ echo "(+ 1 2)" | $CLOSH_CMD -
 echo date | $CLOSH_CMD -
 $CLOSH_CMD -h
 
-expect -c "
-spawn $CLOSH_CMD;
-send \"(println :hello-word)\r\";
-send \"(exit)\r\";
-expect eof;
-"
+# expect -c "
+# spawn $CLOSH_CMD;
+# send \"(println :hello-word)\r\";
+# send \"(exit)\r\";
+# expect eof;
+# "
