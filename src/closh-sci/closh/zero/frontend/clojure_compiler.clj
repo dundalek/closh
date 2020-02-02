@@ -29,7 +29,7 @@
      ;; Var.pushThreadBindings(
      (try
        (loop [ret nil]
-         (let [r (reader/read-compat rdr false eof)]
+         (let [r (reader/read rdr false eof)]
            (if (identical? r eof)
              ret
              (do

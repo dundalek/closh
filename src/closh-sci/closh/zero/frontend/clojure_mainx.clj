@@ -23,7 +23,7 @@
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
 (require '[closh.zero.frontend.clojure-compiler :as compiler])
-(def read reader/read-compat)
+(def read reader/read)
 
 (defn eval [form]
   (eval/eval

@@ -98,22 +98,17 @@
                     (recur (conj! coll token)))))))))
 
 (defn read
-  ([r] (read {:all true :features #{:clj}} r))
-  ([opts r]
-   (let [opts (parser/normalize-opts (assoc opts :all true))
-         ctx (assoc opts ::parser/expected-delimiter nil)]
-     (read* ctx r))))
-
-(defn read-compat
   ([]
-   (read-compat *in*))
+   (read *in*))
   ([stream]
-   (read-compat stream true nil))
+   (read stream true nil))
   ([stream eof-error? eof-value]
-   (read-compat stream eof-error? eof-value false))
+   (read stream eof-error? eof-value false))
   ([stream eof-error? eof-value recursive?]
    (let [opts (parser/normalize-opts {:all true :features #{:clj} :read-cond :allow})
          ctx (assoc opts ::parser/expected-delimiter nil :eof eof-value)]
+     (read* ctx stream)))
+  ([opts stream]
+   (let [opts (parser/normalize-opts (assoc opts :all true))
+         ctx (assoc opts ::parser/expected-delimiter nil)]
      (read* ctx stream))))
-  ; ([opts stream]
-  ;  (. clojure.lang.LispReader (read stream opts))))
