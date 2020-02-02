@@ -289,7 +289,7 @@ jobs:
 
       - name: Test binary
         run: |
-          apt-get install -y expect; \
+          sudo apt-get install -y expect; \
           ./scripts/test-sci-binary.sh
 
       # - name: Run tests with binary
