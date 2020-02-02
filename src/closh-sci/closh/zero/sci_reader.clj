@@ -91,19 +91,18 @@
         :else (do
                 (r/unread reader ch)
                 (let [token (parse-next-custom opts reader)]
-                  (if (and (:eof opts) (= token (:eof opts)))
+                  (if (and (identical? token ::parser/eof))
                     (if-let [result (seq (persistent! coll))]
                       result
-                      token)
+                      (:eof opts))
                     (recur (conj! coll token)))))))))
 
 (defn read
-  ([r] (read {:all true :features #{:clj} :eof ::parser/eof} r))
+  ([r] (read {:all true :features #{:clj}} r))
   ([opts r]
-   (let [opts (parser/normalize-opts opts)
-         ctx (assoc opts ::parser/expected-delimiter nil)
-         v (read* ctx r)]
-     (if (identical? ::parser/eof v) nil v))))
+   (let [opts (parser/normalize-opts (assoc opts :all true))
+         ctx (assoc opts ::parser/expected-delimiter nil)]
+     (read* ctx r))))
 
 (defn read-compat
   ([]
@@ -114,19 +113,17 @@
    (read-compat stream eof-error? eof-value false))
   ([stream eof-error? eof-value recursive?]
    (let [opts (parser/normalize-opts {:all true :features #{:clj} :read-cond :allow})
-         ctx (assoc opts ::parser/expected-delimiter nil :eof eof-value)
-         v (read* ctx stream)]
-     (if (identical? ::parser/eof v) eof-value v))))
+         ctx (assoc opts ::parser/expected-delimiter nil :eof eof-value)]
+     (read* ctx stream))))
   ; ([opts stream]
   ;  (. clojure.lang.LispReader (read stream opts))))
 
 (defn read-all
-  ([r] (read-all {:all true :features #{:clj} :eof ::parser/eof} r))
-  ([opts r]
-   (let [opts (parser/normalize-opts opts)
-         ctx (assoc opts ::parser/expected-delimiter nil)]
-     (loop [ret (transient [])]
-       (let [next-val (read ctx r)]
-         (if (identical? ::parser/eof next-val)
-           (seq (persistent! ret))
-           (recur (conj! ret next-val))))))))
+  [r]
+  (let [eof (Object.)
+        opts {:features #{:clj} :eof eof :read-cond :allow}]
+    (loop [ret (transient [])]
+      (let [next-val (read opts r)]
+        (if (identical? next-val eof)
+          (seq (persistent! ret))
+          (recur (conj! ret next-val)))))))
