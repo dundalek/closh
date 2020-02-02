@@ -117,13 +117,3 @@
      (read* ctx stream))))
   ; ([opts stream]
   ;  (. clojure.lang.LispReader (read stream opts))))
-
-(defn read-all
-  [r]
-  (let [eof (Object.)
-        opts {:features #{:clj} :eof eof :read-cond :allow}]
-    (loop [ret (transient [])]
-      (let [next-val (read opts r)]
-        (if (identical? next-val eof)
-          (seq (persistent! ret))
-          (recur (conj! ret next-val)))))))

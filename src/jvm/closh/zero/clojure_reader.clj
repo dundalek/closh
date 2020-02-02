@@ -121,12 +121,3 @@
                          result
                          (recur (transient [])))
                        (recur (conj! coll token)))))))))))
-
-(defn read-all [rdr]
-  (let [eof (Object.)
-        opts {:eof eof :read-cond :allow :features #{:clj}}]
-    (loop [forms []]
-      (let [form (read opts rdr)]
-        (if (= form eof)
-          (seq forms)
-          (recur (conj forms form)))))))

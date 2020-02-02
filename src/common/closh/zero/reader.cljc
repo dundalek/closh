@@ -14,7 +14,15 @@
 #?(:clj (require-reader))
 
 (def read reader/read)
-(def read-all reader/read-all)
+
+(defn read-all [rdr]
+  (let [eof #()
+        opts {:eof eof :read-cond :allow :features #{#?(:clj :clj :cljs :cljs)}}]
+    (loop [forms (transient [])]
+      (let [form (read opts rdr)]
+        (if (identical? form eof)
+          (seq (persistent! forms))
+          (recur (conj! forms form)))))))
 
 (defn string-reader
   "Create reader for strings."
@@ -28,7 +36,7 @@
    (read-sh {} reader))
   ([opts reader]
    (let [value (read opts reader)]
-     (if (and (:eof opts) (= value (:eof opts)))
+     (if (and (:eof opts) (identical? value (:eof opts)))
        value
        (cons 'closh.zero.macros/sh value)))))
 
@@ -38,7 +46,7 @@
    (read-sh {} reader))
   ([opts reader]
    (let [value (read opts reader)]
-     (if (and (:eof opts) (= value (:eof opts)))
+     (if (and (:eof opts) (identical? value (:eof opts)))
        value
        (cons 'closh.zero.macros/sh-value value)))))
 
