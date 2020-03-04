@@ -8,7 +8,7 @@
    [closh.zero.platform.process :as process]
    [closh.zero.env :as env]
    [closh.zero.reader :as reader]
-   [closh.zero.frontend.clojure-mainx :refer [main]]))
+   [closh.zero.utils.clojure-main-sci :refer [main]]))
 
 #_(defn repl-print
     [result]

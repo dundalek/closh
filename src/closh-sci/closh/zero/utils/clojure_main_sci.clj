@@ -10,7 +10,7 @@
 
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
        :author "Stephen C. Gilardi and Rich Hickey"}
-  closh.zero.frontend.clojure-mainx
+  closh.zero.utils.clojure-main-sci
   (:refer-clojure :exclude [with-bindings eval read load-reader])
   #_(:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader BufferedWriter FileWriter)
@@ -22,7 +22,7 @@
 
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
-(require '[closh.zero.frontend.clojure-compiler :as compiler])
+(require '[closh.zero.platform.clojure-compiler :as compiler])
 (def read reader/read)
 
 (defn eval [form]

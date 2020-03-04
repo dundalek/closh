@@ -1,4 +1,4 @@
-(ns closh.zero.frontend.clojure-compiler
+(ns closh.zero.platform.clojure-compiler
   (:refer-clojure :exclude [load load-file eval])
   (:require [closh.zero.reader :as reader]
             [closh.zero.parser]
