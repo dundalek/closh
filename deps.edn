@@ -23,9 +23,10 @@
                       ;; :tag "v0.0.10"
                       ;; :sha "da91beb83e55c1783b97b8434c5197791c8b6b08"
                      borkdude/edamame
-                     {:git/url "https://github.com/borkdude/edamame"
-                      :tag "v0.0.9"
-                      :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"}}}
+                     {:mvn/version "0.0.10"}}}
+                     ; {:git/url "https://github.com/borkdude/edamame"
+                     ;  :tag "v0.0.9"
+                     ;  :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"}}}
   :lint {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
          :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
   :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
