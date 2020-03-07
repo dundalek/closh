@@ -4,7 +4,10 @@
             [closh.zero.pipeline :refer [process-output process-value pipe]]))
 
 (defn closh [& args]
-  (shx "clojure" (concat ["-m" "closh.zero.frontend.rebel"] args)))
+  (shx "clojure" (concat (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+                           ["-A:sci" "-m" "closh.zero.frontend.sci"]
+                           ["-m" "closh.zero.frontend.rebel"])
+                         args)))
 
 (deftest scripting-test
 

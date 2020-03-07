@@ -95,7 +95,10 @@
 
         (or (= ch \newline))
         (if-let [result (seq (persistent! coll))]
-          result
+          (do
+            ;; we need to put the newline back for clojure main repl to work
+            (r/unread reader ch)
+            result)
           (recur (transient [])))
 
         (whitespace?-custom ch) (recur coll)

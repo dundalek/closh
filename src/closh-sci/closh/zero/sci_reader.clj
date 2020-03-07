@@ -3,7 +3,10 @@
             [clojure.tools.reader.reader-types :as r]))
 
 (defn read-clojure [opts reader]
-  (let [ctx (-> (assoc opts :all true)
+  (let [;; edamame fails wtih pushback reader overflow when reader is *in*
+        ;; TODO figure something better than this workaround
+        reader (r/indexing-push-back-reader reader 2)
+        ctx (-> (assoc opts :all true)
                 (parser/normalize-opts)
                 (assoc ::parser/expected-delimiter nil))
         c (r/peek-char reader)]

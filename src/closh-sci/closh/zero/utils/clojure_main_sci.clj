@@ -11,7 +11,7 @@
 (ns ^{:doc "Top-level main function for Clojure REPL and scripts."
        :author "Stephen C. Gilardi and Rich Hickey"}
   closh.zero.utils.clojure-main-sci
-  (:refer-clojure :exclude [with-bindings eval read load-reader])
+  (:refer-clojure :exclude [with-bindings eval read load-reader read+string])
   #_(:require [clojure.spec.alpha :as spec])
   (:import (java.io StringReader BufferedWriter FileWriter)
            (java.nio.file Files)
@@ -27,8 +27,8 @@
 
 (defn eval [form]
   (eval/eval
-    (closh.zero.compiler/compile-interactive
-      (closh.zero.parser/parse form))))
+   (closh.zero.compiler/compile-interactive
+    (closh.zero.parser/parse form))))
 
 (defn load-reader [rdr]
   (compiler/load rdr))
@@ -38,6 +38,33 @@
 
 (defn compiler-load-file [path]
   (compiler/load-file path))
+
+;; Copied from clojure/core
+(defn read+string
+  "Like read, and taking the same args. stream must be a LineNumberingPushbackReader.
+  Returns a vector containing the object read and the (whitespace-trimmed) string read."
+  {:added "1.10"}
+  ([] (read+string *in*))
+  ([stream] (read+string stream true nil))
+  ([stream eof-error? eof-value] (read+string stream eof-error? eof-value false))
+  ([^clojure.lang.LineNumberingPushbackReader stream eof-error? eof-value recursive?]
+   (try
+     (.captureString stream)
+     (let [o (read stream eof-error? eof-value recursive?)
+           s (.trim (.getString stream))]
+       [o s])
+     (catch Throwable ex
+       (.getString stream)
+       (throw ex))))
+  ([opts ^clojure.lang.LineNumberingPushbackReader stream]
+   (try
+     (.captureString stream)
+     (let [o (read opts stream)
+           s (.trim (.getString stream))]
+       [o s])
+     (catch Throwable ex
+       (.getString stream)
+       (throw ex)))))
 
 (declare main)
 
@@ -174,10 +201,6 @@
          re-reader (doto (LineNumberingPushbackReader. (StringReader. s))
                      (.setLineNumber (if (and line (or eval-file (not= pre-line line))) line line-number)))]
      (read opts re-reader))))
-
-(defn renumbering-read [opts reader line-number]
-  (println "renumbering-read" opts)
-  (read reader))
 
 (defn repl-read
   "Default :read hook for repl. Reads from *in* which must either be an
