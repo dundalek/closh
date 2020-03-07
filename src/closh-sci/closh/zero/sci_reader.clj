@@ -46,20 +46,21 @@
         (catch Exception _
           (symbol token))))))
 
-(defn parse-next-custom [ctx reader]
-  (parser/skip-whitespace ctx reader) ;; skip leading whitespace
-  (if-let [c (r/peek-char reader)]
-    ;; if not special then read-token otherwise pass it to custom
-    (if (token-start? c)
-      (read-token reader)
-      (let [loc (parser/location reader)
-            obj (parser/dispatch ctx reader c)]
-        (if (identical? reader obj)
-          (parser/parse-next ctx reader)
-          (if (instance? clojure.lang.IObj obj)
-            (vary-meta obj merge loc)
-            obj))))
-    (:eof ctx)))
+(defn parse-next-custom [opts reader]
+  (let [ctx (-> (assoc opts :all true)
+              (parser/normalize-opts)
+              (assoc ::parser/expected-delimiter nil))
+        c (r/peek-char reader)]
+    (let [loc (parser/location reader)
+          obj (parser/dispatch ctx reader c)
+          ret (if (identical? reader obj)
+                (parser/parse-next ctx reader)
+                (if (instance? clojure.lang.IObj obj)
+                  (vary-meta obj merge loc)
+                  obj))]
+      (if (identical? ret ::parser/eof)
+        (or (:eof opts) ::parser/eof)
+        ret))))
 
 (defn read* [opts reader]
   (loop [coll (transient [])]
@@ -88,10 +89,14 @@
           (recur (transient [])))
 
         (whitespace?-custom ch) (recur coll)
+
         :else (do
                 (r/unread reader ch)
-                (let [token (parse-next-custom opts reader)]
-                  (if (and (identical? token ::parser/eof))
+                (let [token (if (token-start? ch)
+                              (read-token reader)
+                              (parse-next-custom opts reader))]
+                  (if (and (:eof opts)
+                           (identical? token (:eof opts)))
                     (if-let [result (seq (persistent! coll))]
                       result
                       (:eof opts))
@@ -105,10 +110,7 @@
   ([stream eof-error? eof-value]
    (read stream eof-error? eof-value false))
   ([stream eof-error? eof-value recursive?]
-   (let [opts (parser/normalize-opts {:all true :features #{:clj} :read-cond :allow})
-         ctx (assoc opts ::parser/expected-delimiter nil :eof eof-value)]
-     (read* ctx stream)))
+   ;; TODO what does `recursive?` do?
+   (read* {:features #{:clj} :read-cond :allow :eof eof-value} stream))
   ([opts stream]
-   (let [opts (parser/normalize-opts (assoc opts :all true))
-         ctx (assoc opts ::parser/expected-delimiter nil)]
-     (read* ctx stream))))
+   (read* opts stream)))
