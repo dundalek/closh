@@ -46,8 +46,8 @@
                       :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"
                       :exclusions [org.clojure/tools.reader]}}}
   :lint {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
-         :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_mainx)\\.clj[csx]?$" "check"]}
+         :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main.*)\\.clj[csx]?$" "check"]}
   :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
-             :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_mainx)\\.clj[csx]?$" "fix"]}
+             :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main.*)\\.clj[csx]?$" "fix"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
