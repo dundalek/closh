@@ -79,6 +79,10 @@
     [fn-name]
     (clojure.lang.Compiler/demunge fn-name))
 
+(defn demunge [fn-name]
+  (println "demuge stubbed:" fn-name)
+  fn-name)
+
 #_(defn root-cause
     "Returns the initial cause of an exception or error by peeling off all of
   its wrappers"
@@ -94,17 +98,17 @@
 
 ;;;;;;;;;;;;;;;;;;; end of redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
 
-#_(def ^:private core-namespaces
-    #{"clojure.core" "clojure.core.reducers" "clojure.core.protocols" "clojure.data" "clojure.datafy"
-      "clojure.edn" "clojure.instant" "clojure.java.io" "clojure.main" "clojure.pprint" "clojure.reflect"
-      "clojure.repl" "clojure.set" "clojure.spec.alpha" "clojure.spec.gen.alpha" "clojure.spec.test.alpha"
-      "clojure.string" "clojure.template" "clojure.uuid" "clojure.walk" "clojure.xml" "clojure.zip"})
+(def ^:private core-namespaces
+  #{"clojure.core" "clojure.core.reducers" "clojure.core.protocols" "clojure.data" "clojure.datafy"
+    "clojure.edn" "clojure.instant" "clojure.java.io" "clojure.main" "clojure.pprint" "clojure.reflect"
+    "clojure.repl" "clojure.set" "clojure.spec.alpha" "clojure.spec.gen.alpha" "clojure.spec.test.alpha"
+    "clojure.string" "clojure.template" "clojure.uuid" "clojure.walk" "clojure.xml" "clojure.zip"})
 
-#_(defn- core-class?
-    [^String class-name]
-    (and (not (nil? class-name))
-         (or (.startsWith class-name "clojure.lang.")
-             (contains? core-namespaces (second (re-find #"^([^$]+)\$" class-name))))))
+(defn- core-class?
+  [^String class-name]
+  (and (not (nil? class-name))
+       (or (.startsWith class-name "clojure.lang.")
+           (contains? core-namespaces (second (re-find #"^([^$]+)\$" class-name))))))
 
 #_(defn stack-element-str
     "Returns a (possibly unmunged) string representation of a StackTraceElement"
@@ -227,39 +231,39 @@
     [throwable]
     (root-cause throwable))
 
-#_(defn- file-name
-    "Helper to get just the file name part of a path or nil"
-    [^String full-path]
-    (when full-path
-      (try
-        (.getName (java.io.File. full-path))
-        (catch Throwable t))))
+(defn- file-name
+  "Helper to get just the file name part of a path or nil"
+  [^String full-path]
+  (when full-path
+    (try
+      (.getName (java.io.File. full-path))
+      (catch Throwable t))))
 
-#_(defn- file-path
-    "Helper to get the relative path to the source file or nil"
-    [^String full-path]
-    (when full-path
-      (try
-        (let [path (.getPath (java.io.File. full-path))
-              cd-path (str (.getAbsolutePath (java.io.File. "")) "/")]
-          (if (.startsWith path cd-path)
-            (subs path (count cd-path))
-            path))
-        (catch Throwable t
-          full-path))))
+(defn- file-path
+  "Helper to get the relative path to the source file or nil"
+  [^String full-path]
+  (when full-path
+    (try
+      (let [path (.getPath (java.io.File. full-path))
+            cd-path (str (.getAbsolutePath (java.io.File. "")) "/")]
+        (if (.startsWith path cd-path)
+          (subs path (count cd-path))
+          path))
+      (catch Throwable t
+        full-path))))
 
-#_(defn- java-loc->source
-    "Convert Java class name and method symbol to source symbol, either a
+(defn- java-loc->source
+  "Convert Java class name and method symbol to source symbol, either a
   Clojure function or Java class and method."
-    [clazz method]
-    (if (#{'invoke 'invokeStatic} method)
-      (let [degen #(.replaceAll ^String % "--.*$" "")
-            [ns-name fn-name & nested] (->> (str clazz) (.split #"\$") (map demunge) (map degen))]
-        (symbol ns-name (String/join "$" ^"[Ljava.lang.String;" (into-array String (cons fn-name nested)))))
-      (symbol (name clazz) (name method))))
+  [clazz method]
+  (if (#{'invoke 'invokeStatic} method)
+    (let [degen #(.replaceAll ^String % "--.*$" "")
+          [ns-name fn-name & nested] (->> (str clazz) (.split #"\$") (map demunge) (map degen))]
+      (symbol ns-name (String/join "$" ^"[Ljava.lang.String;" (into-array String (cons fn-name nested)))))
+    (symbol (name clazz) (name method))))
 
-#_(defn ex-triage
-    "Returns an analysis of the phase, error, cause, and location of an error that occurred
+(defn ex-triage
+  "Returns an analysis of the phase, error, cause, and location of an error that occurred
   based on Throwable data, as returned by Throwable->map. All attributes other than phase
   are optional:
     :clojure.error/phase - keyword phase indicator, one of:
@@ -273,55 +277,55 @@
     :clojure.error/class - cause exception class symbol
     :clojure.error/cause - cause exception message
     :clojure.error/spec - explain-data for spec error"
-    {:added "1.10"}
-    [datafied-throwable]
-    (let [{:keys [via trace phase] :or {phase :execution}} datafied-throwable
-          {:keys [type message data]} (last via)
-          {:clojure.spec.alpha/keys [problems fn], :clojure.spec.test.alpha/keys [caller]} data
-          {:clojure.error/keys [source] :as top-data} (:data (first via))]
-      (assoc
-        (case phase
-          :read-source
-          (let [{:clojure.error/keys [line column]} data]
-            (cond-> (merge (-> via second :data) top-data)
-              source (assoc :clojure.error/source (file-name source)
-                            :clojure.error/path (file-path source))
-              (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source :clojure.error/path)
-              message (assoc :clojure.error/cause message)))
-
-          (:compile-syntax-check :compilation :macro-syntax-check :macroexpansion)
-          (cond-> top-data
+  {:added "1.10"}
+  [datafied-throwable]
+  (let [{:keys [via trace phase] :or {phase :execution}} datafied-throwable
+        {:keys [type message data]} (last via)
+        {:clojure.spec.alpha/keys [problems fn], :clojure.spec.test.alpha/keys [caller]} data
+        {:clojure.error/keys [source] :as top-data} (:data (first via))]
+    (assoc
+      (case phase
+        :read-source
+        (let [{:clojure.error/keys [line column]} data]
+          (cond-> (merge (-> via second :data) top-data)
             source (assoc :clojure.error/source (file-name source)
                           :clojure.error/path (file-path source))
             (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source :clojure.error/path)
+            message (assoc :clojure.error/cause message)))
+
+        (:compile-syntax-check :compilation :macro-syntax-check :macroexpansion)
+        (cond-> top-data
+          source (assoc :clojure.error/source (file-name source)
+                        :clojure.error/path (file-path source))
+          (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} source) (dissoc :clojure.error/source :clojure.error/path)
+          type (assoc :clojure.error/class type)
+          message (assoc :clojure.error/cause message)
+          problems (assoc :clojure.error/spec data))
+
+        (:read-eval-result :print-eval-result)
+        (let [[source method file line] (-> trace first)]
+          (cond-> top-data
+            line (assoc :clojure.error/line line)
+            file (assoc :clojure.error/source file)
+            (and source method) (assoc :clojure.error/symbol (java-loc->source source method))
             type (assoc :clojure.error/class type)
+            message (assoc :clojure.error/cause message)))
+
+        :execution
+        (let [[source method file line] (->> trace (drop-while #(core-class? (name (first %)))) first)
+              file (first (remove #(or (nil? %) (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} %)) [(:file caller) file]))
+              err-line (or (:line caller) line)]
+          (cond-> {:clojure.error/class type}
+            err-line (assoc :clojure.error/line err-line)
             message (assoc :clojure.error/cause message)
-            problems (assoc :clojure.error/spec data))
+            (or fn (and source method)) (assoc :clojure.error/symbol (or fn (java-loc->source source method)))
+            file (assoc :clojure.error/source file)
+            problems (assoc :clojure.error/spec data))))
+      :clojure.error/phase phase)))
 
-          (:read-eval-result :print-eval-result)
-          (let [[source method file line] (-> trace first)]
-            (cond-> top-data
-              line (assoc :clojure.error/line line)
-              file (assoc :clojure.error/source file)
-              (and source method) (assoc :clojure.error/symbol (java-loc->source source method))
-              type (assoc :clojure.error/class type)
-              message (assoc :clojure.error/cause message)))
-
-          :execution
-          (let [[source method file line] (->> trace (drop-while #(core-class? (name (first %)))) first)
-                file (first (remove #(or (nil? %) (#{"NO_SOURCE_FILE" "NO_SOURCE_PATH"} %)) [(:file caller) file]))
-                err-line (or (:line caller) line)]
-            (cond-> {:clojure.error/class type}
-              err-line (assoc :clojure.error/line err-line)
-              message (assoc :clojure.error/cause message)
-              (or fn (and source method)) (assoc :clojure.error/symbol (or fn (java-loc->source source method)))
-              file (assoc :clojure.error/source file)
-              problems (assoc :clojure.error/spec data))))
-        :clojure.error/phase phase)))
-
-(defn ex-triage [x]
-  (println "ex-triage stubbed:" x)
-  x)
+#_(defn ex-triage [x]
+    (println "ex-triage stubbed:" x)
+    x)
 
 #_(defn ex-str
     "Returns a string from exception data, as produced by ex-triage.
@@ -399,7 +403,7 @@
 
 (defn ex-str [x]
   (println "ex-str stubbed:" x)
-  (str x))
+  (with-out-str (pprint x)))
 
 #_(defn err->msg
     "Helper to return an error message string from an exception."
