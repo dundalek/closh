@@ -353,6 +353,9 @@
     "! echo hi || echo OK"
     "! echo hi || echo OK"
 
+    "false || echo FAILED"
+    "false || echo FAILED"
+
     "echo a && echo b && echo c"
     "echo a && echo b && echo c"
 
@@ -393,10 +396,8 @@
 (deftest run-extra-special-cases
   (are [x y] (= (bash x) (closh-spawn-helper y))
 
-    #?(:cljs "mkdir x/y/z || echo FAILED"
-        ;; When using lookup executable as workaround for ProcessBuilder PATH handling, the Clojure version reports full absolute path when printing error
-       :clj "/bin/mkdir x/y/z || echo FAILED")
-    "mkdir x/y/z || echo FAILED"
+    ; "mkdir x/y/z || echo FAILED"
+    ; "mkdir x/y/z || echo FAILED"
 
     "for f in test/closh/*.cljc; do echo $f; cat $f; done"
     "ls test/closh/*.cljc |> #(doseq [f %] (sh echo (str f)) (sh cat (str f)))"))
