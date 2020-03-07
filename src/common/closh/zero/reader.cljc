@@ -2,9 +2,11 @@
   (:refer-clojure :exclude [read read-string])
   (:require [clojure.tools.reader.reader-types :as r]
             [clojure.tools.reader.edn :as edn]
-            #?(:cljs [closh.zero.cljs-reader :as reader])))
+            #?(:cljs [cljs.tools.reader])
+            #?(:cljs [cljs.tools.reader.impl.utils :refer [ws-rx]]))
+  #?(:cljs (:import goog.string.StringBuffer)))
 
-(set! *warn-on-reflection* true)
+#?(:clj (set! *warn-on-reflection* true))
 
 #?(:clj
    (defmacro require-reader []
@@ -13,12 +15,21 @@
        '(do (require 'clojure.tools.reader)
             (def read-clojure clojure.tools.reader/read)))))
 
-#?(:clj (require-reader))
+#?(:clj (require-reader)
+   :cljs
+   (defn- ^:no-doc read-clojure
+     "This is a verbatim copy of `cljs.tools.reader/read`. We need a copy otherwise re-binding ends up in infinite loop."
+     {:arglists '([] [reader] [opts reader] [reader eof-error? eof-value])}
+     ([reader] (read-clojure reader true nil))
+     ([{eof :eof :as opts :or {eof :eofthrow}} reader] (cljs.tools.reader/read* reader (= eof :eofthrow) eof nil opts (to-array [])))
+     ([reader eof-error? sentinel] (cljs.tools.reader/read* reader eof-error? sentinel nil {} (to-array [])))))
 
 (defn whitespace?-custom
   "Customizes `clojure.tools.reader.impl.utils/whitespace?` so that read-token splits token only on whitespace and does not split on comma."
   [ch]
-  (and ch (Character/isWhitespace ^Character ch)))
+  (and (some? ch)
+       #?(:clj (Character/isWhitespace ^Character ch)
+          :cljs (.test ws-rx ch))))
 
 (defn macro-terminating?
   "Customizes `clojure.tools.reader/macro-terminating?` so that read-token is more permissive. For example it does not stop on curly braces but reads them in so they can be used for brace expansion."
@@ -37,7 +48,7 @@
 (defn ^String read-token*
   "Read in a single logical token from the reader"
   [rdr]
-  (loop [sb (StringBuilder.) ch (r/read-char rdr)]
+  (loop [sb #?(:clj (StringBuilder.) :cljs (StringBuffer.)) ch (r/read-char rdr)]
     (if (or (whitespace?-custom ch)
             (macro-terminating? ch)
             (nil? ch))
@@ -50,10 +61,16 @@
   (if (= \" (r/peek-char rdr))
     (edn/read rdr)
     (let [token (read-token* rdr)]
-      (try
-        (Integer/parseInt token)
-        (catch Exception _
-          (symbol token))))))
+      #?(:clj
+         (try
+              (Integer/parseInt token)
+              (catch Exception _
+                (symbol token)))
+         :cljs
+         (let [number (js/Number token)]
+           (if (js/isNaN number)
+             (symbol token)
+             number))))))
 
 (defn read* [opts reader]
   (loop [coll (transient [])]
@@ -96,8 +113,8 @@
                     (recur (conj! coll token)))))))))
 
 (defn read
-  ([]
-   (read *in*))
+  #?(:clj ([]
+           (read *in*)))
   ([stream]
    (read stream true nil))
   ([stream eof-error? eof-value]
