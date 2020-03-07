@@ -20,6 +20,8 @@
                          LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
 
+(require '[fipp.edn :refer [pprint]])
+
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
 (require '[closh.zero.platform.clojure-compiler :as compiler])
@@ -847,7 +849,7 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
           report-str (with-out-str
                        (binding [*print-namespace-maps* false]
                          #_((requiring-resolve 'clojure.pprint/pprint) report)
-                         (prn report)))
+                         (pprint report)))
           err-path (when (= target "file")
                      (try
                        (let [f (.toFile (Files/createTempFile "clojure-" ".edn" (into-array FileAttribute [])))]
