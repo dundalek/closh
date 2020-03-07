@@ -24,8 +24,17 @@
 
 (require '[closh.zero.platform.eval :as eval])
 (require '[closh.zero.reader :as reader])
+(require '[closh.zero.env :as env])
+(require '[closh.zero.platform.process :as process])
 (require '[closh.zero.platform.clojure-compiler :as compiler])
 (def read reader/read)
+
+(defn repl-print
+  [& args]
+  (when-not (or (nil? (first args))
+                (identical? (first args) env/success)
+                (process/process? (first args)))
+    (apply prn args)))
 
 (defn eval [form]
   (eval/eval
@@ -684,7 +693,7 @@ by default when a new command-line REPL is started."} repl-requires
         (when-not (= input eof)
           (let [value (eval input)]
             (when-not (nil? value)
-              (prn value))
+              (repl-print value))
             (recur (with-read-known (read reader false eof))))))))
 
 (defn- init-dispatch
@@ -742,7 +751,8 @@ by default when a new command-line REPL is started."} repl-requires
     (println "Clojure" (clojure-version)))
   (repl :init (fn []
                 (initialize args inits)
-                #_(apply require repl-requires)))
+                #_(apply require repl-requires))
+        :print repl-print)
   (prn)
   (System/exit 0))
 
