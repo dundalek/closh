@@ -327,83 +327,85 @@
     (println "ex-triage stubbed:" x)
     x)
 
-#_(defn ex-str
-    "Returns a string from exception data, as produced by ex-triage.
+(defn ex-str
+  "Returns a string from exception data, as produced by ex-triage.
   The first line summarizes the exception phase and location.
   The subsequent lines describe the cause."
-    {:added "1.10"}
-    [{:clojure.error/keys [phase source path line column symbol class cause spec]
-      :as triage-data}]
-    (let [loc (str (or path source "REPL") ":" (or line 1) (if column (str ":" column) ""))
-          class-name (name (or class ""))
-          simple-class (if class (or (first (re-find #"([^.])++$" class-name)) class-name))
-          cause-type (if (contains? #{"Exception" "RuntimeException"} simple-class)
-                       "" ;; omit, not useful
-                       (str " (" simple-class ")"))]
-      (case phase
-        :read-source
-        (format "Syntax error reading source at (%s).%n%s%n" loc cause)
+  {:added "1.10"}
+  [{:clojure.error/keys [phase source path line column symbol class cause spec]
+    :as triage-data}]
+  (let [loc (str (or path source "REPL") ":" (or line 1) (if column (str ":" column) ""))
+        class-name (name (or class ""))
+        simple-class (if class (or (first (re-find #"([^.])++$" class-name)) class-name))
+        cause-type (if (contains? #{"Exception" "RuntimeException"} simple-class)
+                     "" ;; omit, not useful
+                     (str " (" simple-class ")"))]
+    (case phase
+      :read-source
+      (format "Syntax error reading source at (%s).%n%s%n" loc cause)
 
-        :macro-syntax-check
-        (format "Syntax error macroexpanding %sat (%s).%n%s"
-                (if symbol (str symbol " ") "")
-                loc
-                (if spec
-                  (with-out-str
-                    (spec/explain-out
+      :macro-syntax-check
+      (format "Syntax error macroexpanding %sat (%s).%n%s"
+              (if symbol (str symbol " ") "")
+              loc
+              (if spec
+                (with-out-str
+                  #_(spec/explain-out
                       (if (= spec/*explain-out* spec/explain-printer)
                         (update spec :clojure.spec.alpha/problems
                                 (fn [probs] (map #(dissoc % :in) probs)))
-                        spec)))
-                  (format "%s%n" cause)))
+                        spec))
+                  (pprint spec))
+                (format "%s%n" cause)))
 
-        :macroexpansion
-        (format "Unexpected error%s macroexpanding %sat (%s).%n%s%n"
-                cause-type
-                (if symbol (str symbol " ") "")
+      :macroexpansion
+      (format "Unexpected error%s macroexpanding %sat (%s).%n%s%n"
+              cause-type
+              (if symbol (str symbol " ") "")
+              loc
+              cause)
+
+      :compile-syntax-check
+      (format "Syntax error%s compiling %sat (%s).%n%s%n"
+              cause-type
+              (if symbol (str symbol " ") "")
+              loc
+              cause)
+
+      :compilation
+      (format "Unexpected error%s compiling %sat (%s).%n%s%n"
+              cause-type
+              (if symbol (str symbol " ") "")
+              loc
+              cause)
+
+      :read-eval-result
+      (format "Error reading eval result%s at %s (%s).%n%s%n" cause-type symbol loc cause)
+
+      :print-eval-result
+      (format "Error printing return value%s at %s (%s).%n%s%n" cause-type symbol loc cause)
+
+      :execution
+      (if spec
+        (format "Execution error - invalid arguments to %s at (%s).%n%s"
+                symbol
                 loc
-                cause)
-
-        :compile-syntax-check
-        (format "Syntax error%s compiling %sat (%s).%n%s%n"
-                cause-type
-                (if symbol (str symbol " ") "")
-                loc
-                cause)
-
-        :compilation
-        (format "Unexpected error%s compiling %sat (%s).%n%s%n"
-                cause-type
-                (if symbol (str symbol " ") "")
-                loc
-                cause)
-
-        :read-eval-result
-        (format "Error reading eval result%s at %s (%s).%n%s%n" cause-type symbol loc cause)
-
-        :print-eval-result
-        (format "Error printing return value%s at %s (%s).%n%s%n" cause-type symbol loc cause)
-
-        :execution
-        (if spec
-          (format "Execution error - invalid arguments to %s at (%s).%n%s"
-                  symbol
-                  loc
-                  (with-out-str
-                    (spec/explain-out
+                (with-out-str
+                  #_(spec/explain-out
                       (if (= spec/*explain-out* spec/explain-printer)
                         (update spec :clojure.spec.alpha/problems
                                 (fn [probs] (map #(dissoc % :in) probs)))
-                        spec))))
-          (format "Execution error%s at %s(%s).%n%s%n"
-                  cause-type
-                  (if symbol (str symbol " ") "")
-                  loc
-                  cause)))))
+                        spec))
+                  (pprint spec)))
+        (format "Execution error%s at %s(%s).%n%s%n"
+                cause-type
+                (if symbol (str symbol " ") "")
+                loc
+                cause)))))
 
-(defn ex-str [x]
-  (println "ex-str stubbed:" x)
-  (with-out-str (pprint x)))
+#_(defn ex-str [x]
+    (println "ex-str stubbed:" x)
+    (with-out-str (pprint x)))
 
 #_(defn err->msg
     "Helper to return an error message string from an exception."
