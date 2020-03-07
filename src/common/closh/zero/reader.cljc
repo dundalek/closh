@@ -63,9 +63,9 @@
     (let [token (read-token* rdr)]
       #?(:clj
          (try
-              (Integer/parseInt token)
-              (catch Exception _
-                (symbol token)))
+           (Integer/parseInt token)
+           (catch Exception _
+             (symbol token)))
          :cljs
          (let [number (js/Number token)]
            (if (js/isNaN number)

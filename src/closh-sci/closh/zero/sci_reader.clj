@@ -4,8 +4,8 @@
 
 (defn read-clojure [opts reader]
   (let [ctx (-> (assoc opts :all true)
-              (parser/normalize-opts)
-              (assoc ::parser/expected-delimiter nil))
+                (parser/normalize-opts)
+                (assoc ::parser/expected-delimiter nil))
         c (r/peek-char reader)]
     (let [loc (parser/location reader)
           obj (parser/dispatch ctx reader c)
