@@ -317,6 +317,10 @@
               problems (assoc :clojure.error/spec data))))
         :clojure.error/phase phase)))
 
+(defn ex-triage [x]
+  (println "ex-triage stubbed:" x)
+  x)
+
 #_(defn ex-str
     "Returns a string from exception data, as produced by ex-triage.
   The first line summarizes the exception phase and location.
@@ -390,6 +394,10 @@
                   (if symbol (str symbol " ") "")
                   loc
                   cause)))))
+
+(defn ex-str [x]
+  (println "ex-str stubbed:" x)
+  (str x))
 
 #_(defn err->msg
     "Helper to return an error message string from an exception."
@@ -819,8 +827,41 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
             (println (str message (System/lineSeparator) "Full report at:" (System/lineSeparator) err-path))
             (println (str report-str (System/lineSeparator) message)))))))
 
-(defn report-error [& args]
-  (println "repl-error stubbed:" args))
+(defn report-error
+  "Create and output an exception report for a Throwable to target.
+
+  Options:
+    :target - \"file\" (default), \"stderr\", \"none\"
+
+  If file is specified but cannot be written, falls back to stderr."
+  [^Throwable t & {:keys [target]
+                   :or {target "file"} :as opts}]
+  (when-not (= target "none")
+    (let [trace (Throwable->map t)
+          triage (ex-triage trace)
+          message (ex-str triage)
+          report (array-map
+                   :clojure.main/message message
+                   :clojure.main/triage triage
+                   :clojure.main/trace trace)
+          report-str (with-out-str
+                       (binding [*print-namespace-maps* false]
+                         #_((requiring-resolve 'clojure.pprint/pprint) report)
+                         (prn report)))
+          err-path (when (= target "file")
+                     (try
+                       (let [f (.toFile (Files/createTempFile "clojure-" ".edn" (into-array FileAttribute [])))]
+                         (with-open [w (BufferedWriter. (FileWriter. f))]
+                           (binding [*out* w] (println report-str)))
+                         (.getAbsolutePath f))
+                       (catch Throwable _)))] ;; ignore, fallback to stderr
+      (binding [*out* *err*]
+        (if err-path
+          (println (str message (System/lineSeparator) "Full report at:" (System/lineSeparator) err-path))
+          (println (str report-str (System/lineSeparator) message)))))))
+
+#_(defn report-error [& args]
+    (println "repl-error stubbed:" args))
 
 (defn main
   "Usage: java -cp clojure.jar clojure.main [init-opt*] [main-opt] [arg*]
