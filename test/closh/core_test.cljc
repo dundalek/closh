@@ -5,10 +5,12 @@
             [closh.zero.reader :as reader]
             [closh.zero.builtin :refer [getenv setenv]]
             [closh.zero.env]
+            [closh.zero.compiler]
+            [closh.zero.parser]
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline]]
+            [closh.zero.pipeline :as pipeline :refer [process-output process-value]]
             [closh.zero.core :refer [shx expand]]
             ;;[closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])

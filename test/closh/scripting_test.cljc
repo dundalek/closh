@@ -3,8 +3,11 @@
             [closh.zero.core :refer [shx]]
             [closh.zero.pipeline :refer [process-output process-value pipe]]))
 
+(def sci? #?(:clj (System/getenv "__CLOSH_USE_SCI_EVAL__")
+             :cljs false))
+
 (defn closh [& args]
-  (shx "clojure" (concat (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+  (shx "clojure" (concat (if sci?
                            ["-A:sci" "-m" "closh.zero.frontend.sci"]
                            ["-m" "closh.zero.frontend.rebel"])
                          args)))
@@ -40,7 +43,7 @@
 
     ;; TODO metadata reader for sci
     "true"
-    (closh "-e" (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+    (closh "-e" (if sci?
                   "(print (:dynamic (meta (with-meta {} {:dynamic true}))))"
                   "(print (:dynamic (meta ^:dynamic {})))"))))
 
@@ -69,10 +72,10 @@
     #"/throw2\.cljc:(\d+:\d+)"
     (closh "fixtures/script-mode-tests/throw2.cljc")
 
-    (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+    (if sci?
       "Execution error at"
       "3")
-    (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+    (if sci?
       ;; TODO handle location for sci in ex-triage :execution phase
       #"(Execution error at)"
       #"Execution error at .* \(REPL:(\d+)\)")

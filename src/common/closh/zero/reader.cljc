@@ -122,7 +122,7 @@
    (read stream true nil))
   ([stream eof-error? eof-value]
    (read stream eof-error? eof-value false))
-  ([stream eof-error? eof-value recursive?]
+  ([stream _eof-error? eof-value _recursive?]
    ;; TODO what does `recursive?` do?
    (read* {:features #{:clj} :read-cond :allow :eof eof-value} stream))
   ([opts stream]

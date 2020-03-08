@@ -149,10 +149,10 @@
          :make-input-stream (fn [^String x opts]
                               (try
                                 (make-input-stream (URL. x) opts)
-                                (catch MalformedURLException e
+                                (catch MalformedURLException _e
                                   (make-input-stream (resolve-file x) opts))))
          :make-output-stream (fn [^String x opts]
                                (try
                                  (make-output-stream (URL. x) opts)
-                                 (catch MalformedURLException err
+                                 (catch MalformedURLException _err
                                    (make-output-stream (resolve-file x) opts))))))

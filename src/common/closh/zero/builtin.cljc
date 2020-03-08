@@ -1,7 +1,6 @@
 (ns closh.zero.builtin
   (:require [clojure.string]
             [closh.zero.platform.process :as process]
-            [closh.zero.core :as core]
             [closh.zero.env :as env]
             [closh.zero.macros #?(:clj :refer :cljs :refer-macros) [defcmd]]))
 

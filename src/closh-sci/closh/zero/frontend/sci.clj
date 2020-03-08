@@ -1,13 +1,13 @@
 (ns closh.zero.frontend.sci
   (:gen-class)
   (:require
-   [closh.zero.compiler]
-   [closh.zero.parser :as parser]
-   [closh.zero.pipeline]
-   [closh.zero.platform.eval :as eval]
-   [closh.zero.platform.process :as process]
-   [closh.zero.env :as env]
-   [closh.zero.reader :as reader]
+   ; [closh.zero.compiler]
+   ; [closh.zero.parser :as parser]
+   ; [closh.zero.pipeline]
+   ; [closh.zero.platform.eval :as eval]
+   ; [closh.zero.platform.process :as process]
+   ; [closh.zero.env :as env]
+   ; [closh.zero.reader :as reader]
    [closh.zero.utils.clojure-main-sci :refer [main]]))
 
 #_(defn repl-print

@@ -86,7 +86,7 @@
                        (.write *stderr* (str "Unexpected error:\n" err "\n"))))))
       :clj (try
              (process/shx cmd args opts)
-             (catch java.io.IOException e
+             (catch java.io.IOException _e
                (let [suggestion (get-command-suggestion cmd)]
                  (when-not (clojure.string/blank? suggestion)
                    (.print ^java.io.PrintStream *stderr* suggestion))
