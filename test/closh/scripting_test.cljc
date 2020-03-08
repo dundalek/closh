@@ -55,10 +55,27 @@
     #"Syntax error compiling at \(REPL:(\d+:\d+)\)"
     (pipe "\n\n\n (throw (Exception. \"my exception message\"))" (closh "-"))
 
+    ; TODO
+    ; "2:4"
+    ; (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+    ;   #"Syntax error reading source at \(REPL:(\d+:\d+)\)"
+    ;   #"Syntax error \(ExceptionInfo\) compiling at \(REPL:(\d+:\d+)\)")
+    ; (pipe "\n  )" (closh "-"))
+
     "5:1"
     #"/throw2\.cljc:(\d+:\d+)"
     (closh "fixtures/script-mode-tests/throw2.cljc")
 
-    "3"
-    #"Execution error at .* \(REPL:(\d+)\)"
+    (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+      "Execution error at"
+      "3")
+    (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+      ;; TODO handle location for sci in ex-triage :execution phase
+      #"(Execution error at)"
+      #"Execution error at .* \(REPL:(\d+)\)")
     (closh "-e" "\n\n(throw (Exception. \"my exception message\"))")))
+
+    ; "2"
+    ; #"Execution error at .* \(REPL:(\d+)\)"
+    ; (closh "-e" "\n  )")))
+

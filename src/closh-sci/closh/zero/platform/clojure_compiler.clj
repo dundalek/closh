@@ -46,9 +46,10 @@
                  (recur ret))))))
        ;; TODO exceptions will be different
        (catch clojure.lang.ExceptionInfo e
-         (let [{:keys [line col type]} (ex-data e)]
+         (let [{:keys [line row col type]} (ex-data e)]
            (case type
              :reader-exception (throw (Compiler$CompilerException. source-path line col nil Compiler$CompilerException/PHASE_READ (.getCause e)))
+             :edamame/error (throw (Compiler$CompilerException. source-path row col nil Compiler$CompilerException/PHASE_READ (.getCause e)))
              :sci/error (throw (Compiler$CompilerException. source-path @LINE_BEFORE @COLUMN_BEFORE e))
              (throw e))))
        #_(catch LispReader$ReaderException e
