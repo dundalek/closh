@@ -1,5 +1,6 @@
 (ns closh.pipeline-test
   (:require [clojure.test :refer [deftest is are]]
+            [clojure.string]
             [closh.test-util.util :refer [null-file]]
             [closh.zero.platform.process :refer [shx]]
             [closh.zero.pipeline :refer [process-output pipe pipe-multi pipe-map pipe-filter pipeline-value]]))

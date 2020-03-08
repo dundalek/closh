@@ -54,10 +54,9 @@
   (is (= (cwd)
          (let [d #?(:clj (.getName (File. (.getCanonicalPath (File. (cwd)))))
                     :cljs (path/basename (path/normalize (cwd))))]
-           (do
-             (chdir "..")
-             (chdir d)
-             (cwd)))))
+           (chdir "..")
+           (chdir d)
+           (cwd))))
 
   (is (= (slurp "deps.edn")
          (do

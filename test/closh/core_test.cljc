@@ -5,10 +5,12 @@
             [closh.zero.reader :as reader]
             [closh.zero.builtin :refer [getenv setenv]]
             [closh.zero.env]
+            [closh.zero.compiler]
+            [closh.zero.parser]
             [closh.zero.platform.io]
             [closh.zero.platform.process :as process]
             #?(:cljs [closh.zero.platform.eval :refer [execute-command-text]])
-            [closh.zero.pipeline :as pipeline :refer [process-output process-value wait-for-pipeline]]
+            [closh.zero.pipeline :as pipeline :refer [process-output process-value]]
             [closh.zero.core :refer [shx expand]]
             ;;[closh.zero.macros #?(:clj :refer :cljs :refer-macros) [sh sh-str defalias defabbr]]
             #?(:cljs [lumo.io :refer [spit slurp]])
@@ -31,13 +33,13 @@
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
      :clj (pipeline/process-value
            (cond (and (process/getenv "__CLOSH_USE_SCI_NATIVE__") (process/getenv "CI_ENV"))
-                 (shx "./closh-zero-sci" [cmd])
+                 (shx "./closh-zero-sci" "-e" [cmd])
 
                  (process/getenv "__CLOSH_USE_SCI_NATIVE__")
-                 (shx "java" ["-jar" "target/closh-zero-sci.jar" cmd])
+                 (shx "java" ["-jar" "target/closh-zero-sci.jar" "-e" cmd])
 
                  (process/getenv "__CLOSH_USE_SCI_EVAL__")
-                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" cmd])
+                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" "-e" cmd])
 
                  :else
                  (shx "clojure" ["-m" "closh.zero.frontend.rebel" "-e" cmd])))))
@@ -353,6 +355,9 @@
     "! echo hi || echo OK"
     "! echo hi || echo OK"
 
+    "false || echo FAILED"
+    "false || echo FAILED"
+
     "echo a && echo b && echo c"
     "echo a && echo b && echo c"
 
@@ -393,10 +398,8 @@
 (deftest run-extra-special-cases
   (are [x y] (= (bash x) (closh-spawn-helper y))
 
-    #?(:cljs "mkdir x/y/z || echo FAILED"
-        ;; When using lookup executable as workaround for ProcessBuilder PATH handling, the Clojure version reports full absolute path when printing error
-       :clj "/bin/mkdir x/y/z || echo FAILED")
-    "mkdir x/y/z || echo FAILED"
+    ; "mkdir x/y/z || echo FAILED"
+    ; "mkdir x/y/z || echo FAILED"
 
     "for f in test/closh/*.cljc; do echo $f; cat $f; done"
     "ls test/closh/*.cljc |> #(doseq [f %] (sh echo (str f)) (sh cat (str f)))"))

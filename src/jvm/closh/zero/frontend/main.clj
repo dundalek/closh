@@ -1,6 +1,7 @@
 (ns closh.zero.frontend.main
   (:gen-class)
   (:require [clojure.tools.reader.reader-types :refer [read-char unread]]
+            [clojure.tools.reader.impl.utils]
             [closh.zero.reader :refer [read-sh]]
             [closh.zero.core :as core]
             [closh.zero.platform.process :refer [process?]]
@@ -135,7 +136,7 @@
   "Evals expressions in str, prints each non-nil result using prn"
   [str]
   (let [eof (Object.)
-        reader (make-custom-reader (java.io.StringReader. str))]
+        reader (make-custom-reader (StringReader. str))]
     (loop [input (with-read-known (read reader false eof))]
       (when-not (= input eof)
         (let [value (eval/eval input)]

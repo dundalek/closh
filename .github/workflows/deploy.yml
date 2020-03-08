@@ -15,6 +15,27 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gitlibs
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/Boot
+          key: ${{ runner.os }}-boot-2.8.3
+          restore-keys: |
+            ${{ runner.os }}-boot-
+
       - name: Parse Ref
         id: parse-ref
         run: |
@@ -62,6 +83,27 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gitlibs
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/Boot
+          key: ${{ runner.os }}-boot-2.8.3
+          restore-keys: |
+            ${{ runner.os }}-boot-
+
       - name: Parse Ref
         id: parse-ref
         run: |
@@ -79,6 +121,9 @@ jobs:
 
       - name: Check boot version
         run: boot -V
+
+      - run: |
+          which boot
 
       # - name: Install shadow-cljs
       #   run: |
@@ -111,6 +156,13 @@ jobs:
 
       # === used for running tests, maybe extract into separate job
 
+      - uses: actions/cache@v1
+        with:
+          path: /Users/runner/hostedtoolcache/GraalVM
+          key: ${{ runner.os }}-graal-19.2.1
+          restore-keys: |
+            ${{ runner.os }}-graal-
+
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
@@ -138,6 +190,9 @@ jobs:
 
       - name: Install native-image
         run: gu install native-image
+
+      - run: |
+          which native-image
 
       - name: Build macOS native image
         run: |
@@ -157,15 +212,13 @@ jobs:
           path: closh-zero-sci
           name: closh-zero-sci-macos
 
-      - name: Test binary
-        run: |
-          ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
-          ./closh-zero-sci ; \
-          ./closh-zero-sci 'echo "hi"' ; \
-          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+      - run: brew install expect
 
-      - name: Run tests with binary
-        run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
+      - name: Test binary
+        run: ./scripts/test-sci-binary.sh
+
+      # - name: Run tests with binary
+      #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
 
   native-image-linux:
     needs: [build-jar-sci]
@@ -177,6 +230,13 @@ jobs:
           echo ::set-output name=version::${GITHUB_REF#refs/tags/}
 
       # === used for running tests, maybe extract into separate job
+
+      - uses: actions/cache@v1
+        with:
+          path: /opt/hostedtoolcache/GraalVM
+          key: ${{ runner.os }}-graal-19.2.1
+          restore-keys: |
+            ${{ runner.os }}-graal-
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
@@ -206,6 +266,9 @@ jobs:
       - name: Install native-image
         run: gu install native-image
 
+      - run: |
+          which native-image
+
       - name: Build Linux native image
         run: |
           native-image \
@@ -224,15 +287,13 @@ jobs:
           path: closh-zero-sci
           name: closh-zero-sci-linux
 
-      - name: Test binary
-        run: |
-          ./closh-zero-sci '(str "sci works") | (clojure.string/upper-case) | (println)'; \
-          ./closh-zero-sci ; \
-          ./closh-zero-sci 'echo "hi"' ; \
-          ./closh-zero-sci 'echo "hi" | (clojure.string/upper-case)' ;
+      - run: sudo apt-get install -y expect
 
-      - name: Run tests with binary
-        run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
+      - name: Test binary
+        run: ./scripts/test-sci-binary.sh
+
+      # - name: Run tests with binary
+      #   run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
 
   # Collate artifacts, upload to GitHub Releases on semver tags
 

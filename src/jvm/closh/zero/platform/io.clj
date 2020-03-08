@@ -34,24 +34,24 @@
 
                              ".."
                              (->> acc
-                                  (filter (fn [{:keys [path parts]}]
+                                  (filter (fn [{:keys [path _parts]}]
                                             (directory? path)))
                                   (map (fn [entry]
                                          (-> entry
                                              (update :path #(.getParent ^Path %))
                                              (update :parts conj ".."))))
-                                  (filter (fn [{:keys [path parts]}]
+                                  (filter (fn [{:keys [path _parts]}]
                                             (some? path))))
 
                              (->> acc
-                                  (filter (fn [{:keys [path parts]}]
+                                  (filter (fn [{:keys [path _parts]}]
                                             (directory? path)))
                                   (mapcat (fn [{:keys [^Path path parts]}]
                                             (map (fn [^Path nested-path]
                                                    {:path  nested-path
                                                     :parts (conj parts (str (.getFileName nested-path)))})
                                                  (Files/newDirectoryStream path segment))))
-                                  (filter (fn [{:keys [^Path path parts]}]
+                                  (filter (fn [{:keys [^Path path _parts]}]
                                             (and (some? path)
                                                  (or (str/starts-with? segment ".")
                                                      (not (str/starts-with? (.getFileName path) ".")))))))))

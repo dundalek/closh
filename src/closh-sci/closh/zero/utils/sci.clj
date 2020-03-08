@@ -1,14 +1,19 @@
 (ns closh.zero.utils.sci
+  (:refer-clojure :exclude [eval load-file])
   (:require [sci.core :as sci]
             [sci.impl.interpreter :as interpreter]
+            [sci.impl.opts :as opts]
             [closh.zero.pipeline :as pipeline]
             [closh.zero.core :as closh-core]
+            [closh.zero.compiler]
+            [closh.zero.parser]
             [closh.zero.platform.process :as process]
             [closh.zero.builtin :as builtin]
             [closh.zero.env :as env]
             [closh.zero.util :refer [thread-stop]]
             [closh.zero.macros-fns :as macros-fns]
-            [clojure.repl :as repl]))
+            [clojure.repl :as repl]
+            [closh.zero.platform.clojure-compiler :as clojure-compiler]))
 
 (set! *warn-on-reflection* true)
 
@@ -75,10 +80,10 @@
 
 
 (declare ctx)
+(declare eval)
 
-(defn load-file* [file]
-  (let [s (slurp file)]
-    (sci/eval-string s ctx)))
+(defn load-file [file]
+  (clojure-compiler/load-file file eval))
 
 (def sci-env (atom {}))
 
@@ -102,7 +107,7 @@
                'clojure.core/swap! swap!
                'print print
                'println println
-               'load-file load-file*
+               'load-file load-file
                'Math/sqrt #(Math/sqrt %)
                'java.lang.Thread/currentThread #(Thread/currentThread)
                'thread-stop thread-stop
@@ -113,12 +118,16 @@
                'quit builtin/quit
                'getenv builtin/getenv
                'setenv builtin/setenv
-               'unsetenv builtin/unsetenv})
+               'unsetenv builtin/unsetenv
+               '*args* (sci/new-dynamic-var '*args* (rest *command-line-args*))})
 
 (def ctx {:bindings (merge bindings macro-bindings)
           :namespaces {'closh.zero.macros macro-bindings
                        'clojure.core {'println println
-                                      'print print}
+                                      'print print
+                                      'pr pr
+                                      'prn prn
+                                      'pr-str pr-str}
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
                                              'wait-for-pipeline pipeline/wait-for-pipeline
@@ -143,5 +152,10 @@
 (defn sci-eval [form]
   ;; (prn "EVAL FORM" form)
   ;; (sci/eval-string (pr-str form) ctx)
-  (let [ctx (interpreter/opts->ctx ctx)]
-    (interpreter/eval-edn-vals ctx [form])))
+  (let [ctx (opts/init ctx)]
+    (interpreter/eval-form ctx form)))
+
+(defn eval [form]
+  (sci-eval
+   (closh.zero.compiler/compile-interactive
+    (closh.zero.parser/parse form))))
