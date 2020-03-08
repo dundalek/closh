@@ -612,8 +612,15 @@ by default when a new command-line REPL is started."} repl-requires
             (let [read-eval *read-eval*
                   input (try
                           (with-read-known (read request-prompt request-exit))
-                          (catch LispReader$ReaderException e
-                            (throw (ex-info nil {:clojure.error/phase :read-source} e))))]
+                          (catch clojure.lang.ExceptionInfo e
+                            (let [{:keys [line col type] :as data} (ex-data e)
+                                  data (if (#{:edamame/error :reader-exception} type)
+                                         {:clojure.error/line line :clojure.error/column col}
+                                         data)]
+                              (throw (ex-info nil {:clojure.error/phase :read-source}
+                                              (ex-info (ex-message e) data)))))
+                          #_(catch LispReader$ReaderException e
+                                (throw (ex-info nil {:clojure.error/phase :read-source} e))))]
              (or (#{request-prompt request-exit} input)
                  (let [value (binding [*read-eval* read-eval] (eval input))]
                    (set! *3 *2)
