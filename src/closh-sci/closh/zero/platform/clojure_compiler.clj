@@ -3,15 +3,10 @@
   (:require [closh.zero.reader :as reader]
             [closh.zero.parser]
             [closh.zero.compiler]
-            [closh.zero.platform.eval :as eval]
+            #_[closh.zero.platform.eval :as eval]
             [clojure.tools.reader.reader-types :as r])
   (:import (clojure.lang Compiler RT LineNumberingPushbackReader LispReader$ReaderException Compiler$CompilerException)
            (java.io File FileInputStream InputStreamReader StringReader PipedWriter PipedReader PushbackReader BufferedReader)))
-
-(defn eval [form]
-  (eval/eval
-   (closh.zero.compiler/compile-interactive
-    (closh.zero.parser/parse form))))
 
 (defn reader-opts [source-name]
   #_(when (str/ends-with source-name ".cljc")
@@ -20,7 +15,7 @@
 ;; Reimplementation of Compiler.load
 (defn load
   ([rdr] (load rdr nil "NO_SOURCE_FILE"))
-  ([rdr source-path source-name]
+  ([rdr source-path source-name eval]
    (let [eof (Object.)
          rdr (r/indexing-push-back-reader rdr)
          ;;rdr ^LineNumberingPushbackReader (if (instance? LineNumberingPushbackReader rdr) rdr (LineNumberingPushbackReader. rdr))]
@@ -63,7 +58,7 @@
         ; Var.popThreadBindings())));
 
 ;; Reimplementation of Compiler.loadFile
-(defn load-file [^String file]
+(defn load-file [^String file eval]
   (let [f ^FileInputStream (FileInputStream. file)
         rdr ^InputStreamReader (InputStreamReader. f "UTF-8")]
         ;; rdr (make-custom-reader (PushbackReader. (InputStreamReader. f RT/UTF8)))]
@@ -71,6 +66,7 @@
       (load
        rdr
        (.getAbsolutePath (File. file))
-       (.getName (File. file)))
+       (.getName (File. file))
+       eval)
       (finally
         (.close f)))))

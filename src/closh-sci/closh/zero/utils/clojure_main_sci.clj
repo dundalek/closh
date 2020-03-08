@@ -42,13 +42,13 @@
     (closh.zero.parser/parse form))))
 
 (defn load-reader [rdr]
-  (compiler/load rdr))
+  (compiler/load rdr eval))
 
 (defn rt-load-resource-script [path]
   (println "rt-load-resource-script stubbed:" path))
 
 (defn compiler-load-file [path]
-  (compiler/load-file path))
+  (compiler/load-file path eval))
 
 ;; Copied from clojure/core
 (defn read+string
