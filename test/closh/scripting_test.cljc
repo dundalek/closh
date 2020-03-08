@@ -23,6 +23,10 @@
     (pipe (shx "echo" ["echo a b"])
           (closh "-"))
 
+    "3\n"
+    (pipe (shx "echo" ["echo (+ 1 2)"])
+          (closh "-"))
+
     "bar\n"
     (closh "fixtures/script-mode-tests/bar.cljc")
 
