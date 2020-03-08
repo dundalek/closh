@@ -38,8 +38,11 @@
     "a b\n"
     (closh "fixtures/script-mode-tests/cond.cljc")
 
+    ;; TODO metadata reader for sci
     "true"
-    (closh "-e" "(print (:dynamic (meta ^:dynamic {})))")))
+    (closh "-e" (if (System/getenv "__CLOSH_USE_SCI_EVAL__")
+                  "(print (:dynamic (meta (with-meta {} {:dynamic true}))))"
+                  "(print (:dynamic (meta ^:dynamic {})))"))))
 
 (deftest scripting-errors-test
 

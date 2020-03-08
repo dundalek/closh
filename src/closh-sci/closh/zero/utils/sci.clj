@@ -118,12 +118,16 @@
                'quit builtin/quit
                'getenv builtin/getenv
                'setenv builtin/setenv
-               'unsetenv builtin/unsetenv})
+               'unsetenv builtin/unsetenv
+               '*args* (sci/new-dynamic-var '*args* (rest *command-line-args*))})
 
 (def ctx {:bindings (merge bindings macro-bindings)
           :namespaces {'closh.zero.macros macro-bindings
                        'clojure.core {'println println
-                                      'print print}
+                                      'print print
+                                      'pr pr
+                                      'prn prn
+                                      'pr-str pr-str}
                        'closh.zero.pipeline {'pipe pipeline/pipe
                                              'redir pipeline/redir
                                              'wait-for-pipeline pipeline/wait-for-pipeline

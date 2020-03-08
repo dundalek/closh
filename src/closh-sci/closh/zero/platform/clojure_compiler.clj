@@ -14,7 +14,7 @@
 
 ;; Reimplementation of Compiler.load
 (defn load
-  ([rdr] (load rdr nil "NO_SOURCE_FILE"))
+  ([rdr eval] (load rdr nil "NO_SOURCE_FILE" eval))
   ([rdr source-path source-name eval]
    (let [eof (Object.)
          rdr (r/indexing-push-back-reader rdr)

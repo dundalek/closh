@@ -31,13 +31,13 @@
   #?(:cljs (pipeline/process-value (shx "lumo" ["-K" "-c" "src/common:src/lumo:test" "-m" "closh.test-util.spawn-helper" cmd]))
      :clj (pipeline/process-value
            (cond (and (process/getenv "__CLOSH_USE_SCI_NATIVE__") (process/getenv "CI_ENV"))
-                 (shx "./closh-zero-sci" [cmd])
+                 (shx "./closh-zero-sci" "-e" [cmd])
 
                  (process/getenv "__CLOSH_USE_SCI_NATIVE__")
-                 (shx "java" ["-jar" "target/closh-zero-sci.jar" cmd])
+                 (shx "java" ["-jar" "target/closh-zero-sci.jar" "-e" cmd])
 
                  (process/getenv "__CLOSH_USE_SCI_EVAL__")
-                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" cmd])
+                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" "-e" cmd])
 
                  :else
                  (shx "clojure" ["-m" "closh.zero.frontend.rebel" "-e" cmd])))))
