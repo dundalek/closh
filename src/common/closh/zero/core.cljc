@@ -74,8 +74,7 @@
   ([cmd] (shx cmd []))
   ([cmd args] (shx cmd args {}))
   ([cmd args opts]
-   #?(:cljs (doto
-             (process/shx cmd args opts)
+   #?(:cljs (doto (process/shx cmd args opts)
               (.on "error"
                    (fn [err]
                      (case (.-errno err)

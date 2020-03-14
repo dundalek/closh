@@ -28,9 +28,9 @@
                      ; {:git/url "https://github.com/borkdude/edamame"
                      ;  :tag "v0.0.9"
                      ;  :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"}}}
-  :lint {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
+  :lint {:extra-deps {cljfmt {:mvn/version "0.6.7"}}
          :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
-  :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.4"}}
+  :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.7"}}
              :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
