@@ -9,7 +9,7 @@
 
 (def ^:dynamic *env* (atom {}))
 
-(def ^:dynamic *cwd* (atom (System/getProperty "user.dir")))
+(def ^:dynamic *cwd* (atom nil))
 
 (defn process? [proc]
   (instance? Process proc))
@@ -27,7 +27,7 @@
   (System/exit code))
 
 (defn cwd ^String []
-  @*cwd*)
+  (or @*cwd* (System/getProperty "user.dir")))
 
 (defn resolve-file ^File [^String s]
   (let [f (File. s)]
