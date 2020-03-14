@@ -32,6 +32,9 @@ wait-for-enter
 echo Update version in package.json
 wait-for-enter
 
+echo Update version in resources/CLOSH_VERSION
+wait-for-enter
+
 echo Create git tag
 echo git tag v0.x.x
 wait-for-enter
@@ -52,7 +55,7 @@ wait-for-enter
 echo Pushing branch and tag...
 git push && git push --tags
 
-Publishing npm publish
+echo Publishing npm publish
 npm publish
 echo
 

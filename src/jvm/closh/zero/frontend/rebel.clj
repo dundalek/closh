@@ -9,6 +9,7 @@
             [clojure.java.io :as jio]
             [closh.zero.env :as env]
             [closh.zero.reader]
+            [closh.zero.core :as closh.core]
             [closh.zero.platform.process :refer [process?]]
             [closh.zero.platform.eval :as eval]
             [closh.zero.frontend.main :as main]
@@ -131,9 +132,12 @@
             flatten))))))
 
 (defn -main [& args]
-  (with-redefs [clojure-main/load-script main/load-script
-                clojure-main/eval-opt main/eval-opt
-                clojure-main/repl-opt repl
-                clojure-main/help-opt main/help-opt
-                clojure.core/load-reader main/load-reader]
-    (apply clojure-main/main args)))
+  (if (= args '("--version"))
+    (prn {:closh (closh.core/closh-version)
+          :clojure (clojure-version)})
+    (with-redefs [clojure-main/load-script main/load-script
+                  clojure-main/eval-opt main/eval-opt
+                  clojure-main/repl-opt repl
+                  clojure-main/help-opt main/help-opt
+                  clojure.core/load-reader main/load-reader]
+      (apply clojure-main/main args))))

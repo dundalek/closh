@@ -146,7 +146,9 @@
                                          'get-command-suggestion closh-core/get-command-suggestion
                                          'shx closh-core/shx
                                          'expand-alias closh-core/expand-alias
-                                         'expand-abbreviation closh-core/expand-abbreviation}}
+                                         'expand-abbreviation closh-core/expand-abbreviation
+                                         '*closh-version* closh-core/*closh-version*
+                                         'closh-version closh-core/closh-version}}
           :env sci-env})
 
 (defn sci-eval [form]

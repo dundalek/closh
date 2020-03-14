@@ -5,6 +5,7 @@ set -x
 CLOSH_CMD=./closh-zero-sci
 #CLOSH_CMD="java -jar target/closh-zero-sci.jar"
 
+$CLOSH_CMD --version
 $CLOSH_CMD -e "(+ 1 2)"
 $CLOSH_CMD -e "date"
 $CLOSH_CMD -e 'echo "hi" | (clojure.string/upper-case)'

@@ -8,6 +8,7 @@
    ; [closh.zero.platform.process :as process]
    ; [closh.zero.env :as env]
    ; [closh.zero.reader :as reader]
+   [closh.zero.core :as closh.core]
    [closh.zero.utils.clojure-main-sci :refer [main]]))
 
 #_(defn repl-print
@@ -33,4 +34,7 @@
              (closh.zero.pipeline/wait-for-pipeline))))))
 
 (defn -main [& args]
-  (apply main args))
+  (if (= args '("--version"))
+    (prn {:closh (closh.core/closh-version)
+          :clojure (clojure-version)})
+    (apply main args)))

@@ -113,3 +113,36 @@
               (= (clojure.string/trim input) token))
        (clojure.string/replace-first input #"[^\s]+" alias)
        input))))
+
+;; Based on code from clojure.core
+#?(:clj
+   (let [version-string (clojure.string/trim (slurp (clojure.java.io/resource "CLOSH_VERSION")))
+         [_ major minor incremental qualifier snapshot]
+         (re-matches
+          #"(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z0-9_]+))?(?:-(SNAPSHOT))?"
+          version-string)
+         version {:major       (Integer/valueOf ^String major)
+                  :minor       (Integer/valueOf ^String minor)
+                  :incremental (Integer/valueOf ^String incremental)
+                  :qualifier   (if (= qualifier "SNAPSHOT") nil qualifier)}]
+     (def ^:dynamic *closh-version*
+       (if (.contains version-string "SNAPSHOT")
+         (assoc version :interim true)
+         version))))
+
+;; Based on clojure.core/clojure-version
+#?(:clj
+   (defn
+     closh-version
+     "Returns closh version as a printable string."
+     {:added "1.0"}
+     []
+     (str (:major *closh-version*)
+          "."
+          (:minor *closh-version*)
+          (when-let [i (:incremental *closh-version*)]
+            (str "." i))
+          (when-let [q (:qualifier *closh-version*)]
+            (when (pos? (count q)) (str "-" q)))
+          (when (:interim *closh-version*)
+            "-SNAPSHOT"))))

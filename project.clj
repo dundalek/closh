@@ -1,4 +1,6 @@
-(defproject closh-sci "0.0.1-SNAPSHOT"
+(defproject closh-sci
+  #=(clojure.string/trim
+     #=(slurp "resources/CLOSH_VERSION"))
   :description "Closh with SCI"
   :source-paths ["src/jvm" "src/closh-sci" "src/common" "resources"]
   :dependencies [[org.clojure/clojure "1.10.1"]

@@ -12,7 +12,7 @@
             '[closh.zero.reader]
             '[closh.zero.compiler]
             '[closh.zero.parser]
-            '[closh.zero.core :refer [shx expand]]
+            '[closh.zero.core :refer [shx expand #?@(:clj [*closh-version* closh-version])]]
             '[closh.zero.builtin :refer [cd exit quit getenv setenv unsetenv]]
             '[closh.zero.platform.process]
             '[closh.zero.pipeline]
