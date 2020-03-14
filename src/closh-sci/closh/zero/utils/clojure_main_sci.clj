@@ -81,29 +81,29 @@
 
 ;;;;;;;;;;;;;;;;;;; redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
 
-#_(defn demunge
-    "Given a string representation of a fn class,
+(defn demunge
+  "Given a string representation of a fn class,
   as in a stack trace element, returns a readable version."
-    {:added "1.3"}
-    [fn-name]
-    (clojure.lang.Compiler/demunge fn-name))
+  {:added "1.3"}
+  [fn-name]
+  (clojure.lang.Compiler/demunge fn-name))
 
-(defn demunge [fn-name]
-  (println "demuge stubbed:" fn-name)
-  fn-name)
+#_(defn demunge [fn-name]
+    (println "demuge stubbed:" fn-name)
+    fn-name)
 
-#_(defn root-cause
-    "Returns the initial cause of an exception or error by peeling off all of
+(defn root-cause
+  "Returns the initial cause of an exception or error by peeling off all of
   its wrappers"
-    {:added "1.3"}
-    [^Throwable t]
-    (loop [cause t]
-      (if (and (instance? clojure.lang.Compiler$CompilerException cause)
-               (not= (.source ^clojure.lang.Compiler$CompilerException cause) "NO_SOURCE_FILE"))
-        cause
-        (if-let [cause (.getCause cause)]
-          (recur cause)
-          cause))))
+  {:added "1.3"}
+  [^Throwable t]
+  (loop [cause t]
+    (if (and (instance? clojure.lang.Compiler$CompilerException cause)
+             (not= (.source ^clojure.lang.Compiler$CompilerException cause) "NO_SOURCE_FILE"))
+      cause
+      (if-let [cause (.getCause cause)]
+        (recur cause)
+        cause))))
 
 ;;;;;;;;;;;;;;;;;;; end of redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
 
@@ -119,18 +119,18 @@
        (or (.startsWith class-name "clojure.lang.")
            (contains? core-namespaces (second (re-find #"^([^$]+)\$" class-name))))))
 
-#_(defn stack-element-str
-    "Returns a (possibly unmunged) string representation of a StackTraceElement"
-    {:added "1.3"}
-    [^StackTraceElement el]
-    (let [file (.getFileName el)
-          clojure-fn? (and file (or (.endsWith file ".clj")
-                                    (.endsWith file ".cljc")
-                                    (= file "NO_SOURCE_FILE")))]
-      (str (if clojure-fn?
-             (demunge (.getClassName el))
-             (str (.getClassName el) "." (.getMethodName el)))
-           " (" (.getFileName el) ":" (.getLineNumber el) ")")))
+(defn stack-element-str
+  "Returns a (possibly unmunged) string representation of a StackTraceElement"
+  {:added "1.3"}
+  [^StackTraceElement el]
+  (let [file (.getFileName el)
+        clojure-fn? (and file (or (.endsWith file ".clj")
+                                  (.endsWith file ".cljc")
+                                  (= file "NO_SOURCE_FILE")))]
+    (str (if clojure-fn?
+           (demunge (.getClassName el))
+           (str (.getClassName el) "." (.getMethodName el)))
+         " (" (.getFileName el) ":" (.getLineNumber el) ")")))
 ;;;;;;;;;;;;;;;;;;; end of redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
 
 
@@ -235,10 +235,10 @@
         (skip-if-eol *in*)
         input)))
 
-#_(defn repl-exception
-    "Returns the root cause of throwables"
-    [throwable]
-    (root-cause throwable))
+(defn repl-exception
+  "Returns the root cause of throwables"
+  [throwable]
+  (root-cause throwable))
 
 (defn- file-name
   "Helper to get just the file name part of a path or nil"
@@ -332,10 +332,6 @@
             problems (assoc :clojure.error/spec data))))
       :clojure.error/phase phase)))
 
-#_(defn ex-triage [x]
-    (println "ex-triage stubbed:" x)
-    x)
-
 (defn ex-str
   "Returns a string from exception data, as produced by ex-triage.
   The first line summarizes the exception phase and location.
@@ -412,17 +408,10 @@
                 loc
                 cause)))))
 
-#_(defn ex-str [x]
-    (println "ex-str stubbed:" x)
-    (with-out-str (pprint x)))
-
-#_(defn err->msg
-    "Helper to return an error message string from an exception."
-    [^Throwable e]
-    (-> e Throwable->map ex-triage ex-str))
-
-(defn err->msg [^Throwable e]
-  (str "err->msg stubbed:" e))
+(defn err->msg
+  "Helper to return an error message string from an exception."
+  [^Throwable e]
+  (-> e Throwable->map ex-triage ex-str))
 
 (defn repl-caught
   "Default :caught hook for repl"
@@ -445,106 +434,6 @@ by default when a new command-line REPL is started."} repl-requires
   [& body]
   `(binding [*read-eval* (if (= :unknown *read-eval*) true *read-eval*)]
      ~@body))
-
-#_(defn repl
-    "Generic, reusable, read-eval-print loop. By default, reads from *in*,
-  writes to *out*, and prints exception summaries to *err*. If you use the
-  default :read hook, *in* must either be an instance of
-  LineNumberingPushbackReader or duplicate its behavior of both supporting
-  .unread and collapsing CR, LF, and CRLF into a single \\newline. Options
-  are sequential keyword-value pairs. Available options and their defaults:
-
-     - :init, function of no arguments, initialization hook called with
-       bindings for set!-able vars in place.
-       default: #()
-
-     - :need-prompt, function of no arguments, called before each
-       read-eval-print except the first, the user will be prompted if it
-       returns true.
-       default: (if (instance? LineNumberingPushbackReader *in*)
-                  #(.atLineStart *in*)
-                  #(identity true))
-
-     - :prompt, function of no arguments, prompts for more input.
-       default: repl-prompt
-
-     - :flush, function of no arguments, flushes output
-       default: flush
-
-     - :read, function of two arguments, reads from *in*:
-         - returns its first argument to request a fresh prompt
-           - depending on need-prompt, this may cause the repl to prompt
-             before reading again
-         - returns its second argument to request an exit from the repl
-         - else returns the next object read from the input stream
-       default: repl-read
-
-     - :eval, function of one argument, returns the evaluation of its
-       argument
-       default: eval
-
-     - :print, function of one argument, prints its argument to the output
-       default: prn
-
-     - :caught, function of one argument, a throwable, called when
-       read, eval, or print throws an exception or error
-       default: repl-caught"
-    [& options]
-    (let [cl (.getContextClassLoader (Thread/currentThread))]
-      (.setContextClassLoader (Thread/currentThread) (clojure.lang.DynamicClassLoader. cl)))
-    (let [{:keys [init need-prompt prompt flush read eval print caught]
-           :or {init        #()
-                need-prompt (if (instance? LineNumberingPushbackReader *in*)
-                              #(.atLineStart ^LineNumberingPushbackReader *in*)
-                              #(identity true))
-                prompt      repl-prompt
-                flush       flush
-                read        repl-read
-                eval        eval
-                print       prn
-                caught      repl-caught}}
-          (apply hash-map options)
-          request-prompt (Object.)
-          request-exit (Object.)
-          read-eval-print
-          (fn []
-            (try
-              (let [read-eval *read-eval*
-                    input (try
-                            (with-read-known (read request-prompt request-exit))
-                            (catch LispReader$ReaderException e
-                              (throw (ex-info nil {:clojure.error/phase :read-source} e))))]
-               (or (#{request-prompt request-exit} input)
-                   (let [value (binding [*read-eval* read-eval] (eval input))]
-                     (set! *3 *2)
-                     (set! *2 *1)
-                     (set! *1 value)
-                     (try
-                       (print value)
-                       (catch Throwable e
-                         (throw (ex-info nil {:clojure.error/phase :print-eval-result} e)))))))
-             (catch Throwable e
-               (caught e)
-               (set! *e e))))]
-      (with-bindings
-       (try
-        (init)
-        (catch Throwable e
-          (caught e)
-          (set! *e e)))
-       (prompt)
-       (flush)
-       (loop []
-         (when-not
-            (try (identical? (read-eval-print) request-exit)
-             (catch Throwable e
-               (caught e)
-               (set! *e e)
-               nil))
-           (when (need-prompt)
-             (prompt)
-             (flush))
-           (recur))))))
 
 (defn repl
   "Generic, reusable, read-eval-print loop. By default, reads from *in*,
@@ -653,9 +542,6 @@ by default when a new command-line REPL is started."} repl-requires
            (flush))
          (recur))))))
 
-#_(defn repl [& args]
-    (println "repl stubbed:" args))
-
 #_(defn load-script
     "Loads Clojure source from a file or resource given its path. Paths
   beginning with @ or @/ are considered relative to classpath."
@@ -711,14 +597,6 @@ by default when a new command-line REPL is started."} repl-requires
     "-e"     eval-opt
     "--eval" eval-opt} opt))
 
-#_(defn- initialize
-    "Common initialize routine for repl, script, and null opts"
-    [args inits]
-    (in-ns 'user)
-    (set! *command-line-args* args)
-    (doseq [[opt arg] inits]
-      ((init-dispatch opt) arg)))
-
 (defn- initialize
   "Common initialize routine for repl, script, and null opts"
   [args inits]
@@ -737,18 +615,6 @@ by default when a new command-line REPL is started."} repl-requires
 
 (defn main-opt [& args]
   (println "main-opt stubbed:" args))
-
-#_(defn- repl-opt
-    "Start a repl with args and inits. Print greeting if no eval options were
-  present"
-    [[_ & args] inits]
-    (when-not (some #(= eval-opt (init-dispatch (first %))) inits)
-      (println "Clojure" (clojure-version)))
-    (repl :init (fn []
-                  (initialize args inits)
-                  (apply require repl-requires)))
-    (prn)
-    (System/exit 0))
 
 (defn- repl-opt
   "Start a repl with args and inits. Print greeting if no eval options were
@@ -820,38 +686,6 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
     (let [[inits [sep & args]] (split-with (complement #{"--"}) args)]
       (null-opt args (map vector (repeat "-i") inits))))
 
-#_(defn report-error
-    "Create and output an exception report for a Throwable to target.
-
-  Options:
-    :target - \"file\" (default), \"stderr\", \"none\"
-
-  If file is specified but cannot be written, falls back to stderr."
-    [^Throwable t & {:keys [target]
-                     :or {target "file"} :as opts}]
-    (when-not (= target "none")
-      (let [trace (Throwable->map t)
-            triage (ex-triage trace)
-            message (ex-str triage)
-            report (array-map
-                     :clojure.main/message message
-                     :clojure.main/triage triage
-                     :clojure.main/trace trace)
-            report-str (with-out-str
-                         (binding [*print-namespace-maps* false]
-                           ((requiring-resolve 'clojure.pprint/pprint) report)))
-            err-path (when (= target "file")
-                       (try
-                         (let [f (.toFile (Files/createTempFile "clojure-" ".edn" (into-array FileAttribute [])))]
-                           (with-open [w (BufferedWriter. (FileWriter. f))]
-                             (binding [*out* w] (println report-str)))
-                           (.getAbsolutePath f))
-                         (catch Throwable _)))] ;; ignore, fallback to stderr
-        (binding [*out* *err*]
-          (if err-path
-            (println (str message (System/lineSeparator) "Full report at:" (System/lineSeparator) err-path))
-            (println (str report-str (System/lineSeparator) message)))))))
-
 (defn report-error
   "Create and output an exception report for a Throwable to target.
 
@@ -884,9 +718,6 @@ java -cp clojure.jar clojure.main -i init.clj script.clj args...")
         (if err-path
           (println (str message (System/lineSeparator) "Full report at:" (System/lineSeparator) err-path))
           (println (str report-str (System/lineSeparator) message)))))))
-
-#_(defn report-error [& args]
-    (println "repl-error stubbed:" args))
 
 (defn main
   "Usage: java -cp clojure.jar clojure.main [init-opt*] [main-opt] [arg*]

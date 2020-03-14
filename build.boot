@@ -3,7 +3,7 @@
 (set-env!
   :resource-paths #{"resources"}
   :dependencies
-  '[[org.clojure/clojure "1.10.1"]
+  '[[org.clojure/clojure "1.10.2-alpha1"]
     [seancorfield/boot-tools-deps "0.4.6" #_:scope #_"provided"]])
 
 (require '[boot-tools-deps.core :refer [deps]])
