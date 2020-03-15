@@ -3,6 +3,9 @@
   (:require [sci.core :as sci]
             [sci.impl.interpreter :as interpreter]
             [sci.impl.opts :as opts]
+            ; [clojure.repl]
+            ; [clojure.java.javadoc]
+            [fipp.edn]
             [closh.zero.pipeline :as pipeline]
             [closh.zero.core :as closh-core]
             [closh.zero.compiler]
@@ -121,7 +124,26 @@
                'unsetenv builtin/unsetenv
                '*args* (sci/new-dynamic-var '*args* (rest *command-line-args*))})
 
-(def ctx {:bindings (merge bindings macro-bindings)
+(def repl-requires {; 'source
+                    ; (with-meta
+                    ;   (fn source [_ _ & n]
+                    ;     `(println (or (source-fn '~n) (str "Source not found"))))
+                    ;   {:sci/macro true})
+                    ; 'apropos clojure.repl/apropos
+                    ; 'dir
+                    ; (with-meta
+                    ;   (fn dir [_ _ & nsname]
+                    ;     `(doseq [v# (dir-fn '~nsname)]
+                    ;        (println v#)))
+                    ;   {:sci/macro true})
+                    ; 'pst clojure.repl/pst
+                    ; 'doc clojure.repl/doc
+                    ; 'find-doc clojure.repl/find-doc
+                    ; 'javadoc clojure.java.javadoc/javadoc
+                    'pprint fipp.edn/pprint})
+                    ;; TODO pp macro
+
+(def ctx {:bindings (merge bindings repl-requires macro-bindings)
           :namespaces {'closh.zero.macros macro-bindings
                        'clojure.core {'println println
                                       'print print
@@ -161,3 +183,13 @@
   (sci-eval
    (closh.zero.compiler/compile-interactive
     (closh.zero.parser/parse form))))
+
+(defn repl-print? [val]
+  (not (or (nil? val)
+           (identical? val env/success)
+           (process/process? val))))
+
+(defn repl-print
+  [& args]
+  (when (repl-print? (first args))
+    (apply prn args)))
