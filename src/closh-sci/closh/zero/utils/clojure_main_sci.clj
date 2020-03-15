@@ -12,70 +12,17 @@
        :author "Stephen C. Gilardi and Rich Hickey"}
   closh.zero.utils.clojure-main-sci
   (:refer-clojure :exclude [with-bindings eval read load-reader read+string])
-  #_(:require [clojure.spec.alpha :as spec])
+  (:require #_[clojure.spec.alpha :as spec]
+            [fipp.edn :refer [pprint]]
+            [closh.zero.platform.clojure-platform :refer [eval read read+string load-reader compiler-load-file rt-load-resource-script]]
+            [closh.zero.reader :as reader]
+            [closh.zero.utils.sci :refer [repl-print]])
   (:import (java.io StringReader BufferedWriter FileWriter)
            (java.nio.file Files)
            (java.nio.file.attribute FileAttribute)
            (clojure.lang Compiler Compiler$CompilerException
                          LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
-
-(require '[fipp.edn :refer [pprint]])
-
-(require '[closh.zero.platform.eval :as eval])
-(require '[closh.zero.reader :as reader])
-(require '[closh.zero.env :as env])
-(require '[closh.zero.platform.process :as process])
-(require '[closh.zero.platform.clojure-compiler :as compiler])
-(def read reader/read)
-
-(defn repl-print
-  [& args]
-  (when-not (or (nil? (first args))
-                (identical? (first args) env/success)
-                (process/process? (first args)))
-    (apply prn args)))
-
-(defn eval [form]
-  (eval/eval
-   (closh.zero.compiler/compile-interactive
-    (closh.zero.parser/parse form))))
-
-(defn load-reader [rdr]
-  (compiler/load rdr eval))
-
-(defn rt-load-resource-script [path]
-  (println "rt-load-resource-script stubbed:" path))
-
-(defn compiler-load-file [path]
-  (compiler/load-file path eval))
-
-;; Copied from clojure/core
-(defn read+string
-  "Like read, and taking the same args. stream must be a LineNumberingPushbackReader.
-  Returns a vector containing the object read and the (whitespace-trimmed) string read."
-  {:added "1.10"}
-  ([] (read+string *in*))
-  ([stream] (read+string stream true nil))
-  ([stream eof-error? eof-value] (read+string stream eof-error? eof-value false))
-  ([^clojure.lang.LineNumberingPushbackReader stream eof-error? eof-value recursive?]
-   (try
-     (.captureString stream)
-     (let [o (read stream eof-error? eof-value recursive?)
-           s (.trim (.getString stream))]
-       [o s])
-     (catch Throwable ex
-       (.getString stream)
-       (throw ex))))
-  ([opts ^clojure.lang.LineNumberingPushbackReader stream]
-   (try
-     (.captureString stream)
-     (let [o (read opts stream)
-           s (.trim (.getString stream))]
-       [o s])
-     (catch Throwable ex
-       (.getString stream)
-       (throw ex)))))
 
 (declare main)
 

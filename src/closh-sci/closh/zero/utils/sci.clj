@@ -183,3 +183,13 @@
   (sci-eval
    (closh.zero.compiler/compile-interactive
     (closh.zero.parser/parse form))))
+
+(defn repl-print? [val]
+  (not (or (nil? val)
+           (identical? val env/success)
+           (process/process? val))))
+
+(defn repl-print
+  [& args]
+  (when (repl-print? (first args))
+    (apply prn args)))
