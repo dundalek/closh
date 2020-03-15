@@ -156,13 +156,10 @@
              *e nil]
      ~@body))
 
-#_(defn repl-prompt
-    "Default :prompt hook for repl"
-    []
-    (printf "%s=> " (ns-name *ns*)))
-
-(defn repl-prompt []
-  (print "=> "))
+(defn repl-prompt
+  "Default :prompt hook for repl"
+  []
+  (printf "%s=> " (ns-name *ns*)))
 
 (defn skip-if-eol
   "If the next character on stream s is a newline, skips it, otherwise
@@ -633,25 +630,25 @@ by default when a new command-line REPL is started."} repl-requires
      "-?"     help-opt} opt)
    script-opt))
 
-#_(defn- legacy-repl
-    "Called by the clojure.lang.Repl.main stub to run a repl with args
+(defn- legacy-repl
+  "Called by the clojure.lang.Repl.main stub to run a repl with args
   specified the old way"
-    [args]
-    (println "WARNING: clojure.lang.Repl is deprecated.
+  [args]
+  (println "WARNING: clojure.lang.Repl is deprecated.
 Instead, use clojure.main like this:
 java -cp clojure.jar clojure.main -i init.clj -r args...")
-    (let [[inits [sep & args]] (split-with (complement #{"--"}) args)]
-      (repl-opt (concat ["-r"] args) (map vector (repeat "-i") inits))))
+  (let [[inits [sep & args]] (split-with (complement #{"--"}) args)]
+    (repl-opt (concat ["-r"] args) (map vector (repeat "-i") inits))))
 
-#_(defn- legacy-script
-    "Called by the clojure.lang.Script.main stub to run a script with args
+(defn- legacy-script
+  "Called by the clojure.lang.Script.main stub to run a script with args
   specified the old way"
-    [args]
-    (println "WARNING: clojure.lang.Script is deprecated.
+  [args]
+  (println "WARNING: clojure.lang.Script is deprecated.
 Instead, use clojure.main like this:
 java -cp clojure.jar clojure.main -i init.clj script.clj args...")
-    (let [[inits [sep & args]] (split-with (complement #{"--"}) args)]
-      (null-opt args (map vector (repeat "-i") inits))))
+  (let [[inits [sep & args]] (split-with (complement #{"--"}) args)]
+    (null-opt args (map vector (repeat "-i") inits))))
 
 (defn report-error
   "Create and output an exception report for a Throwable to target.
