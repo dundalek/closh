@@ -15,21 +15,6 @@ if [ -z "$NATIVE_IMAGE" ]; then
   NATIVE_IMAGE="$GRAALVM_HOME/bin/native-image"
 fi
 
-#CLOSH_VERSION=$(jq ".version" package.json)
-
-# We also need to AOT sci, else something didn't work in the Mac build on CircleCI
-# See https://github.com/oracle/graal/issues/1613
-( cd /tmp;  git clone https://github.com/borkdude/sci 2> /dev/null || true )
-mkdir -p src/sci
-cp -R /tmp/sci/src/* src
-
-
-# npm run uberjar-sci
-
-# "-H:IncludeResources=CLOSH_VERSION" \
-# "-H:IncludeResources=SCI_VERSION" \
-# --initialize-at-build-time=clojure,clojure.spec.gen.alpha,clojure.test.check,clojure.test.check.generators,clojure.test.check.properties \
-
 export __CLOSH_USE_SCI_EVAL__=true
 
 use_lein=false # set to true to build uberjar with project.clj instead of boot
