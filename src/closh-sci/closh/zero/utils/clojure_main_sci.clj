@@ -572,16 +572,13 @@ by default when a new command-line REPL is started."} repl-requires
   (doseq [[opt arg] inits]
     ((init-dispatch opt) arg)))
 
-#_(defn- main-opt
-    "Call the -main function from a namespace with string arguments from
+(defn- main-opt
+  "Call the -main function from a namespace with string arguments from
   the command line."
-    [[_ main-ns & args] inits]
-    (with-bindings
-      (initialize args inits)
-      (apply (ns-resolve (doto (symbol main-ns) require) '-main) args)))
-
-(defn main-opt [& args]
-  (println "main-opt stubbed:" args))
+  [[_ main-ns & args] inits]
+  (with-bindings
+    (initialize args inits)
+    (apply (ns-resolve (doto (symbol main-ns) require) '-main) args)))
 
 (defn- repl-opt
   "Start a repl with args and inits. Print greeting if no eval options were
