@@ -49,4 +49,6 @@
 
 ;; TODO: Does it make sense to reimplement this?
 (defn rt-load-resource-script [path]
-  (println "rt-load-resource-script not implemented:" path))
+  (binding [*out* *err*]
+    (println "rt-load-resource-script not implemented:" path))
+  (System/exit 1))

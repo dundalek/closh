@@ -519,13 +519,20 @@ by default when a new command-line REPL is started."} repl-requires
   (doseq [[opt arg] inits]
     ((init-dispatch opt) arg)))
 
-(defn- main-opt
-  "Call the -main function from a namespace with string arguments from
+#_(defn- main-opt
+    "Call the -main function from a namespace with string arguments from
   the command line."
-  [[_ main-ns & args] inits]
-  (with-bindings
-    (initialize args inits)
-    (apply (ns-resolve (doto (symbol main-ns) require) '-main) args)))
+    [[_ main-ns & args] inits]
+    (with-bindings
+      (initialize args inits)
+      (apply (ns-resolve (doto (symbol main-ns) require) '-main) args)))
+
+;; Including original main-opt adds around 30MB to the graal-compiled binary
+;; Since it would not likely work anyway, let's not include it for now
+(defn- main-opt [& args]
+  (binding [*out* *err*]
+    (println "Support for -m argument not implemented."))
+  (System/exit 1))
 
 (defn- repl-opt
   "Start a repl with args and inits. Print greeting if no eval options were
