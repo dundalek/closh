@@ -88,10 +88,6 @@
   [fn-name]
   (clojure.lang.Compiler/demunge fn-name))
 
-#_(defn demunge [fn-name]
-    (println "demuge stubbed:" fn-name)
-    fn-name)
-
 (defn root-cause
   "Returns the initial cause of an exception or error by peeling off all of
   its wrappers"
@@ -159,9 +155,6 @@
              *3 nil
              *e nil]
      ~@body))
-
-#_(defmacro with-bindings [& body]
-    `(do ~@body))
 
 #_(defn repl-prompt
     "Default :prompt hook for repl"
@@ -420,13 +413,11 @@
     (print (err->msg e))
     (flush)))
 
-#_(def ^{:doc "A sequence of lib specs that are applied to `require`
+(def ^{:doc "A sequence of lib specs that are applied to `require`
 by default when a new command-line REPL is started."} repl-requires
-    '[[clojure.repl :refer (source apropos dir pst doc find-doc)]
-      [clojure.java.javadoc :refer (javadoc)]
-      [clojure.pprint :refer (pp pprint)]])
-
-(def repl-requires [])
+  '[[clojure.repl :refer (source apropos dir pst doc find-doc)]
+    [clojure.java.javadoc :refer (javadoc)]
+    [clojure.pprint :refer (pp pprint)]])
 
 (defmacro with-read-known
   "Evaluates body with *read-eval* set to a \"known\" value,
@@ -542,15 +533,6 @@ by default when a new command-line REPL is started."} repl-requires
            (flush))
          (recur))))))
 
-#_(defn load-script
-    "Loads Clojure source from a file or resource given its path. Paths
-  beginning with @ or @/ are considered relative to classpath."
-    [^String path]
-    (if (.startsWith path "@")
-      (RT/loadResourceScript
-       (.substring path (if (.startsWith path "@/") 2 1)))
-      (Compiler/loadFile path)))
-
 (defn load-script
   "Loads Clojure source from a file or resource given its path. Paths
   beginning with @ or @/ are considered relative to classpath."
@@ -564,18 +546,6 @@ by default when a new command-line REPL is started."} repl-requires
   "Load a script"
   [path]
   (load-script path))
-
-#_(defn- eval-opt
-    "Evals expressions in str, prints each non-nil result using prn"
-    [str]
-    (let [eof (Object.)
-          reader (LineNumberingPushbackReader. (java.io.StringReader. str))]
-        (loop [input (with-read-known (read reader false eof))]
-          (when-not (= input eof)
-            (let [value (eval input)]
-              (when-not (nil? value)
-                (prn value))
-              (recur (with-read-known (read reader false eof))))))))
 
 (defn- eval-opt
   "Evals expressions in str, prints each non-nil result using prn"
@@ -628,9 +598,6 @@ by default when a new command-line REPL is started."} repl-requires
         :print repl-print)
   (prn)
   (System/exit 0))
-
-#_(defn repl-opt [& args]
-    (println "repl-opt stubbed:" args))
 
 (defn- script-opt
   "Run a script from a file, resource, or standard in with args and inits"

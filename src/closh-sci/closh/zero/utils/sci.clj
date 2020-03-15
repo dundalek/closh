@@ -124,8 +124,7 @@
                'unsetenv builtin/unsetenv
                '*args* (sci/new-dynamic-var '*args* (rest *command-line-args*))})
 
-(def repl-requires {
-                    ; 'source
+(def repl-requires {; 'source
                     ; (with-meta
                     ;   (fn source [_ _ & n]
                     ;     `(println (or (source-fn '~n) (str "Source not found"))))
