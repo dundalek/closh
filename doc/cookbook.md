@@ -123,10 +123,10 @@ popd
 
 Possible solution in closh with a macro:
 ```clojure
-(defmacro with-cwd [dir & body])
+(defmacro with-cwd [dir & body]
   `(binding [closh.zero.platform.process/*cwd*
-             (atom (closh.zero.platform.process/resolve-path dir))])
-    (sh ~@body)
+             (atom (closh.zero.platform.process/resolve-path ~dir))]
+     (sh ~@body)))
 ```
 
 Then it can be used as:
