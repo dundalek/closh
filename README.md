@@ -35,7 +35,7 @@ If you would like to contribute take look at [open issues](https://github.com/du
 
 ## Install
 
-**Windows** is currently **NOT supported!** If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
+**Windows** proper is currently **NOT supported**, but it should run under WSL 2. If you know your way around with Windows, we need your help (see [#54](https://github.com/dundalek/closh/issues/54)).
 
 **[Try closh online](https://repl.it/@dundalek/closh-playground)** in the browser without installing anything.
 
@@ -142,16 +142,13 @@ chsh -s $closh
 
 Explore innovate UI ideas, explore what a shell could become and all possibilities within an ASCII terminal. The goal is to reimagine what people think a command line interface is without having to lose its core power.
 
-- [ ] Explore launcher functionality similar to Alfred, Lacona and others
 - [ ] Try to integrate [Liquid](https://github.com/mogenslund/liquid) as the editor interface, which would enable us:
   - [ ] Better and more flexible readline experience
   - [ ] Customizable key bindings
 - [ ] Try  to explore [Trikl](https://github.com/lambdaisland/trikl) for building [interactive command-line interfaces](http://dundalek.com/entropic/combining-cli-and-gui/)
-- [ ] Make the JVM more convenient to be used as an interactive shell:
-  - [ ] Reimplement the history search
-  - [ ] [Add support for aliases and abbreviations](https://github.com/dundalek/closh/issues/106) (only custom commands are now supported in the JVM version)
-- [ ] Automatic abbreviation suggestion
 - [ ] Data helpers that automatically parse command output into data structures
+- [ ] Automatic abbreviation suggestion
+- [ ] Explore launcher functionality similar to Alfred, Lacona and others
 
 #### More UI exploration
 
@@ -164,14 +161,16 @@ Explore if we could take shell power and functionality and lift it from the boun
 
 I hope that new UI ideas above will get people excited and interested. After that we should work on stabilization and adding all the remaining features people are used to from traditional shells.
 
-- [ ] [Explore possibility to run via Planck](https://github.com/dundalek/closh/issues/89)
-- [ ] [Distribute closh and lumo as a single binary](https://github.com/dundalek/closh/issues/42)
-- [ ] [Explore possibility to compile JVM version with Graal and distribute as a single binary](https://github.com/dundalek/closh/issues/87)
 - [ ] Implement a low-level native pipeline library to improve performance
 - [ ] Make it more robust and better error handling
 - [ ] Job control
 
 ## Limitations
+
+### JVM version (CLJ)
+
+- [Abbreviations do not work](https://github.com/dundalek/closh/issues/151)
+- Cannot redirect STDIO >= 3 (Java ProcessBuilder limitation)
 
 ### Lumo version (CLJS)
 
@@ -179,11 +178,6 @@ I hope that new UI ideas above will get people excited and interested. After tha
 - No syntax highlighting
 - [Prompt quirks](https://github.com/dundalek/closh/issues/71)
 - Synchronous execution hacks (via deasync library)
-
-### JVM version (CLJ)
-
-- [Aliases and abbreviations do not work](https://github.com/dundalek/closh/issues/106)
-- Cannot redirect STDIO >= 3 (Java ProcessBuilder limitation)
 
 ## Development
 
