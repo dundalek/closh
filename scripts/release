@@ -1,4 +1,6 @@
 #!/usr/bin/env closh-zero.jar
+;; -*- clojure -*-
+
 
 ;; Automation TODOs
 ;; - At the beginning ask for the new version and automate updating versions:
@@ -15,12 +17,12 @@
   (read-line)
   (println))
 
-(let [current-branch (sh-str git rev-parse --abbrev-ref HEAD)]
-  (when (not= current-branch "master")
-    (sh echo Currently on the branch (str "`" current-branch "`") \;
-        echo Please switch to "`master`", make sure it is up-to-date and retry release \;
-        echo Exiting... \;
-        exit 1)))
+; (let [current-branch (sh-str git rev-parse --abbrev-ref HEAD)]
+;   (when (not= current-branch "master")
+;     (sh echo Currently on the branch (str "`" current-branch "`") \;
+;         echo Please switch to "`master`", make sure it is up-to-date and retry release \;
+;         echo Exiting... \;
+;         exit 1)))
 
 echo Runing tests...
 npm run test || echo Tests failed - Exiting && exit 1
