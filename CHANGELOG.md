@@ -1,12 +1,20 @@
 # Changelog
 
-## [master](https://github.com/dundalek/closh/compare/v0.4.1...master) (unreleased)
+## [master](https://github.com/dundalek/closh/compare/v0.5.0...master) (unreleased)
+
+### New features
+### Fixes
+### Other changes
+
+## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
+
 
 ### New features
 
-- Improved history storage in JVM (stores it in sqlite db same as the lumo version)
-- Implements alias expansion in JVM by [@djblue](https://github.com/djblue) ([#150](https://github.com/dundalek/closh/pull/150))
-- Make abbreviations work in JVM (by treating them as same as aliases for now)
+- JVM version: Improved history storage in (stores it in sqlite db same as the lumo version)
+- JVM version: Implemented alias expansion by [@djblue](https://github.com/djblue) ([#150](https://github.com/dundalek/closh/pull/150))
+- JVM version: Make abbreviations work (by treating them as same as aliases for now)
+- Add support for `cd -` go to previous directory by [@kirillsalykin](https://github.com/kirillsalykin) ([#167](https://github.com/dundalek/closh/pull/167))
 
 ### Fixes
 
@@ -14,8 +22,13 @@
 - Fix typo in expand-abbreviation by [@djblue](https://github.com/djblue) ([#149](https://github.com/dundalek/closh/pull/149))
 - Fix when argument to cd is a number ([#153](https://github.com/dundalek/closh/issues/153))
 - Fix ignoring updates to PATH when executing binaries (JVM)
+- Fix shell completion on NixOS by [@johannesloetzsch](https://github.com/johannesloetzsch) ([#163](https://github.com/dundalek/closh/pull/163))
+- Fix globbing implementation by [@kirillsalykin](https://github.com/kirillsalykin) ([#164](https://github.com/dundalek/closh/pull/164))
 
 ### Other changes
+
+- Improved reader customization. It no longer depends on a fork of `tools.reader` but it uses upstream version.
+- Some progress on GraalVM port using SCI (thanks to [@borkdude](https://github.com/borkdude) and [@jeroenvandijk](https://github.com/jeroenvandijk)). But does it is not fully supported yet.
 
 ## [0.4.1](https://github.com/dundalek/closh/compare/v0.4.0...v0.4.1) (2019-08-10)
 
