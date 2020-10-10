@@ -45,19 +45,20 @@
     (let [custom-reader
           (proxy [LineNumberingPushbackReader] [reader]
             (read []
-              (when-not (proxy-super ready)
-                (when (skip-whitespace rdr)
-                  (proxy-super setLineNumber (dec (.getLineNumber rdr)))
-                  (doseq [c (str "\n" (apply str (repeat (dec (.getColumnNumber rdr)) " ")))]
-                    (.write writer (int c))))
-                (let [form (closh.zero.reader/read opts rdr)]
-                  (if (= form eof)
-                    (.close writer)
-                    (binding [*print-meta* true]
-                      (doseq [c (pr-str (conj form 'closh.zero.macros/sh-wrapper))]
-                        (.write writer (int c)))))))
-              (let [c (proxy-super read)]
-                c)))]
+              (let [^LineNumberingPushbackReader this this]
+                (when-not (proxy-super ready)
+                  (when (skip-whitespace rdr)
+                    (proxy-super setLineNumber (dec (.getLineNumber rdr)))
+                    (doseq [c (str "\n" (apply str (repeat (dec (.getColumnNumber rdr)) " ")))]
+                      (.write writer (int c))))
+                  (let [form (closh.zero.reader/read opts rdr)]
+                    (if (= form eof)
+                      (.close writer)
+                      (binding [*print-meta* true]
+                        (doseq [c (pr-str (conj form 'closh.zero.macros/sh-wrapper))]
+                          (.write writer (int c)))))))
+                (let [c (proxy-super read)]
+                  c))))]
       (.setLineNumber custom-reader 0)
       custom-reader)))
 
@@ -67,12 +68,13 @@
         reader (PipedReader. writer)]
     (proxy [PushbackReader] [reader]
       (read []
-        (when-not (proxy-super ready)
-          (if-let [line (.readLine rdr)]
-            (doseq [c (f (str line \newline))]
-              (.write writer (int c)))
-            (.close writer)))
-        (proxy-super read)))))
+        (let [^PushbackReader this this]
+          (when-not (proxy-super ready)
+            (if-let [line (.readLine rdr)]
+              (doseq [c (f (str line \newline))]
+                (.write writer (int c)))
+              (.close writer)))
+          (proxy-super read))))))
 
 (defn repl-read
   [request-prompt request-exit]
@@ -98,7 +100,7 @@
   (System/exit 0))
 
 ;; Reimplementation of Compiler.loadFile
-(defn compiler-load-file [file]
+(defn compiler-load-file [^String file]
   (let [f (FileInputStream. file)
         ;; rdr (InputStreamReader. f RT/UTF8)
         rdr (make-custom-reader (PushbackReader. (InputStreamReader. f RT/UTF8)))]

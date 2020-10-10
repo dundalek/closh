@@ -1,5 +1,5 @@
 {:deps
- {org.clojure/clojure {:mvn/version "1.10.2-alpha1"}
+ {org.clojure/clojure {:mvn/version "1.10.2-alpha2"}
   org.clojure/tools.reader {:mvn/version "1.3.2"}
   org.clojure/data.json {:mvn/version "0.2.6"}
   com.cemerick/pomegranate {:mvn/version "1.1.0"}
@@ -7,15 +7,22 @@
   org.clojure/java.jdbc {:mvn/version "0.7.9"}
   org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
   squarepeg {:mvn/version "0.6.1"}
-  com.bhauman/rebel-readline {:mvn/version "0.1.4"}}
+  com.bhauman/rebel-readline {;;:mvn/version "0.1.4"
+                              :git/url "https://github.com/dundalek/rebel-readline.git"
+                              :sha "74925ec7186b5a2e616b389a29686a12b8070551"
+                              :deps/root "rebel-readline"
+                              :exclusions [rewrite-cljs/rewrite-cljs]}}
 
- :paths ["src/common" "src/jvm" "resources"]
+ :paths ["src/common" "src/jvm" "resources" "classes"]
 
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {com.cognitect/test-runner
                       {:git/url "https://github.com/cognitect-labs/test-runner.git"
                        :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}}
+
+  :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
+
   :sci {:extra-paths ["src/closh-sci"]
         :extra-deps {fipp {:mvn/version "0.6.22"}
                      borkdude/sci
@@ -28,9 +35,12 @@
                      ; {:git/url "https://github.com/borkdude/edamame"
                      ;  :tag "v0.0.9"
                      ;  :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"}}}
+
   :lint {:extra-deps {cljfmt {:mvn/version "0.6.7"}}
          :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
+
   :lint/fix {:extra-deps {cljfmt {:mvn/version "0.6.7"}}
              :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
+
   :kaocha {:extra-paths ["test"]
            :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}

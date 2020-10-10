@@ -9,7 +9,7 @@
 
 ;; In case there is a need to debug this, run `git checkout c5f8e8f8b5440dcc0ebf91055cd2f1295e528629` to get the helper code which includes iterator implementations, in menory history or debugging proxy.
 
-(defn flip-iterator [iterator]
+(defn flip-iterator [^ListIterator iterator]
   (reify ListIterator
     (hasNext [this]
       (.hasPrevious iterator))
@@ -48,7 +48,7 @@
       (first)
       (get (keyword "last_insert_rowid()"))))
 
-(defn sqlite-history
+(defn ^History sqlite-history
   ([] (sqlite-history (get-db-filename)))
   ([db-file]
    (io/make-parents db-file)
@@ -94,7 +94,8 @@
          (.moveToEnd this))
        (iterator [this index]
         ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
-         (-> (concat (jdbc/query db-spec
+         (-> ^clojure.lang.LazySeq
+             (concat (jdbc/query db-spec
                                  ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id = ? ORDER BY id DESC" @!all-count session-id]
                                  {:row-fn row->entry})
                      (jdbc/query db-spec
@@ -114,7 +115,7 @@
        (moveToFirst [this]
          (.moveTo this 0))
        (moveToLast [this]
-         (.moveTo (dec (.size this))))
+         (.moveTo this (dec (.size this))))
        (moveTo [this index]
          (if (and (< index (.size this))
                   (<= 0 index)

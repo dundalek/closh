@@ -49,9 +49,9 @@
     "test-clj-kaocha": "clojure -A:kaocha -m kaocha.runner",
     "test-clj-kaocha-auto": "clojure -A:kaocha -m kaocha.runner --watch",
     "test-clj-auto": "nodemon -e clj,cljs,cljc -x \"npm run test-clj\"",
-    "rebel": "clojure -m closh.zero.frontend.rebel",
-    "rebel-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -m closh.zero.frontend.rebel",
-    "run-sci": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -m closh.zero.frontend.sci",
+    "rebel": "clojure -e \"(set! *warn-on-reflection* true)\" -m closh.zero.frontend.rebel",
+    "sci-rebel": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -e \"(set! *warn-on-reflection* true)\" -m closh.zero.frontend.sci-rebel",
+    "sci-plain": "env __CLOSH_USE_SCI_EVAL__=true clojure -A:sci -e \"(set! *warn-on-reflection* true)\" -m closh.zero.frontend.sci",
     "repl": "clj -m closh.zero.frontend.clojure-main-repl"
   },
   "repository": {

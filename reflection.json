@@ -7,6 +7,10 @@
     "allPublicMethods": true
   },
   {
+    "name":"java.io.File",
+    "allPublicMethods":true
+  },
+  {
     "name":"java.io.BufferedReader",
     "allPublicMethods":true
   },
@@ -23,11 +27,82 @@
     "allPublicMethods":true
   },
   {
-    "name":"java.lang.UNIXProcess",
+    "name":"java.lang.System",
     "allPublicMethods":true
   },
   {
     "name":"java.util.concurrent.LinkedBlockingQueue",
     "allPublicMethods":true
+  },
+  {
+    "name": "java.lang.Thread",
+    "allPublicConstructors": true,
+    "methods": [{
+      "name": "activeCount"
+    }, {
+      "name": "checkAccess"
+    }, {
+      "name": "currentThread"
+    }, {
+      "name": "dumpStack"
+    }, {
+      "name": "enumerate"
+    }, {
+      "name": "getAllStackTraces"
+    }, {
+      "name": "getContextClassLoader"
+    }, {
+      "name": "getDefaultUncaughtExceptionHandler"
+    }, {
+      "name": "getId"
+    }, {
+      "name": "getName"
+    }, {
+      "name": "getPriority"
+    }, {
+      "name": "getStackTrace"
+    }, {
+      "name": "getState"
+    }, {
+      "name": "getThreadGroup"
+    }, {
+      "name": "getUncaughtExceptionHandler"
+    }, {
+      "name": "holdsLock"
+    }, {
+      "name": "interrupt"
+    }, {
+      "name": "interrupted"
+    }, {
+      "name": "isAlive"
+    }, {
+      "name": "isDaemon"
+    }, {
+      "name": "isInterrupted"
+    }, {
+      "name": "join"
+    }, {
+      "name": "run"
+    }, {
+      "name": "setContextClassLoader"
+    }, {
+      "name": "setDaemon"
+    }, {
+      "name": "setDefaultUncaughtExceptionHandler"
+    }, {
+      "name": "setName"
+    }, {
+      "name": "setPriority"
+    }, {
+      "name": "setUncaughtExceptionHandler"
+    }, {
+      "name": "sleep"
+    }, {
+      "name": "start"
+    }, {
+      "name": "toString"
+    }, {
+      "name": "yield"
+    }]
   }
 ]

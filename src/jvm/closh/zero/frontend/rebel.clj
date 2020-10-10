@@ -17,7 +17,8 @@
             [closh.zero.util :refer [thread-stop]]
             [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main]
             [closh.zero.frontend.jline-history :as jline-history])
-  (:import [org.jline.reader Completer ParsedLine LineReader]))
+  (:import [org.jline.reader Completer ParsedLine LineReader]
+           (org.jline.reader.impl LineReaderImpl)))
 
 (defn repl-prompt []
   (try
@@ -94,10 +95,10 @@
 (defn repl [[_ & args] inits]
   (core/ensure-terminal
    (core/with-line-reader
-     (let [line-reader (clj-line-reader/create
-                        (clj-service/create
-                         (when api/*line-reader* @api/*line-reader*))
-                        {:completer (clojure-completer)})]
+     (let [line-reader ^LineReaderImpl (clj-line-reader/create
+                                        (clj-service/create
+                                         (when api/*line-reader* @api/*line-reader*))
+                                        {:completer (clojure-completer)})]
        (.setVariable line-reader LineReader/HISTORY_FILE (str (jio/file (System/getProperty "user.home") ".closh" "history")))
        (try
          (.setHistory line-reader (doto (jline-history/sqlite-history)

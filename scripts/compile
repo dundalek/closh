@@ -10,23 +10,32 @@ if [ -z "$NATIVE_IMAGE" ]; then
       exit 1
   fi
 
-  "$GRAALVM_HOME/bin/gu" install native-image || true
-
   NATIVE_IMAGE="$GRAALVM_HOME/bin/native-image"
+
+  if [ ! -x "$NATIVE_IMAGE" ]; then
+    "$GRAALVM_HOME/bin/gu" install native-image || true
+  fi
 fi
 
 export __CLOSH_USE_SCI_EVAL__=true
 
-use_lein=false # set to true to build uberjar with project.clj instead of boot
+jar=target/closh-zero-sci.jar
 
-if [ $use_lein = true ]; then
-    npm run compile-sci-lein
-    jar=target/closh-sci-0.0.1-SNAPSHOT-standalone.jar
-else
-    npm run compile-sci-boot
-    jar=target/closh-zero-sci.jar
-fi
+rm -rf classes
+mkdir classes
+clojure -e "(compile 'rebel-readline.line-reader-class)"
+clojure -Asci -Spom
+clojure -A:depstar:sci -m hf.depstar.uberjar --compile -m closh.zero.frontend.sci-rebel "$jar" # --verbose
 
+# use_lein=false # set to true to build uberjar with project.clj instead of boot
+#
+# if [ $use_lein = true ]; then
+#     npm run compile-sci-lein
+#     jar=target/closh-sci-0.0.1-SNAPSHOT-standalone.jar
+# else
+#     npm run compile-sci-boot
+#     jar=target/closh-zero-sci.jar
+# fi
 
 $NATIVE_IMAGE \
   -jar "$jar" \
@@ -34,7 +43,8 @@ $NATIVE_IMAGE \
   -H:+ReportExceptionStackTraces \
   -J-Dclojure.spec.skip-macros=true \
   -J-Dclojure.compiler.direct-linking=true \
-  "-H:IncludeResources=CLOSH_VERSION" \
+  -H:IncludeResources=CLOSH_VERSION \
+  -H:IncludeResources='org/jline/utils/.*' \
   -H:ReflectionConfigurationFiles=reflection.json \
   --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
   --initialize-at-build-time \
@@ -48,4 +58,4 @@ $NATIVE_IMAGE \
   --report-unsupported-elements-at-runtime \
   -H:+TraceClassInitialization \
   -H:+PrintClassInitialization \
-  "-J-Xmx8g"
+  "-J-Xmx16g"
