@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+NATIVE_IMAGE=`which native-image` || true
+
+if [ -z "$NATIVE_IMAGE" ]; then
+  if [ -z "$GRAALVM_HOME" ]; then
+      echo "Please set GRAALVM_HOME"
+      exit 1
+  fi
+
+  NATIVE_IMAGE="$GRAALVM_HOME/bin/native-image"
+
+  if [ ! -x "$NATIVE_IMAGE" ]; then
+    "$GRAALVM_HOME/bin/gu" install native-image || true
+  fi
+fi
+
+jar=${1:-target/closh-zero-sci.jar}
+
+export __CLOSH_USE_SCI_EVAL__=true
+
+"$NATIVE_IMAGE" \
+  -jar "$jar" \
+  -H:Name=closh-zero-sci \
+  -H:+ReportExceptionStackTraces \
+  -J-Dclojure.spec.skip-macros=true \
+  -J-Dclojure.compiler.direct-linking=true \
+  -H:IncludeResources=CLOSH_VERSION \
+  -H:IncludeResources='org/jline/utils/.*' \
+  -H:IncludeResources='org/sqlite/native/Linux/x86_64/libsqlitejdbc.so' \
+  -H:ReflectionConfigurationFiles=reflection.json \
+  --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
+  --initialize-at-build-time \
+  -H:Log=registerResource: \
+  -H:EnableURLProtocols=http,https \
+  --enable-all-security-services \
+  -H:+JNI \
+  --verbose \
+  --no-fallback \
+  --no-server \
+  --report-unsupported-elements-at-runtime \
+  -H:+TraceClassInitialization \
+  -H:+PrintClassInitialization \
+  -J-Xmx16g

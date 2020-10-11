@@ -1,7 +1,8 @@
 name: deploy
 
 env:
-  GRAAL_VERSION: "20.0.0.java11"
+  GRAAL_VERSION: "20.1.0.java11"
+  TOOLS_CLI_VERSION: "1.10.1.716" # or "latest"
 # on:
 #   push:
 #     tags:
@@ -20,7 +21,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
@@ -30,13 +31,6 @@ jobs:
           key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             ${{ runner.os }}-deps-
-
-      - uses: actions/cache@v1
-        with:
-          path: /opt/hostedtoolcache/Boot
-          key: ${{ runner.os }}-boot-2.8.3
-          restore-keys: |
-            ${{ runner.os }}-boot-
 
       - name: Parse Ref
         id: parse-ref
@@ -48,13 +42,13 @@ jobs:
         with:
           node-version: 9.x
 
-      - name: Install Boot-clj etc (https://github.com/marketplace/actions/setup-clojure)
+      - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
-          boot: 2.8.3
+          tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
-      - name: Check boot version
-        run: boot -V
+      - name: Check clojure version
+        run: clojure -Sdescribe
 
       # - name: Install shadow-cljs
       #   run: |
@@ -65,7 +59,7 @@ jobs:
       #   run: |
       #     npm install
 
-      - name: Build into uberjar via boot
+      - name: Build into uberjar
         run: |
           npm run pkg-java && \
           mv target/closh-zero.jar closh-zero.jar
@@ -88,7 +82,7 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}-${{ hashFiles('**/boot.properties') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
@@ -98,13 +92,6 @@ jobs:
           key: ${{ runner.os }}-deps-${{ hashFiles('**/deps.edn') }}
           restore-keys: |
             ${{ runner.os }}-deps-
-
-      - uses: actions/cache@v1
-        with:
-          path: /opt/hostedtoolcache/Boot
-          key: ${{ runner.os }}-boot-2.8.3
-          restore-keys: |
-            ${{ runner.os }}-boot-
 
       - name: Parse Ref
         id: parse-ref
@@ -116,16 +103,13 @@ jobs:
         with:
           node-version: 9.x
 
-      - name: Install Boot-clj etc (https://github.com/marketplace/actions/setup-clojure)
+      - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
-          boot: 2.8.3
+          tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
-      - name: Check boot version
-        run: boot -V
-
-      - run: |
-          which boot
+      - name: Check clojure version
+        run: clojure -Sdescribe
 
       # - name: Install shadow-cljs
       #   run: |
@@ -136,9 +120,9 @@ jobs:
       #   run: |
       #     npm install
 
-      - name: Build into uberjar via boot
+      - name: Build into uberjar
         run: |
-          npm run compile-sci-boot && \
+          scripts/compile-sci-uberjar && \
           mv target/closh-zero-sci.jar closh-zero-sci.jar
 
       - uses: actions/upload-artifact@v1
@@ -168,7 +152,7 @@ jobs:
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
-          tools-deps: '1.10.1.469'
+          tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
       - name: Check clojure version
         run: clojure -Sdescribe
@@ -197,17 +181,7 @@ jobs:
           which native-image
 
       - name: Build macOS native image
-        run: |
-          native-image \
-              -Dclojure.compiler.direct-linking=true \
-              --initialize-at-build-time \
-              --report-unsupported-elements-at-runtime \
-              --no-server \
-              --no-fallback \
-              --enable-url-protocols=http,https \
-              --allow-incomplete-classpath \
-              -jar closh-zero-sci.jar \
-              closh-zero-sci
+        run: scripts/compile-native-image closh-zero-sci.jar
 
       - uses: actions/upload-artifact@v1
         with:
@@ -243,7 +217,7 @@ jobs:
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
         uses: DeLaGuardo/setup-clojure@2.0
         with:
-          tools-deps: '1.10.1.469'
+          tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
       - name: Check clojure version
         run: clojure -Sdescribe
@@ -272,17 +246,7 @@ jobs:
           which native-image
 
       - name: Build Linux native image
-        run: |
-          native-image \
-              -Dclojure.compiler.direct-linking=true \
-              --initialize-at-build-time \
-              --report-unsupported-elements-at-runtime \
-              --no-server \
-              --no-fallback \
-              --enable-url-protocols=http,https \
-              --allow-incomplete-classpath \
-              -jar closh-zero-sci.jar \
-              closh-zero-sci
+        run: scripts/compile-native-image closh-zero-sci.jar
 
       - uses: actions/upload-artifact@v1
         with:

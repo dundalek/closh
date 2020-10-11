@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+jar=${1:-target/closh-zero-sci.jar}
+
+export __CLOSH_USE_SCI_EVAL__=true
+
+rm -rf classes
+mkdir classes
+clojure -Asci -e "(compile 'rebel-readline.line-reader-class)"
+clojure -Asci -Spom
+clojure -A:depstar:sci -m hf.depstar.uberjar --compile -m closh.zero.frontend.sci-rebel "$jar" # --verbose
