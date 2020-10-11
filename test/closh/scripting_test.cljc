@@ -11,7 +11,7 @@
 
 (defn closh [& args]
   (shx "clojure" (concat (if sci?
-                           ["-A:sci" "-m" "closh.zero.frontend.sci"]
+                           ["-M:sci" "-m" "closh.zero.frontend.sci"]
                            ["-m" "closh.zero.frontend.rebel"])
                          args)))
 

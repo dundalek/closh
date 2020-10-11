@@ -39,10 +39,10 @@
                  (shx "java" ["-jar" "target/closh-zero-sci.jar" "-e" cmd])
 
                  (process/getenv "__CLOSH_USE_SCI_EVAL__")
-                 (shx "clojure" ["-A:sci" "-m" "closh.zero.frontend.sci" "-e" cmd])
+                 (shx "clojure" ["-M:sci" "-m" "closh.zero.frontend.sci" "-e" cmd])
 
                  :else
-                 (shx "clojure" ["-m" "closh.zero.frontend.rebel" "-e" cmd])))))
+                 (shx "clojure" ["-M" "-m" "closh.zero.frontend.rebel" "-e" cmd])))))
 
 (defn closh-spawn-in-process [cmd]
   (let [out (create-fake-writer)

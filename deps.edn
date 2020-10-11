@@ -26,7 +26,7 @@
                      borkdude/edamame {:mvn/version "0.0.10"}
                      com.bhauman/rebel-readline
                      {:git/url "https://github.com/dundalek/rebel-readline.git"
-                      :sha "74925ec7186b5a2e616b389a29686a12b8070551"
+                      :sha "123be27a75de902233356e11ac66ac53cc5edc08"
                       :deps/root "rebel-readline"
                       :exclusions [rewrite-cljs/rewrite-cljs]}}}
 

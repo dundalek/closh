@@ -15,7 +15,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
-      - run: clojure -Alint
+      - run: clojure -Mlint
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -64,7 +64,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Atest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -87,7 +87,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
+      - run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -110,7 +110,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Atest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -133,7 +133,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run:  CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
+      - run:  CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -184,7 +184,7 @@ jobs:
       - run: brew install clojure bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Atest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
 
       - save_cache:
           paths:
@@ -209,7 +209,7 @@ jobs:
       - run: brew install clojure bc
 
       # run tests
-      - run: CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -A:sci:test -m cognitect.test-runner
+      - run: CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
 
       - save_cache:
           paths:
