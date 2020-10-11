@@ -94,15 +94,17 @@
          (.moveToEnd this))
        (iterator [this index]
         ;; TODO: jline calls (.iterator n) for every movement, so this is probably very inefficient and a better way would be to implement custom iterator
-         (-> ^clojure.lang.LazySeq
-             (concat (jdbc/query db-spec
-                                 ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id = ? ORDER BY id DESC" @!all-count session-id]
-                                 {:row-fn row->entry})
-                     (jdbc/query db-spec
-                                 ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
-                                 {:row-fn row->entry}))
-             (.listIterator (- (.size this) index))
-             (flip-iterator)))
+         (->
+          ^clojure.lang.LazySeq
+          (concat (jdbc/query db-spec
+                              ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) - 1 + ? as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id = ? ORDER BY id DESC" @!all-count session-id]
+                              {:row-fn row->entry})
+
+                  (jdbc/query db-spec
+                              ["SELECT time, command, ROW_NUMBER() OVER(ORDER BY id) -1 as idx FROM history WHERE id IN (SELECT MAX(id) FROM history GROUP BY command) AND session_id != ? AND id <= ? ORDER BY id DESC" session-id @!all-last-id]
+                              {:row-fn row->entry}))
+          (.listIterator (- (.size this) index))
+          (flip-iterator)))
        (current [this]
          (let [index (.index this)]
            (if (>= index (.size this))
