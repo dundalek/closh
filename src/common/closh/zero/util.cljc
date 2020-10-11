@@ -49,7 +49,3 @@
              (setenv-diff before after)
              (when-not (= stdout "") stdout))
            (println "Error while executing" shell "command:" exp "\n" (:stderr result))))))))
-
-#?(:clj
-   (defn thread-stop [^Thread thread]
-     (.stop thread)))

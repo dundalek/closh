@@ -14,19 +14,32 @@
             [closh.zero.platform.eval :as eval]
             [closh.zero.frontend.main :as main]
             [closh.zero.service.completion :refer [complete-shell]]
-            [closh.zero.util :refer [thread-stop]]
             [closh.zero.utils.clojure-main :refer [repl-requires] :as clojure-main]
             [closh.zero.frontend.jline-history :as jline-history])
   (:import [org.jline.reader Completer ParsedLine LineReader]
            (org.jline.reader.impl LineReaderImpl)))
 
+(defn handle-prompt-exception [e]
+  (let [ex-map (Throwable->map e)]
+    (println "\nError printing prompt:" (or (:cause ex-map)
+                                            (-> ex-map :via first :type))))
+  (println "Please check the definition of closh-prompt function in your ~/.closhrc")
+  (print "$ "))
+
 (defn repl-prompt []
   (try
     (eval/eval '(print (closh-prompt)))
     (catch Exception e
-      (println "Error printing prompt:" (:cause (Throwable->map e)))
-      (println "Please check the definition of closh-prompt function in your ~/.closhrc")
-      (print "$ ")))
+      (if (or (instance? java.lang.InterruptedException e)
+              ;; SCI wraps the exception in ex-info
+              (instance? java.lang.InterruptedException (ex-cause e)))
+        (do (println "\nInterrupted")
+            (Thread/interrupted)
+            (try
+              (eval/eval '(print (closh-prompt)))
+              (catch Exception e
+                (handle-prompt-exception e))))
+        (handle-prompt-exception e))))
   (let [title
         (try
           (eval/eval '(closh-title))
@@ -88,9 +101,15 @@
   (when (.isFile (jio/file init-path))
     (eval/eval `(~'load-file ~init-path))))
 
-(defn handle-sigint-form []
-  `(let [thread# (Thread/currentThread)]
-     (clojure.repl/set-break-handler! (fn [signal#] (thread-stop thread#)))))
+(defn register-sigint-handler []
+  (let [thread (Thread/currentThread)]
+    (sun.misc.Signal/handle
+     (sun.misc.Signal. "INT")
+     (proxy [sun.misc.SignalHandler] []
+       (handle [signal]
+         ;; Thread.stop() method is deprecated, but it is used instead of Thread.interrupt()
+         ;; which does not work for computations like `(doseq [i (range 1000000)] (println i))`
+         (.stop thread))))))
 
 (defn repl [[_ & args] inits]
   (core/ensure-terminal
@@ -127,7 +146,13 @@
                            (println "Error while loading init file ~/.closhrc:\n" e)))))
              :print repl-print
              :read (create-repl-read)
-             :eval (fn [form] (eval/eval `(do ~(handle-sigint-form) ~form)))}
+             :eval (fn [form]
+                     (try
+                       (register-sigint-handler)
+                       (eval/eval form)
+                       ;; Catching ThreadDeath caused by Thread.stop() method from SIGINT handler
+                       (catch ThreadDeath _
+                         (throw (InterruptedException.)))))}
             (merge opts {:prompt (fn [])})
             seq
             flatten))))))

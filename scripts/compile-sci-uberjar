@@ -8,6 +8,6 @@ export __CLOSH_USE_SCI_EVAL__=true
 
 rm -rf classes
 mkdir classes
-clojure -Asci -e "(compile 'rebel-readline.line-reader-class)"
+clojure -Msci -e "(compile 'rebel-readline.line-reader-class)"
 clojure -Asci -Spom
 clojure -M:depstar:sci -m hf.depstar.uberjar --compile -m closh.zero.frontend.sci-rebel "$jar" # --verbose

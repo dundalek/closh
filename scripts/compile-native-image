@@ -29,7 +29,6 @@ export __CLOSH_USE_SCI_EVAL__=true
   -J-Dclojure.compiler.direct-linking=true \
   -H:IncludeResources=CLOSH_VERSION \
   -H:IncludeResources='org/jline/utils/.*' \
-  -H:IncludeResources='org/sqlite/native/Linux/x86_64/libsqlitejdbc.so' \
   -H:ReflectionConfigurationFiles=reflection.json \
   --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
   --initialize-at-build-time \

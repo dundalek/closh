@@ -13,7 +13,7 @@
             [closh.zero.platform.process :as process]
             [closh.zero.builtin :as builtin]
             [closh.zero.env :as env]
-            [closh.zero.util :refer [thread-stop] :as util]
+            [closh.zero.util :as util]
             [closh.zero.macros-fns :as macros-fns]
             [clojure.java.io :as jio]
             [clojure.java.javadoc :as javadoc]
@@ -79,10 +79,6 @@
        (closh-bindings)
        (closh-macro-bindings)
        {})))
-       ;; 'thread-stop thread-stop
-       ;; 'clojure.repl/set-break-handler! clojure.repl/set-break-handler!
-       ;; 'closh.zero.env/*closh-commands* closh.zero.env/*closh-commands*
-
 
 (declare ctx)
 (declare eval)
@@ -115,7 +111,6 @@
                'println println
                'load-file load-file
                'Math/sqrt #(Math/sqrt %)
-               'thread-stop util/thread-stop
                'clojure.repl/set-break-handler! repl/set-break-handler!
                '*closh-commands* env/*closh-commands*
                'cd builtin/cd
@@ -183,8 +178,7 @@
                                          'expand-abbreviation closh-core/expand-abbreviation
                                          '*closh-version* closh-core/*closh-version*
                                          'closh-version closh-core/closh-version}
-                       'closh.zero.util {'thread-stop util/thread-stop
-                                         'source-shell util/source-shell}
+                       'closh.zero.util {'source-shell util/source-shell}
                        'closh.zero.env {'*closh-aliases* env/*closh-aliases*
                                         '*closh-commands* env/*closh-commands*
                                         '*closh-abbreviations* env/*closh-commands*}
