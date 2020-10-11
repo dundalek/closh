@@ -534,7 +534,7 @@ by default when a new command-line REPL is started."} repl-requires
     (println "Support for -m argument not implemented."))
   (System/exit 1))
 
-(defn- repl-opt
+(defn repl-opt
   "Start a repl with args and inits. Print greeting if no eval options were
   present"
   [[_ & args] inits]
@@ -562,7 +562,7 @@ by default when a new command-line REPL is started."} repl-requires
   (with-bindings
     (initialize args inits)))
 
-(defn- help-opt
+(defn help-opt
   "Print help text for main"
   [_ _]
   (println (:doc (meta (var main)))))

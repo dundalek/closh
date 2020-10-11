@@ -23,7 +23,7 @@ jar=target/closh-zero-sci.jar
 
 rm -rf classes
 mkdir classes
-clojure -e "(compile 'rebel-readline.line-reader-class)"
+clojure -Asci -e "(compile 'rebel-readline.line-reader-class)"
 clojure -Asci -Spom
 clojure -A:depstar:sci -m hf.depstar.uberjar --compile -m closh.zero.frontend.sci-rebel "$jar" # --verbose
 

@@ -7,13 +7,10 @@
   org.clojure/java.jdbc {:mvn/version "0.7.9"}
   org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
   squarepeg {:mvn/version "0.6.1"}
-  com.bhauman/rebel-readline {;;:mvn/version "0.1.4"
-                              :git/url "https://github.com/dundalek/rebel-readline.git"
-                              :sha "74925ec7186b5a2e616b389a29686a12b8070551"
-                              :deps/root "rebel-readline"
+  com.bhauman/rebel-readline {:mvn/version "0.1.4"
                               :exclusions [rewrite-cljs/rewrite-cljs]}}
 
- :paths ["src/common" "src/jvm" "resources" "classes"]
+ :paths ["src/common" "src/jvm" "resources"]
 
  :aliases
  {:test {:extra-paths ["test"]
@@ -23,18 +20,15 @@
 
   :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
 
-  :sci {:extra-paths ["src/closh-sci"]
+  :sci {:extra-paths ["src/closh-sci" "classes"]
         :extra-deps {fipp {:mvn/version "0.6.22"}
-                     borkdude/sci
-                     {:mvn/version "0.0.11"}
-                      ;; :git/url "https://github.com/borkdude/sci"
-                      ;; :tag "v0.0.10"
-                      ;; :sha "da91beb83e55c1783b97b8434c5197791c8b6b08"
-                     borkdude/edamame
-                     {:mvn/version "0.0.10"}}}
-                     ; {:git/url "https://github.com/borkdude/edamame"
-                     ;  :tag "v0.0.9"
-                     ;  :sha "815aae8612bace7691726da71ffa9a0b89cb4d49"}}}
+                     borkdude/sci {:mvn/version "0.1.0"}
+                     borkdude/edamame {:mvn/version "0.0.10"}
+                     com.bhauman/rebel-readline
+                     {:git/url "https://github.com/dundalek/rebel-readline.git"
+                      :sha "74925ec7186b5a2e616b389a29686a12b8070551"
+                      :deps/root "rebel-readline"
+                      :exclusions [rewrite-cljs/rewrite-cljs]}}}
 
   :lint {:extra-deps {cljfmt {:mvn/version "0.6.7"}}
          :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
