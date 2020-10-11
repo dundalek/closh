@@ -143,7 +143,7 @@ jobs:
 
   test-macos-cljs:
     macos:
-      xcode: "10.2.1"
+      xcode: "11.3.1"
 
     working_directory: /Users/distiller/project
 
@@ -169,7 +169,7 @@ jobs:
 
   test-macos-clj:
     macos:
-      xcode: "10.2.1"
+      xcode: "11.3.1"
 
     working_directory: /Users/distiller/project
 
@@ -194,7 +194,7 @@ jobs:
 
   test-macos-clj-sci:
     macos:
-      xcode: "10.2.1"
+      xcode: "11.3.1"
 
     working_directory: /Users/distiller/project
 
