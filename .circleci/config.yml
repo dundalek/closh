@@ -5,7 +5,7 @@ jobs:
 
   lint:
     docker:
-      - image: circleci/clojure:tools-deps-1.9.0.394-node
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
 
     working_directory: ~/repo
 
@@ -49,9 +49,9 @@ jobs:
       # run tests
       - run: npm run test-cljs
 
-  test-linux-clj:
+  test-linux-clj-jdk8:
     docker:
-      - image: circleci/clojure:tools-deps-1.9.0.394-node
+      - image: circleci/clojure:openjdk-8-tools-deps-1.10.1.697-node
 
     working_directory: ~/repo
 
@@ -72,9 +72,9 @@ jobs:
             - ~/.gitlibs
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
-  test-linux-clj-sci:
+  test-linux-clj-sci-jdk8:
     docker:
-      - image: circleci/clojure:tools-deps-1.9.0.394-node
+      - image: circleci/clojure:openjdk-8-tools-deps-1.10.1.697-node
 
     working_directory: ~/repo
 
@@ -97,7 +97,7 @@ jobs:
 
   test-linux-clj-jdk11:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442-node
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
 
     working_directory: ~/repo
 
@@ -118,9 +118,9 @@ jobs:
             - ~/.gitlibs
           key: clj-jdk11-dependencies-{{ checksum "deps.edn" }}
 
-  test-linux-clj-jdk11-sci:
+  test-linux-clj-sci-jdk11:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.442-node
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
 
     working_directory: ~/repo
 
@@ -223,10 +223,10 @@ workflows:
     jobs:
       - lint
       - test-linux-cljs
-      - test-linux-clj
+      - test-linux-clj-jdk8
       - test-linux-clj-jdk11
-      - test-linux-clj-sci
-      - test-linux-clj-jdk11-sci
+      - test-linux-clj-sci-jdk8
+      - test-linux-clj-sci-jdk11
       - test-macos-cljs
       - test-macos-clj
       - test-macos-clj-sci
