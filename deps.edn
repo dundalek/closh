@@ -6,7 +6,7 @@
   org.clojure/tools.cli {:mvn/version "0.4.1"}
   org.clojure/java.jdbc {:mvn/version "0.7.9"}
   org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
-  squarepeg {:mvn/version "0.6.1"}
+  squarepeg/squarepeg {:mvn/version "0.6.1"}
   com.bhauman/rebel-readline {:mvn/version "0.1.4"
                               :exclusions [rewrite-cljs/rewrite-cljs]}}
 
@@ -21,7 +21,7 @@
   :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
 
   :sci {:extra-paths ["src/closh-sci" "classes"]
-        :extra-deps {fipp {:mvn/version "0.6.22"}
+        :extra-deps {fipp/fipp {:mvn/version "0.6.22"}
                      borkdude/sci {:mvn/version "0.1.0"}
                      borkdude/edamame {:mvn/version "0.0.10"}
                      com.bhauman/rebel-readline
@@ -30,10 +30,10 @@
                       :deps/root "rebel-readline"
                       :exclusions [rewrite-cljs/rewrite-cljs]}}}
 
-  :lint {:extra-deps {cljfmt {:mvn/version "0.7.0"}}
+  :lint {:extra-deps {cljfmt/cljfmt {:mvn/version "0.7.0"}}
          :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
 
-  :lint/fix {:extra-deps {cljfmt {:mvn/version "0.7.0"}}
+  :lint/fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.7.0"}}
              :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
 
   :kaocha {:extra-paths ["test"]
