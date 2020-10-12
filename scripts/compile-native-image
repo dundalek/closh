@@ -19,6 +19,12 @@ fi
 
 jar=${1:-target/closh-zero-sci.jar}
 
+case "$OSTYPE" in
+  darwin*)  SQLITE_RESOURCES="org/sqlite/native/Mac/x86_64/libsqlitejdbc.jnilib" ;;
+  linux*)   SQLITE_RESOURCES="org/sqlite/native/Linux/x86_64/libsqlitejdbc.so" ;;
+  *)        SQLITE_RESOURCES="org/sqlite/native/.*" ;;
+esac
+
 export __CLOSH_USE_SCI_EVAL__=true
 
 "$NATIVE_IMAGE" \
@@ -29,13 +35,14 @@ export __CLOSH_USE_SCI_EVAL__=true
   -J-Dclojure.compiler.direct-linking=true \
   -H:IncludeResources=CLOSH_VERSION \
   -H:IncludeResources='org/jline/utils/.*' \
+  -H:IncludeResources="$SQLITE_RESOURCES" \
+  -H:JNIConfigurationFiles=jni.json \
   -H:ReflectionConfigurationFiles=reflection.json \
   --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
   --initialize-at-build-time \
   -H:Log=registerResource: \
   -H:EnableURLProtocols=http,https \
   --enable-all-security-services \
-  -H:+JNI \
   --verbose \
   --no-fallback \
   --no-server \
