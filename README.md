@@ -212,6 +212,7 @@ npm run test-auto
 ### Manual Java builds
 
 Run `npm run pkg-java`. The resulting binary will be in `target/closh-zero.jar`.
+- Requires you have [Boot](https://github.com/boot-clj/boot) installed.
 
 ## Sponsors
 
