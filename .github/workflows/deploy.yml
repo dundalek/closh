@@ -3,6 +3,7 @@ name: deploy
 env:
   GRAAL_VERSION: "20.1.0.java11"
   TOOLS_CLI_VERSION: "1.10.1.716" # or "latest"
+
 # on:
 #   push:
 #     tags:
@@ -43,7 +44,7 @@ jobs:
           node-version: 9.x
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
           tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
@@ -104,7 +105,7 @@ jobs:
           node-version: 9.x
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
           tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
@@ -150,7 +151,7 @@ jobs:
             ${{ runner.os }}-graal-
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
           tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
@@ -170,7 +171,7 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@3
+        uses: DeLaGuardo/setup-graalvm@master
         with:
           graalvm-version: ${{ env.GRAAL_VERSION }}
 
@@ -215,7 +216,7 @@ jobs:
             ${{ runner.os }}-graal-
 
       - name: Setup Clojure (https://github.com/marketplace/actions/setup-clojure)
-        uses: DeLaGuardo/setup-clojure@2.0
+        uses: DeLaGuardo/setup-clojure@master
         with:
           tools-deps: ${{ env.TOOLS_CLI_VERSION }}
 
@@ -235,7 +236,7 @@ jobs:
           path: .
 
       - name: Prepare GraalVM
-        uses: DeLaGuardo/setup-graalvm@3
+        uses: DeLaGuardo/setup-graalvm@master
         with:
           graalvm-version: ${{ env.GRAAL_VERSION }}
 
