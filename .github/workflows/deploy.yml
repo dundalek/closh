@@ -1,7 +1,7 @@
 name: deploy
 
 env:
-  GRAAL_VERSION: "20.1.0.java11"
+  GRAAL_VERSION: "20.3.0.java11"
   TOOLS_CLI_VERSION: "1.10.1.716" # or "latest"
 
 # on:

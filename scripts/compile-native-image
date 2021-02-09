@@ -38,7 +38,6 @@ export __CLOSH_USE_SCI_EVAL__=true
   -H:IncludeResources="$SQLITE_RESOURCES" \
   -H:JNIConfigurationFiles=jni.json \
   -H:ReflectionConfigurationFiles=reflection.json \
-  --initialize-at-run-time=java.lang.Math\$RandomNumberGeneratorHolder \
   --initialize-at-build-time \
   -H:Log=registerResource: \
   -H:EnableURLProtocols=http,https \
@@ -47,6 +46,5 @@ export __CLOSH_USE_SCI_EVAL__=true
   --no-fallback \
   --no-server \
   --report-unsupported-elements-at-runtime \
-  -H:+TraceClassInitialization \
   -H:+PrintClassInitialization \
-  -J-Xmx16g
+  -J-Xmx6g
