@@ -5,6 +5,10 @@
 
 [![Chat about Closh at Zulip](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://clojurians.zulipchat.com/#narrow/stream/195273-closh) [![Join the chat at https://gitter.im/closh/Lobby](https://badges.gitter.im/closh/Lobby.svg)](https://gitter.im/closh/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status on CircleCI](https://circleci.com/gh/dundalek/closh.svg?style=shield)](https://circleci.com/gh/dundalek/closh) [![GitHub release](https://img.shields.io/github/tag/dundalek/closh.svg?label=release&colorB=blue)](https://github.com/dundalek/closh/releases)
 
+>  **Status update 2022**: Closh is now on hiatus.  
+> Although the initial proof of concept turned out promising, it would take much more work to make it a robust tool that could be relied upon by a wider audience.  
+> For now I recommend using [fish](https://fishshell.com/) as an interactive shell and [babashka](https://babashka.org/) for scripts.
+
 Closh combines the best of traditional unix shells with the power of [Clojure](https://clojure.org/). It aims to be a modern alternative to bash.
 
 Demo showing how to execute commands and using Clojure to manipulate outputs in shell:
