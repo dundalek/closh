@@ -13,6 +13,9 @@
 - Upgrade org.clojure/java.jdbc to 0.7.12
 - Upgrade org.clojure/data.json to 2.4.0, because it's a lot faster
 - Upgrade cljfmt to 0.9.0
+- Upgrade Clojure to 1.11.1
+- Upgrade org.clojure/tools.cli to 1.0.214
+- Upgrade org.clojure/tools.reader to 1.3.6
 
 ## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
 
