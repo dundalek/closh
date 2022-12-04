@@ -18,7 +18,6 @@
                          LineNumberingPushbackReader RT LispReader$ReaderException)))
   ;;(:use [clojure.repl :only (demunge root-cause stack-element-str)])
 
-
 (declare main)
 
 ;;;;;;;;;;;;;;;;;;; redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
@@ -70,7 +69,6 @@
            (str (.getClassName el) "." (.getMethodName el)))
          " (" (.getFileName el) ":" (.getLineNumber el) ")")))
 ;;;;;;;;;;;;;;;;;;; end of redundantly copied from clojure.repl to avoid dep ;;;;;;;;;;;;;;
-
 
 (defmacro with-bindings
   "Executes body in the context of thread-local bindings for several vars
