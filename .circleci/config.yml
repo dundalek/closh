@@ -222,11 +222,11 @@ workflows:
   test:
     jobs:
       - lint
-      - test-linux-cljs
+#      - test-linux-cljs
       - test-linux-clj-jdk8
       - test-linux-clj-jdk11
       - test-linux-clj-sci-jdk8
       - test-linux-clj-sci-jdk11
-      - test-macos-cljs
+#      - test-macos-cljs
       - test-macos-clj
       - test-macos-clj-sci
