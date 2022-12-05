@@ -17,6 +17,7 @@
 - Upgrade org.clojure/tools.cli to 1.0.214
 - Upgrade org.clojure/tools.reader to 1.3.6
 - Upgrade SCI to 0.5.36, addressing https://github.com/dundalek/closh/issues/184
+- Upgrade Cognitect test runner to v0.5.1 git tag
 
 ## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
 

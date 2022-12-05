@@ -13,10 +13,13 @@
  :paths ["src/common" "src/jvm" "resources"]
 
  :aliases
- {:test {:extra-paths ["test"]
-         :extra-deps {com.cognitect/test-runner
-                      {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                       :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}}
+ {:test     {:extra-paths ["test"]
+             :extra-deps  {io.github.cognitect-labs/test-runner
+                           {:git/tag "v0.5.1" :git/sha "dfb30dd"}}}
+
+  :run/test {:main-opts ["-m" "cognitect.test-runner"]
+             :exec-fn   cognitect.test-runner.api/test
+             :homepage  "https://github.com/cognitect-labs/test-runner"}
 
   :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
 
