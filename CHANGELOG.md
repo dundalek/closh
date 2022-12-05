@@ -3,18 +3,35 @@
 ## [master](https://github.com/dundalek/closh/compare/v0.5.0...master) (unreleased)
 
 ### New features
+
+- Upgrade org.xerial/sqlite-jdbc to 3.40.0.0, which provides Apple M1 compatibility
+
 ### Fixes
+
 ### Other changes
 
-## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
+- Upgrade org.clojure/java.jdbc to 0.7.12
+- Upgrade org.clojure/data.json to 2.4.0, because it's a lot faster
+- Upgrade cljfmt to 0.9.0
+- Upgrade Clojure to 1.11.1
+- Upgrade org.clojure/tools.cli to 1.0.214
+- Upgrade org.clojure/tools.reader to 1.3.6
+- Upgrade SCI to 0.5.36, addressing https://github.com/dundalek/closh/issues/184
+- Upgrade Cognitect test runner to v0.5.1 git tag
+- Upgrade kaocha to 1.71.1119
+- Upgrade com.cemerick/pomegranate to 1.2.1
+- Upgrade depstar to 2.1.303
 
+## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
 
 ### New features
 
 - JVM version: Improved history storage in (stores it in sqlite db same as the lumo version)
-- JVM version: Implemented alias expansion by [@djblue](https://github.com/djblue) ([#150](https://github.com/dundalek/closh/pull/150))
+- JVM version: Implemented alias expansion
+  by [@djblue](https://github.com/djblue) ([#150](https://github.com/dundalek/closh/pull/150))
 - JVM version: Make abbreviations work (by treating them as same as aliases for now)
-- Add support for `cd -` go to previous directory by [@kirillsalykin](https://github.com/kirillsalykin) ([#167](https://github.com/dundalek/closh/pull/167))
+- Add support for `cd -` go to previous directory
+  by [@kirillsalykin](https://github.com/kirillsalykin) ([#167](https://github.com/dundalek/closh/pull/167))
 
 ### Fixes
 

@@ -1,40 +1,86 @@
 {:deps
- {org.clojure/clojure {:mvn/version "1.10.2-alpha2"}
-  org.clojure/tools.reader {:mvn/version "1.3.2"}
-  org.clojure/data.json {:mvn/version "0.2.6"}
-  com.cemerick/pomegranate {:mvn/version "1.1.0"}
-  org.clojure/tools.cli {:mvn/version "0.4.1"}
-  org.clojure/java.jdbc {:mvn/version "0.7.9"}
-  org.xerial/sqlite-jdbc {:mvn/version "3.27.2.1"}
-  squarepeg/squarepeg {:mvn/version "0.6.1"}
-  com.bhauman/rebel-readline {:mvn/version "0.1.4"
-                              :exclusions [rewrite-cljs/rewrite-cljs]}}
+ {org.clojure/clojure
+  {:mvn/version "1.11.1"
+   :changelog   "https://github.com/clojure/clojure/blob/master/changes.md"}
+
+  org.clojure/tools.reader
+  {:mvn/version "1.3.6"
+   :changelog   "https://github.com/clojure/tools.reader/blob/master/CHANGELOG.md"}
+
+  org.clojure/data.json
+  {:mvn/version "2.4.0"
+   :changelog   "https://github.com/clojure/data.json#change-log"}
+
+  clj-commons/pomegranate
+  {:mvn/version "1.2.1"
+   :changelog   "https://github.com/clj-commons/pomegranate/blob/master/CHANGES.md"}
+
+  org.clojure/tools.cli
+  {:mvn/version "1.0.214"
+   :changelog   "https://github.com/clojure/tools.cli/blob/master/CHANGELOG.md"}
+
+  org.clojure/java.jdbc
+  {:mvn/version "0.7.12"
+   :changelog   "https://github.com/clojure/java.jdbc/blob/master/CHANGES.md"}
+
+  org.xerial/sqlite-jdbc
+  {:mvn/version "3.40.0.0"
+   :changelog   "https://github.com/xerial/sqlite-jdbc/releases"}
+
+  squarepeg/squarepeg
+  {:mvn/version "0.6.1"
+   :changelog   "https://github.com/ericnormand/squarepeg/tags"}
+
+  com.bhauman/rebel-readline
+  {:mvn/version "0.1.4"
+   :exclusions  [rewrite-cljs/rewrite-cljs]}}
 
  :paths ["src/common" "src/jvm" "resources"]
 
  :aliases
- {:test {:extra-paths ["test"]
-         :extra-deps {com.cognitect/test-runner
-                      {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                       :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}}
+ {:test
+  {:extra-paths ["test"]
+   :extra-deps  {io.github.cognitect-labs/test-runner
+                 {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+   :changelog   "https://github.com/cognitect-labs/test-runner/blob/master/changes.md"}
 
-  :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
+  :run/test
+  {:main-opts ["-m" "cognitect.test-runner"]
+   :exec-fn   cognitect.test-runner.api/test}
 
-  :sci {:extra-paths ["src/closh-sci" "classes"]
-        :extra-deps {fipp/fipp {:mvn/version "0.6.22"}
-                     borkdude/sci {:mvn/version "0.1.0"}
-                     borkdude/edamame {:mvn/version "0.0.10"}
-                     com.bhauman/rebel-readline
-                     {:git/url "https://github.com/dundalek/rebel-readline.git"
-                      :sha "123be27a75de902233356e11ac66ac53cc5edc08"
-                      :deps/root "rebel-readline"
-                      :exclusions [rewrite-cljs/rewrite-cljs]}}}
+  :depstar
+  {:exec-fn hf.depstar/uberjar
+   :exec-args {:aot true}
+   :replace-deps
+   {com.github.seancorfield/depstar
+    {:mvn/version "2.1.303"
+     :changelog   "https://github.com/seancorfield/depstar/blob/develop/CHANGELOG.md"}}}
 
-  :lint {:extra-deps {cljfmt/cljfmt {:mvn/version "0.7.0"}}
-         :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
+  :sci
+  {:extra-paths ["src/closh-sci" "classes"]
+   :extra-deps  {fipp/fipp        {:mvn/version "0.6.26"}
+                 org.babashka/sci {:mvn/version "0.5.36"}
+                 borkdude/edamame {:mvn/version "1.0.16"}
+                 com.bhauman/rebel-readline
+                 {:git/url    "https://github.com/dundalek/rebel-readline.git"
+                  :sha        "123be27a75de902233356e11ac66ac53cc5edc08"
+                  :deps/root  "rebel-readline"
+                  :exclusions [rewrite-cljs/rewrite-cljs]}}}
 
-  :lint/fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.7.0"}}
-             :main-opts ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
+  :lint
+  {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
+   :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
 
-  :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
+  :lint/fix
+  {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
+   :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
+
+  :kaocha
+  {:extra-paths ["test"]
+   :extra-deps  {lambdaisland/kaocha
+                 {:mvn/version "1.71.1119"
+                  :changelog   "https://github.com/lambdaisland/kaocha/blob/main/CHANGELOG.md"}}}
+
+  :run/kaocha
+  {:exec-fn   kaocha.runner/exec-fn
+   :exec-args {}}}}

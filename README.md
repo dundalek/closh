@@ -204,13 +204,27 @@ clojure -m closh.zero.frontend.rebel
 ```
 
 Run tests once
+
 ```
 npm run test
 ```
 
 Re-run tests on change
+
 ```
 npm run test-auto
+```
+
+Run tests via [Cognitect test runner](https://github.com/cognitect-labs/test-runner)
+
+```shell
+clojure -X:test:run/test
+```
+
+Run tests via [Kaocha](https://github.com/lambdaisland/kaocha)
+
+```shell
+clojure -X:kaocha:run/kaocha
 ```
 
 ### Manual Java builds
