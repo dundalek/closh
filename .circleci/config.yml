@@ -61,7 +61,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
-      - run: sudo apt-get -y install bc
+      - run: sudo apt-get update && sudo apt-get install -y bc
 
       # run tests
       - run: CI_ENV=1 clojure -X:test:run/test
@@ -84,7 +84,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-sci-dependencies-{{ checksum "deps.edn" }}
 
-      - run: sudo apt-get -y install bc
+      - run: sudo apt-get update && sudo apt-get install -y bc
 
       # run tests
       - run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -X:sci:test:run/test
@@ -107,7 +107,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-jdk11-dependencies-{{ checksum "deps.edn" }}
 
-      - run: sudo apt-get -y install bc
+      - run: sudo apt-get update && sudo apt-get install -y bc
 
       # run tests
       - run: CI_ENV=1 clojure -X:test:run/test
@@ -130,7 +130,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-jdk11-sci-dependencies-{{ checksum "deps.edn" }}
 
-      - run: sudo apt-get -y install bc
+      - run: sudo apt-get update && sudo apt-get install -y bc
 
       # run tests
       - run:  CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -X:sci:test:run/test
