@@ -221,6 +221,12 @@ Run tests via [Cognitect test runner](https://github.com/cognitect-labs/test-run
 clojure -X:test:run/test
 ```
 
+Run tests via [Kaocha](https://github.com/lambdaisland/kaocha)
+
+```shell
+clojure -X:kaocha:run/kaocha
+```
+
 ### Manual Java builds
 
 Run `npm run pkg-java`. The resulting binary will be in `target/closh-zero.jar`.

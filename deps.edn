@@ -21,7 +21,7 @@
              :exec-fn   cognitect.test-runner.api/test
              :homepage  "https://github.com/cognitect-labs/test-runner"}
 
-  :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
+  :depstar  {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
 
   :sci      {:extra-paths ["src/closh-sci" "classes"]
              :extra-deps  {fipp/fipp        {:mvn/version "0.6.26"}
@@ -39,5 +39,11 @@
   :lint/fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
              :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
 
-  :kaocha {:extra-paths ["test"]
-           :extra-deps {lambdaisland/kaocha {:mvn/version "0.0-409"}}}}}
+  :kaocha   {:extra-paths ["test"]
+             :extra-deps  {lambdaisland/kaocha
+                           {:mvn/version "1.71.1119"
+                            :homepage    "https://github.com/lambdaisland/kaocha"}}}
+
+  :run/kaocha
+  {:exec-fn   kaocha.runner/exec-fn
+   :exec-args {}}}}
