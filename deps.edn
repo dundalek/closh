@@ -1,8 +1,20 @@
 {:deps
- {org.clojure/clojure        {:mvn/version "1.11.1"}
-  org.clojure/tools.reader   {:mvn/version "1.3.6"}
-  org.clojure/data.json      {:mvn/version "2.4.0"}
-  com.cemerick/pomegranate   {:mvn/version "1.1.0"}
+ {org.clojure/clojure
+  {:mvn/version "1.11.1"
+   :changelog   "https://github.com/clojure/clojure/blob/master/changes.md"}
+
+  org.clojure/tools.reader
+  {:mvn/version "1.3.6"
+   :changelog   "https://github.com/clojure/tools.reader/blob/master/CHANGELOG.md"}
+
+  org.clojure/data.json
+  {:mvn/version "2.4.0"
+   :changelog   "https://github.com/clojure/data.json#change-log"}
+
+  clj-commons/pomegranate
+  {:mvn/version "1.2.1"
+   :changelog   "https://github.com/clj-commons/pomegranate/blob/master/CHANGES.md"}
+
   org.clojure/tools.cli      {:mvn/version "1.0.214"}
   org.clojure/java.jdbc      {:mvn/version "0.7.12"}
   org.xerial/sqlite-jdbc     {:mvn/version "3.40.0.0"}
@@ -39,10 +51,11 @@
   :lint/fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
              :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
 
-  :kaocha   {:extra-paths ["test"]
-             :extra-deps  {lambdaisland/kaocha
-                           {:mvn/version "1.71.1119"
-                            :homepage    "https://github.com/lambdaisland/kaocha"}}}
+  :kaocha
+  {:extra-paths ["test"]
+   :extra-deps  {lambdaisland/kaocha
+                 {:mvn/version "1.71.1119"
+                  :changelog   "https://github.com/lambdaisland/kaocha/blob/main/CHANGELOG.md"}}}
 
   :run/kaocha
   {:exec-fn   kaocha.runner/exec-fn
