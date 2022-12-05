@@ -49,7 +49,12 @@
    :exec-fn   cognitect.test-runner.api/test}
 
   :depstar
-  {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
+  {:exec-fn hf.depstar/uberjar
+   :exec-args {:aot true}
+   :replace-deps
+   {com.github.seancorfield/depstar
+    {:mvn/version "2.1.303"
+     :changelog   "https://github.com/seancorfield/depstar/blob/develop/CHANGELOG.md"}}}
 
   :sci
   {:extra-paths ["src/closh-sci" "classes"]

@@ -20,6 +20,7 @@
 - Upgrade Cognitect test runner to v0.5.1 git tag
 - Upgrade kaocha to 1.71.1119
 - Upgrade com.cemerick/pomegranate to 1.2.1
+- Upgrade depstar to 2.1.303
 
 ## [0.5.0](https://github.com/dundalek/closh/compare/v0.4.1...v0.5.0) (2020-06-01)
 

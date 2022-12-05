@@ -31,7 +31,7 @@
     "docker-start": "npm run docker-build && docker run --rm -it closh",
     "pkg-lumo": "pkg-lumo -c src/common:src/lumo -m closh.main",
     "pkg-java": "npm run compile-uberjar && scripts/wrap-jar.sh target/closh-zero.jar",
-    "compile-uberjar": "clojure -M:depstar -m hf.depstar.uberjar --compile -m closh.zero.frontend.rebel target/closh-zero.jar --verbose",
+    "compile-uberjar": "clojure -X:depstar :main-class closh.zero.frontend.rebel :jar target/closh-zero.jar :verbose true",
     "lint": "clojure -M:lint",
     "lint-fix": "clojure -M:lint:lint/fix",
     "lint-kondo": "clj-kondo --lint src:test",

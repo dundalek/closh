@@ -10,4 +10,4 @@ rm -rf classes
 mkdir classes
 clojure -Msci -e "(compile 'rebel-readline.line-reader-class)"
 clojure -Asci -Spom
-clojure -M:depstar:sci -m hf.depstar.uberjar --compile -m closh.zero.frontend.sci-rebel "$jar" # --verbose
+clojure -X:depstar :aliases '[:sci]' :main-class closh.zero.frontend.sci-rebel :jar "$jar" :verbose true
