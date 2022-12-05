@@ -5,7 +5,7 @@ jobs:
 
   lint:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
+      - image: cimg/clojure:1.11.1-openjdk-11.0-node
 
     working_directory: ~/repo
 
@@ -15,7 +15,7 @@ jobs:
       - restore_cache: # restores saved cache if checksum hasn't changed since the last run
           key: clj-dependencies-{{ checksum "deps.edn" }}
 
-      - run: clojure -Mlint
+      - run: clojure -M:lint
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -51,7 +51,7 @@ jobs:
 
   test-linux-clj-jdk8:
     docker:
-      - image: circleci/clojure:openjdk-8-tools-deps-1.10.1.697-node
+      - image: cimg/clojure:1.11.1-openjdk-8.0-node
 
     working_directory: ~/repo
 
@@ -64,7 +64,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -X:test:run/test
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -74,7 +74,7 @@ jobs:
 
   test-linux-clj-sci-jdk8:
     docker:
-      - image: circleci/clojure:openjdk-8-tools-deps-1.10.1.697-node
+      - image: cimg/clojure:1.11.1-openjdk-8.0-node
 
     working_directory: ~/repo
 
@@ -87,7 +87,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
+      - run: env CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -X:sci:test:run/test
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -97,7 +97,7 @@ jobs:
 
   test-linux-clj-jdk11:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
+      - image: cimg/clojure:1.11.1-openjdk-11.0-node
 
     working_directory: ~/repo
 
@@ -110,7 +110,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -X:test:run/test
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -120,7 +120,7 @@ jobs:
 
   test-linux-clj-sci-jdk11:
     docker:
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.697-node
+      - image: cimg/clojure:1.11.1-openjdk-11.0-node
 
     working_directory: ~/repo
 
@@ -133,7 +133,7 @@ jobs:
       - run: sudo apt-get -y install bc
 
       # run tests
-      - run:  CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
+      - run:  CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -X:sci:test:run/test
 
       - save_cache: # generate and store cache in the .m2 directory using a key template
           paths:
@@ -143,7 +143,7 @@ jobs:
 
   test-macos-cljs:
     macos:
-      xcode: "11.3.1"
+      xcode: "13.4.1"
 
     working_directory: /Users/distiller/project
 
@@ -169,7 +169,7 @@ jobs:
 
   test-macos-clj:
     macos:
-      xcode: "11.3.1"
+      xcode: "13.4.1"
 
     working_directory: /Users/distiller/project
 
@@ -184,7 +184,7 @@ jobs:
       - run: brew install clojure bc
 
       # run tests
-      - run: CI_ENV=1 clojure -Mtest -m cognitect.test-runner
+      - run: CI_ENV=1 clojure -X:test:run/test
 
       - save_cache:
           paths:
@@ -194,7 +194,7 @@ jobs:
 
   test-macos-clj-sci:
     macos:
-      xcode: "11.3.1"
+      xcode: "13.4.1"
 
     working_directory: /Users/distiller/project
 
@@ -209,7 +209,7 @@ jobs:
       - run: brew install clojure bc
 
       # run tests
-      - run: CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -M:sci:test -m cognitect.test-runner
+      - run: CI_ENV=1 __CLOSH_USE_SCI_EVAL__=1 clojure -X:sci:test:run/test
 
       - save_cache:
           paths:
