@@ -15,41 +15,60 @@
   {:mvn/version "1.2.1"
    :changelog   "https://github.com/clj-commons/pomegranate/blob/master/CHANGES.md"}
 
-  org.clojure/tools.cli      {:mvn/version "1.0.214"}
-  org.clojure/java.jdbc      {:mvn/version "0.7.12"}
-  org.xerial/sqlite-jdbc     {:mvn/version "3.40.0.0"}
-  squarepeg/squarepeg        {:mvn/version "0.6.1"}
-  com.bhauman/rebel-readline {:mvn/version "0.1.4"
-                              :exclusions  [rewrite-cljs/rewrite-cljs]}}
+  org.clojure/tools.cli
+  {:mvn/version "1.0.214"
+   :changelog   "https://github.com/clojure/tools.cli/blob/master/CHANGELOG.md"}
+
+  org.clojure/java.jdbc
+  {:mvn/version "0.7.12"
+   :changelog   "https://github.com/clojure/java.jdbc/blob/master/CHANGES.md"}
+
+  org.xerial/sqlite-jdbc
+  {:mvn/version "3.40.0.0"
+   :changelog   "https://github.com/xerial/sqlite-jdbc/releases"}
+
+  squarepeg/squarepeg
+  {:mvn/version "0.6.1"
+   :changelog   "https://github.com/ericnormand/squarepeg/tags"}
+
+  com.bhauman/rebel-readline
+  {:mvn/version "0.1.4"
+   :exclusions  [rewrite-cljs/rewrite-cljs]}}
 
  :paths ["src/common" "src/jvm" "resources"]
 
  :aliases
- {:test     {:extra-paths ["test"]
-             :extra-deps  {io.github.cognitect-labs/test-runner
-                           {:git/tag "v0.5.1" :git/sha "dfb30dd"}}}
+ {:test
+  {:extra-paths ["test"]
+   :extra-deps  {io.github.cognitect-labs/test-runner
+                 {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+   :changelog   "https://github.com/cognitect-labs/test-runner/blob/master/changes.md"}
 
-  :run/test {:main-opts ["-m" "cognitect.test-runner"]
-             :exec-fn   cognitect.test-runner.api/test
-             :homepage  "https://github.com/cognitect-labs/test-runner"}
+  :run/test
+  {:main-opts ["-m" "cognitect.test-runner"]
+   :exec-fn   cognitect.test-runner.api/test}
 
-  :depstar  {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
+  :depstar
+  {:extra-deps {seancorfield/depstar {:mvn/version "1.1.117"}}}
 
-  :sci      {:extra-paths ["src/closh-sci" "classes"]
-             :extra-deps  {fipp/fipp        {:mvn/version "0.6.26"}
-                           org.babashka/sci {:mvn/version "0.5.36"}
-                           borkdude/edamame {:mvn/version "1.0.16"}
-                           com.bhauman/rebel-readline
-                           {:git/url    "https://github.com/dundalek/rebel-readline.git"
-                            :sha        "123be27a75de902233356e11ac66ac53cc5edc08"
-                            :deps/root  "rebel-readline"
-                            :exclusions [rewrite-cljs/rewrite-cljs]}}}
+  :sci
+  {:extra-paths ["src/closh-sci" "classes"]
+   :extra-deps  {fipp/fipp        {:mvn/version "0.6.26"}
+                 org.babashka/sci {:mvn/version "0.5.36"}
+                 borkdude/edamame {:mvn/version "1.0.16"}
+                 com.bhauman/rebel-readline
+                 {:git/url    "https://github.com/dundalek/rebel-readline.git"
+                  :sha        "123be27a75de902233356e11ac66ac53cc5edc08"
+                  :deps/root  "rebel-readline"
+                  :exclusions [rewrite-cljs/rewrite-cljs]}}}
 
-  :lint     {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
-             :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
+  :lint
+  {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
+   :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "check"]}
 
-  :lint/fix {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
-             :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
+  :lint/fix
+  {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.0"}}
+   :main-opts  ["-m" "cljfmt.main" "--file-pattern" "(?<!clojure_main_sci)\\.clj[csx]?$" "fix"]}
 
   :kaocha
   {:extra-paths ["test"]
